@@ -1,0 +1,26 @@
+<?php
+class DecrementExpression extends UnaryExpression {
+	protected $postfix;
+
+	public function __construct(Expression $left, $postfix) {
+		parent::__construct($left);
+
+		$this->postfix = $postfix;
+	}
+
+	public function toString() {
+		if ($this->postfix) {
+			return $this->group($this, $this->left, false) . '--';
+		} else {
+			return '--' . $this->group($this, $this->left);
+		}
+	}
+
+	public function type() {
+		return $this->left->type();
+	}
+
+	public function precedence() {
+		return 15;
+	}
+}
