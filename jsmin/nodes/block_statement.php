@@ -83,7 +83,7 @@ class BlockStatement extends Node {
 		$o = array();
 		$varCache = array();
 		foreach($this->nodes as $n) {
-			if (!$n || $n->isConstant()) {
+			if (!$n || $n->isConstant() || $n->isVoid()) {
 				continue;
 			}
 

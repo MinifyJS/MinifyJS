@@ -38,4 +38,8 @@ class AssignExpression extends Expression {
 	public function precedence() {
 		return 2;
 	}
+
+	public function assignType() {
+		return $this->type;
+	}
 }

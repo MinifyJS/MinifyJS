@@ -15,7 +15,15 @@ class Property extends Node {
 	}
 
 	public function visit(AST $ast) {
-		$this->value->visit($ast);
+		if ($this->key instanceof String) {
+			$test = $this->key->asString();
+
+			if (Identifier::isValid($test)) {
+				$this->key = new Identifier(null, $test);
+			}
+		}
+
+		$this->value = $this->value->visit($ast);
 
 		return $this;
 	}

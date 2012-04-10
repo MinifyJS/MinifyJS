@@ -67,9 +67,13 @@ class AST {
 		$this->scope = $this->scope->parent();
 	}
 
-	protected function generate(JSNode $n = null, $dotBase = true, $asArray = true) {
+	protected function generate($n = null, $dotBase = true, $asArray = true) {
 		if ($n === null) {
 			return new VoidExpression(new Number(0));
+		}
+
+		if (!($n instanceof JSNode)) {
+			return $n;
 		}
 
 		switch($n->type) {

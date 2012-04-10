@@ -87,4 +87,8 @@ abstract class Node {
 	public function hasSideEffects() {
 		return true;
 	}
+
+	public function hasStructure(Node $cmp) {
+		return $cmp instanceof static;
+	}
 }

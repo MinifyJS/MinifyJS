@@ -13,6 +13,22 @@ class HookExpression extends Expression {
 		$this->middle = $this->middle->visit($ast);
 		$this->right = $this->right->visit($ast);
 
+		if ($this->middle instanceof AssignExpression && $this->right instanceof AssignExpression
+				&& $this->middle->assignType() === $this->right->assignType()
+				&& $this->middle->left()->toString() === $this->right->left()->toString()) {
+			$result = new AssignExpression(
+				$this->middle->assignType(),
+				$this->middle->left(),
+				new HookExpression(
+					$this->left,
+					$this->middle->right(),
+					$this->right()->right()
+				)
+			);
+
+			return $result->visit($ast);
+		}
+
 		return $this;
 	}
 
@@ -26,6 +42,13 @@ class HookExpression extends Expression {
 		return $this->group($this, $this->left)
 			. '?' . $this->group($this, $this->middle, false)
 			. ':' . $this->group($this, $this->right);
+	}
+
+	public function negate() {
+		return AST::bestOption(array(
+			new NotExpression($this),
+			new HookExpression($this->left, $this->middle->negate(), $this->right->negate())
+		));
 	}
 
 	public function type() {

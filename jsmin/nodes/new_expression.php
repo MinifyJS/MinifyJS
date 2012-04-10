@@ -24,7 +24,7 @@ class NewExpression extends Expression {
 	}
 
 	public function toString() {
-		return 'new' . Stream::legalStart($this->group($this, $this->left)) . '(' . implode(',', $this->right) . ')';
+		return 'new' . Stream::legalStart($this->group($this, $this->left)) . ($this->right ?  '(' . implode(',', $this->right) . ')' : '');
 	}
 
 	public function precedence() {

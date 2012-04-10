@@ -9,7 +9,8 @@ class NotExpression extends Expression {
 		$this->left = $this->left->visit($ast);
 
 		if (null !== $result = $this->asBoolean()) {
-			return new Boolean($result);
+			$result =  new Boolean($result);
+			return $result->visit($ast);
 		}
 
 		return $this;

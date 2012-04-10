@@ -8,7 +8,10 @@ class MulExpression extends BinaryExpression {
 		parent::visit($ast);
 
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			return new Number($left * $right);
+			$test = new Number($left * $right);
+			if (strlen($test->toString()) <= strlen($this->toString())) {
+				return $test;
+			}
 		}
 
 		return $this;

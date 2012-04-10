@@ -18,6 +18,7 @@ class FunctionNode extends Node {
 		}
 
 		foreach($this->params as $i => $p) {
+			$p->write();
 			$this->params[$i] = $p->visit($ast);
 		}
 
@@ -39,7 +40,7 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
-		return 'function' . ($this->name ? ' ' . $this->name->toString() : '') . '(' . implode(',', $this->params) . '){' . $this->body->toString(true) . '}';
+		return 'function' . ($this->name ? ' ' . $this->name->toString() : '') . '(' . implode(',', $this->params) . '){' . $this->body->asBlock()->toString(true) . '}';
 	}
 
 	public function onlyReturns() {

@@ -7,8 +7,12 @@ class MinusExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
-		if ($this->left instanceof Number && $this->right instanceof Number) {
-			return new Number($this->left->value() - $this->right->value());
+		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			$test = new Number($left - $right);
+
+			if (strlen($test->toString()) <= strlen($this->toString())) {
+				return $test->visit($ast);
+			}
 		}
 
 		return $this;

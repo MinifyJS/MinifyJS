@@ -5,19 +5,28 @@ class PlusExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$that = parent::visit($ast);
 
-		if ($this->left->type() === 'string' || $this->right->type() === 'string') {
-			if ((null !== $left = $this->left->asString()) && (null !== $right = $this->right->asString())) {
-				return new String($left . $right);
+		if ($that->left->type() === 'string' || $that->right->type() === 'string') {
+			if ((null !== $left = $that->left->asString()) && (null !== $right = $that->right->asString())) {
+				return new String($left . $right, false);
 			}
 		}
 
-		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+		if ($that->left instanceof PlusExpression
+				&& $that->left->right()->type() === 'string'
+				&& $that->right()->type() === 'string') {
+			if ((null !== $left = $that->left->right()->asString()) && (null !== $right = $that->right->asString())) {
+				$result = new PlusExpression($that->left->left(), new String($left . $right, false));
+				return $result->visit($ast);
+			}
+		}
+
+		if ((null !== $left = $that->left->asNumber()) && (null !== $right = $that->right->asNumber())) {
 			return new Number($left + $right);
 		}
 
-		return $this;
+		return $that;
 	}
 
 	public function toString() {

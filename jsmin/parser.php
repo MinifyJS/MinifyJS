@@ -951,18 +951,7 @@ class JSNode {
 		return null;
 	}
 
-	public function addNode(JSNode $node) {
-		if ($node !== null) {
-			if ($node->start < $this->start) {
-				$this->start = $node->start;
-			}
-
-			if ($this->end < $node->end) {
-				$this->end = $node->end;
-			}
-		}
-
+	public function addNode($node) {
 		$this->nodes[] = $node;
-		$node->parent = $this;
 	}
 }

@@ -56,6 +56,10 @@ class Scope {
 		return null;
 	}
 
+	public static function reserved($name) {
+		return isset(self::$reserved[$name]);
+	}
+
 	public function find($name, $declare = false) {
 		if (!$declare) {
 			if (!isset($this->declared[$name])) {

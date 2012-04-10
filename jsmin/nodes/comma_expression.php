@@ -7,11 +7,17 @@ class CommaExpression extends Expression {
 	}
 
 	public function visit(AST $ast) {
+		$nodes = array();
+
 		foreach($this->nodes as $i => $e) {
-			$this->nodes[$i] = $e->visit($ast);
+			$node = $e->visit($ast);
+
+			if ($node && !$node->isVoid()) {
+				$nodes[] = $node;
+			}
 		}
-		
-		return $this;
+
+		return new CommaExpression($nodes);
 	}
 
 	public function nodes() {
@@ -29,14 +35,26 @@ class CommaExpression extends Expression {
 	}
 
 	public function asBoolean() {
+		if (!$this->isConstant()) {
+			return null;
+		}
+
 		return $this->represents()->asBoolean();
 	}
 
 	public function asString() {
+		if (!$this->isConstant()) {
+			return null;
+		}
+
 		return $this->represents()->asString();
 	}
 
 	public function asNumber() {
+		if (!$this->isConstant()) {
+			return null;
+		}
+
 		return $this->represents()->asNumber();
 	}
 
@@ -46,6 +64,29 @@ class CommaExpression extends Expression {
 
 	public function represents() {
 		return end($this->nodes);
+	}
+
+	public function isConstant() {
+		foreach($this->nodes as $n) {
+			if (!$n->isConstant()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public function negate() {
+		$that = clone $this;
+
+		if ($that->nodes) {
+			$that->nodes[count($that->nodes) - 1] = $that->represents->negate();
+		}
+
+		return AST::bestOption(array(
+			new NotExpression($this),
+			$that
+		));
 	}
 
 	public function precedence() {

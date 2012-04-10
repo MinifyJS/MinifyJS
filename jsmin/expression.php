@@ -86,6 +86,10 @@ abstract class Expression extends Node {
 		return new NotExpression($this);
 	}
 
+	public function represents() {
+		return $this;
+	}
+	
 	protected function group(Expression $base, Expression $hook, $left = true) {
 		$l = $base->precedence();
 		$r = $hook->precedence();
@@ -103,5 +107,9 @@ abstract class Expression extends Node {
 
 	public function isRedundant() {
 		return true;
+	}
+
+	public function hasStructure(Node $cmp) {
+		return $cmp instanceof Expression;
 	}
 }

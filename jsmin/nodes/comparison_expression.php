@@ -7,10 +7,6 @@ class ComparisonExpression extends BinaryExpression {
 	}
 
 	public function toString() {
-		if (!is_object($this->left) && $this->right) {
-			echo $this->right->toString() . "\n";
-		}
-
 		return $this->group($this, $this->left) . $this->type . $this->group($this, $this->right, false);
 	}
 

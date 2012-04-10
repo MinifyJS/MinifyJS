@@ -338,8 +338,18 @@ class JSTokenizer {
 					}
 					break;
 				case '"':
+					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/', $input, $match)) {
+						$tt = TOKEN_STRING;
+					} else {
+						if ($chunksize) {
+							return $this->get(null); // retry with a full chunk fetch
+						}
+
+						throw $this->newSyntaxError('Unterminated string literal');
+					}
+					break;
 				case "'":
-					if (preg_match('/\A(?:"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"|\'[^\'\\\\\n]*(?:\\\\.[^\'\\\\\n]*)*\')/', $input, $match)) {
+					if (preg_match("/\A'[^'\\\\\n]*(?:\\\\.[^'\\\\\n]*)*'/", $input, $match)) {
 						$tt = TOKEN_STRING;
 					} else {
 						if ($chunksize) {
@@ -488,7 +498,7 @@ class JSTokenizer {
 			return $returnStr;
 		}
 
-		return preg_replace_callback('~\\\\u([\da-f]{4})~i', array($this, 'decomposeUnicode'), $m);
+		return preg_replace_callback('~\\\\(?|u([\da-f]{4})|x([\da-f]{2}))~i', array($this, 'decomposeUnicode'), $m);
 	}
 
 	public function unget() {

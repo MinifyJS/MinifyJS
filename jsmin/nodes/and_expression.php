@@ -14,6 +14,13 @@ class AndExpression extends BinaryExpression {
 		return $this->group($this, $this->left) . '&&' . $this->group($this, $this->right, false);
 	}
 
+	public function negate() {
+		return AST::bestOption(array(
+			new NotExpression($this),
+			new OrExpression($this->left->negate(), $this->right->negate())
+		));
+	}
+
 	public function type() {
 		return null;
 	}

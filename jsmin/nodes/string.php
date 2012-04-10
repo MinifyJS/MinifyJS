@@ -16,6 +16,10 @@ class String extends ConstantExpression {
 		return $this->left;
 	}
 
+	public function asString() {
+		return $this->left;
+	}
+
 	public function toString() {
 		$a = $this->quote('"');
 		$b = $this->quote("'");
@@ -26,7 +30,7 @@ class String extends ConstantExpression {
 	public function asBoolean() {
 		return !!strlen($this->left);
 	}
-	
+
 	protected function quote($c) {
 	    $escape = '~(?:\\\\(?=[btnfru' . $c . ']|\\\\*$)|[' . $c . '\x00-\x1f\x7f-\x{ffff}])~u';
 

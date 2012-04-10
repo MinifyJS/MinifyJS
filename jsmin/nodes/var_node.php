@@ -8,6 +8,7 @@ class VarNode extends Node {
 		$this->initializer = $init;
 
 		$this->name->parent($this);
+
 		if ($this->initializer) {
 			$this->initializer->parent($this);
 		}
@@ -39,6 +40,6 @@ class VarNode extends Node {
 			return '';
 		}
 
-		return 'var ' . $this->name . ($init && !($init->isVoid()) ? '=' . $this->initializer : '');
+		return 'var ' . $this->name . ($init && !$init->isVoid() ? '=' . $this->initializer : '');
 	}
 }

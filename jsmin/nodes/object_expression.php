@@ -9,11 +9,6 @@ class ObjectExpression extends Expression {
 	public function visit(AST $ast) {
 		foreach($this->nodes as $i => $e) {
 			$this->nodes[$i] = $e->visit($ast);
-
-			if (!$this->nodes[$i]) {
-				echo $e->toString() . "\n";
-				exit;
-			}
 		}
 
 		return $this;

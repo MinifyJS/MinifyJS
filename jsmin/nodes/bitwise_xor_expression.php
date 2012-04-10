@@ -5,9 +5,9 @@ class BitwiseXorExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$new = parent::visit($ast);
 
-		return $this;
+		return $new;
 	}
 
 	public function toString() {

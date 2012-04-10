@@ -22,6 +22,7 @@ class IfNode extends Node {
 
 	public function visit(AST $ast) {
 		$this->condition = $this->condition->visit($ast);
+
 		$this->then = $this->then->visit($ast);
 
 		if ($this->else) {
@@ -34,16 +35,26 @@ class IfNode extends Node {
 			$this->else = null;
 		}
 
+		while ($this->then instanceof AndExpression) {
+			$this->condition = new AndExpression($this->condition, $this->then->left());
+			$this->then = $this->then->right();
+		}
+
+		$result = null;
+
 		if ($this->then instanceof Expression && $this->else instanceof Expression) {
-			return new HookExpression($this->condition, $this->then, $this->else);
+			$result = new HookExpression($this->condition, $this->then, $this->else);
+			$option = new HookExpression($this->condition->negate(), $this->else, $this->then);
+
+			$result = strlen($result->toString()) <= strlen($option->toString()) ? $result : $option;
 		} elseif (!$this->else && $this->then instanceof Expression) {
 			$and = new AndExpression($this->condition, $this->then);
 			$or = new OrExpression($this->condition->negate(), $this->then);
 
-			return (strlen($and->toString()) <= strlen($or->toString())) ? $and : $or;
+			$result = (strlen($and->toString()) <= strlen($or->toString())) ? $and : $or;
 		}
 
-		return $this;
+		return $result ? $result->visit($ast) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -70,5 +81,11 @@ class IfNode extends Node {
 		}
 
 		return $o;
+	}
+
+	public function hasStructure(Node $n) {
+		return $n instanceof IfNode
+			&& (!$n->then === !$this->then)
+			&& (!$n->else === !$this->else);
 	}
 }

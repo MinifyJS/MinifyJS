@@ -8,10 +8,10 @@ class ModExpression extends BinaryExpression {
 		parent::visit($ast);
 
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			$optimized = new Number($left % $right);
+			$test = new Number($left % $right);
 
-			if (strlen($optimized->toString()) <= strlen($this->toString())) {
-				return $optimized;
+			if (strlen($test->toString()) <= strlen($this->toString())) {
+				return $test;
 			}
 		}
 

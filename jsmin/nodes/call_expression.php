@@ -13,7 +13,15 @@ class CallExpression extends Expression {
 			$this->right[$i] = $r->visit($ast);
 		}
 
-		return $this;
+		$result = null;
+
+		if (!$this->right && $this->left instanceof DotExpression && $this->left->right() instanceof Identifier) {
+			if ($this->left->right()->name() === 'toString') {
+				$result = new PlusExpression($this->left->left(), new String('', false));
+			}
+		}
+
+		return $result ? $result->visit($ast) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {

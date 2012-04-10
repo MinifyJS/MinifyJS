@@ -14,7 +14,9 @@ class ThrowNode extends Node {
 		return $this;
 	}
 
-	public function collectStatistics(AST $ast) {}
+	public function collectStatistics(AST $ast) {
+		$this->exception->collectStatistics($ast);
+	}
 
 	public function toString() {
 		return 'throw' . Stream::legalStart($this->exception->toString());

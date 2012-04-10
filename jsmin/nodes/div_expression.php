@@ -9,10 +9,10 @@ class DivExpression extends BinaryExpression {
 
 		// division can be messy (1/3 = 0.333…)
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			$optimized = new Number($left / $right);
+			$test = new Number($left / $right);
 
-			if (strlen($optimized->toString()) <= strlen($this->toString())) {
-				return $optimized;
+			if (strlen($test->toString()) <= strlen($test->toString())) {
+				return $test;
 			}
 		}
 
