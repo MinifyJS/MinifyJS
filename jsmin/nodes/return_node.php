@@ -26,6 +26,10 @@ class ReturnNode extends Node {
 		return $this->value;
 	}
 
+	public function last() {
+		return $this;
+	}
+
 	public function remove(Node $n) {
 		$this->value = new VoidExpression(new Number(0));
 	}

@@ -50,7 +50,7 @@ class BlockStatement extends Node {
 			$list = array();
 		}
 
-		if (count($nodes) === 1 && $nodes[0] instanceof Expression) {
+		if (count($nodes) === 1) {
 			return $nodes[0];
 		}
 

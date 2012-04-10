@@ -28,6 +28,10 @@ class ForInNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function last() {
+		return $this->body->last();
+	}
+
 	public function toString() {
 		return 'for(' . Stream::legalEnd($this->iterator->toString()) . 'in' . Stream::legalStart($this->object->toString()) . ')' . $this->body->asBlock()->toString(null, true);
 	}

@@ -83,6 +83,18 @@ class IfNode extends Node {
 		return $o;
 	}
 
+	public function last() {
+		if ($this->else) {
+			return $this->else->last();
+		}
+
+		return $this->then->last();
+	}
+
+	public function then() {
+		return $this->then;
+	}
+
 	public function hasStructure(Node $n) {
 		return $n instanceof IfNode
 			&& (!$n->then === !$this->then)

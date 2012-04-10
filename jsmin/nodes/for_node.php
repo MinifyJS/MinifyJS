@@ -55,6 +55,10 @@ class ForNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function last() {
+		return $this->body->last();
+	}
+
 	public function toString() {
 		return 'for('
 			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString() : '') . ';'

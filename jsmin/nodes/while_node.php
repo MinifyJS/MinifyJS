@@ -24,6 +24,10 @@ class WhileNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function last() {
+		return $this->body->last();
+	}
+
 	public function toString() {
 		return 'while(' . $this->condition->toString() . ')' . $this->body->asBlock()->toString(null, true);
 	}
