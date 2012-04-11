@@ -11,7 +11,7 @@ class DivExpression extends BinaryExpression {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
 			$test = new Number($left / $right);
 
-			if (strlen($test->toString()) <= strlen($test->toString())) {
+			if (strlen($test->toString()) <= strlen($this->toString())) {
 				return $test;
 			}
 		}

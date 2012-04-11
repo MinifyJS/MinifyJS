@@ -25,8 +25,11 @@ class BlockStatement extends Node {
 							$list[] = $x;
 						}
 					}
-				} elseif (!$n->isVoid()) {
-					$list[] = $n;
+				} else {
+					$x = $n->removeUseless();
+					if (!$x->isVoid()) {
+						$list[] = $x;
+					}
 				}
 			} else {
 				if ($list) {
@@ -166,7 +169,7 @@ class BlockStatement extends Node {
 			 * Enfin, when a statements first thing is one of these, it needs parens
 			 */
 			if ($f instanceof FunctionExpression || $f instanceof ObjectExpression) {
-				$x = '!' . $x;
+				$x = '(' . $x . ')';
 			}
 
 			if ($n instanceof Expression || $n instanceof VarNode || $n instanceof ReturnNode

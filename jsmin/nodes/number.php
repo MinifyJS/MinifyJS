@@ -18,7 +18,7 @@ class Number extends ConstantExpression {
 			$a[] = $sign . '0x' . base_convert($t, 10, 16);
 			$a[] = $sign . '0' . base_convert($t, 10, 8);
 
-			if (preg_match('~^(.*?)(0+)$~', $t, $m)) {
+			if (preg_match('~^(.*?)(0{3,})$~', $t, $m)) {
 				$a[] = $m[1] . 'e' . strlen($m[2]);
 			}
 		} elseif (preg_match('~^0*\.(0+)(.*)~', $t, $m)) {
@@ -38,6 +38,10 @@ class Number extends ConstantExpression {
 	}
 
 	public function asNumber() {
+		return $this->value();
+	}
+
+	public function asString() {
 		return $this->value();
 	}
 

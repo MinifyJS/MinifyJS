@@ -55,7 +55,8 @@ class IfNode extends Node {
 		} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
 				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
 			if ($this->then->value() && $this->else->value()) {
-				$result = new ReturnNode(new HookExpression(
+				$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
+				$result = new $class(new HookExpression(
 					$this->condition,
 					$this->then->value(),
 					$this->else->value()

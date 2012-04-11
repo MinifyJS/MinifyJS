@@ -13,7 +13,27 @@ class NewExpression extends Expression {
 			$this->right[$i] = $n->visit($ast);
 		}
 
-		return $this;
+		$result = null;
+
+		if ($this->left instanceof IdentifierExpression) {
+			switch((string)$this->left->value()) {
+			case 'Array':
+				if (count($this->right) !== 1) {
+					$result = new ArrayExpression($this->right);
+				}  else {
+					$result = new CallExpression($this->left, $this->right);
+				}
+
+				break;
+			case 'RegExp':
+			case 'Function':
+			case 'Error':
+				$result = new CallExpression($this->left, $this->right);
+				break;
+			}
+		}
+
+		return $result ? $result->visit($ast) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {

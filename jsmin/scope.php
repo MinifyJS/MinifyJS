@@ -15,20 +15,26 @@ class Scope {
 	);
 
 	public static $reserved = array(
-		'break' => 1, 'case' => 1, 'catch' => 1, 'continue' => 1, 'default' => 1, 'delete' => 1, 'do' => 1,
-		'else' => 1, 'finally' => 1, 'for' => 1, 'function' => 1, 'if' => 1, 'in' => 1, 'instanceof' => 1,
-		'new' => 1, 'return' => 1, 'switch' => 1, 'this' => 1, 'throw' => 1, 'try' => 1, 'typeof' => 1, 'var' => 1,
-		'void' => 1, 'while' => 1, 'with' => 1,
-		'abstract' => 1, 'boolean' => 1, 'byte' => 1, 'char' => 1, 'class' => 1, 'const' => 1, 'debugger' => 1,
-		'double' => 1, 'enum' => 1, 'export' => 1, 'extends' => 1, 'final' => 1, 'float' => 1, 'goto' => 1,
-		'implements' => 1, 'import' => 1, 'int' => 1, 'interface' => 1, 'long' => 1, 'native' => 1,
-		'package' => 1, 'private' => 1, 'protected' => 1, 'public' => 1, 'short' => 1, 'static' => 1,
-		'super' => 1, 'synchronized' => 1, 'throws' => 1, 'transient' => 1, 'volatile' => 1,
+		'abstract' => 1,
+		'boolean' => 1, 'byte' => 1,
+		'break' => 1, 'case' => 1, 'catch' => 1, 'continue' => 1, 'char' => 1, 'class' => 1, 'const' => 1,
+		'default' => 1, 'delete' => 1, 'do' => 1, 'debugger' => 1, 'double' => 1,
+		'else' => 1, 'enum' => 1, 'export' => 1, 'extends' => 1,
+		'finally' => 1, 'for' => 1, 'function' => 1, 'final' => 1, 'float' => 1,
+		'goto' => 1,
+		'if' => 1, 'in' => 1, 'instanceof' => 1, 'implements' => 1, 'import' => 1, 'int' => 1, 'interface' => 1,
+		'long' => 1,
+		'new' => 1, 'native' => 1,
+		'package' => 1, 'private' => 1, 'protected' => 1, 'public' => 1,
+		'return' => 1,
+		'switch' => 1, 'short' => 1, 'static' => 1, 'super' => 1, 'synchronized' => 1,
+		'this' => 1, 'throw' => 1, 'try' => 1, 'typeof' => 1, 'throws' => 1, 'transient' => 1,
+		'var' => 1, 'void' => 1, 'volatile' => 1,
+		'while' => 1, 'with' => 1,
+
+		// not reserved per se, but we'll still avoid them
 		'arguments' => 1, 'eval' => 1, 'true' => 1, 'false' => 1, 'Infinity' => 1, 'NaN' => 1, 'null' => 1, 'undefined' => 1
 	);
-
-	static private $prefixSize = 54;
-	static private $allSize = 64;
 
 	protected $program;
 	protected $parent;
@@ -97,17 +103,21 @@ class Scope {
 				$this->nameIndex = $this->parent ? $this->parent->nameIndex + 1 : 0;
 			}
 
+			$prefixSize = 54;
+
 			do {
 				$name = '';
 				$i = $this->nameIndex;
 
-				$name = self::$prefix[$i % self::$prefixSize];
-				$i = (int)($i / self::$prefixSize);
+				$name = self::$prefix[$i % $prefixSize];
+				$i = (int)($i / $prefixSize);
+
+				$prefixSize = 64;
 
 				while ($i > 0) {
 					--$i;
-					$name .= self::$all[$i % self::$allSize];
-					$i = (int)($i / self::$allSize);
+					$name .= self::$all[$i % $prefixSize];
+					$i = (int)($i / $prefixSize);
 				}
 
 				++$this->nameIndex;

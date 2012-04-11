@@ -100,7 +100,7 @@ class String extends ConstantExpression {
 
 		$c = $m[0];
 		if ($c === substr($m, -1)) {
-			return preg_replace_callback('~\\\\(?:u([\da-f]{4})|([tnrfb' . $c . '\\\\]))~i', array($this, 'unescape'), substr($m, 1, -1));
+			return preg_replace_callback('~\\\\(?:(?|u([\da-f]{4})|x([\da-f]{2}))|(.))~i', array($this, 'unescape'), substr($m, 1, -1));
 		} return $m;
 	}
 
