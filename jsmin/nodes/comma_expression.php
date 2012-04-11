@@ -13,8 +13,26 @@ class CommaExpression extends Expression {
 			$node = $e->visit($ast);
 
 			if ($node && !$node->isVoid()) {
-				$nodes[] = $node;
+				if ($node instanceof CommaExpression) {
+					foreach($node->nodes as $n) {
+						$n = $n->removeUseless();
+						
+						if (!$n->isVoid()) {
+							$nodes[] = $n;
+						}
+					}
+				} else {
+					$n = $node->removeUseless();
+
+					if (!$n->isVoid()) {
+						$nodes[] = $n->removeUseless();
+					}
+				}
 			}
+		}
+
+		if (!$nodes) {
+			return new VoidExpression(new Number(0));
 		}
 
 		return new CommaExpression($nodes);

@@ -7,9 +7,9 @@ class DotExpression extends Expression {
 	}
 
 	public function visit(AST $ast) {
-		if ($this->left instanceof IdentifierExpression) {
+		//if ($this->left instanceof IdentifierExpression) {
 			$this->left = $this->left->visit($ast);
-		}
+		//}
 
 		return $this;
 	}

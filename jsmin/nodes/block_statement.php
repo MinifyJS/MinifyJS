@@ -6,18 +6,21 @@ class BlockStatement extends Node {
 	}
 
 	public function visit(AST $ast) {
-		foreach($this->nodes as $i => $n) {
-			$this->nodes[$i] = $n->visit($ast);
-		}
-
 		// omzetten naar comma-statement
 		$list = array();
 		$nodes = array();
 
+		$revisit = false;
+
 		foreach($this->nodes as $n) {
+			$n = $n->visit($ast);
+
 			if ($n instanceof Expression) {
+				$n = $n->removeUseless();
+
 				if ($n instanceof CommaExpression) {
 					foreach($n->nodes as $x) {
+						$x = $x->removeUseless();
 						if (!$x->isVoid()) {
 							$list[] = $x;
 						}
@@ -36,7 +39,16 @@ class BlockStatement extends Node {
 					$list = array();
 				}
 
-				$nodes[] = $n;
+				// okay… let's get smart!
+				if ($tune = $n->breaking()) {
+					foreach($tune as $x) {
+						$nodes[] = $x;
+
+						$revisit = true;
+					}
+				} else {
+					$nodes[] = $n;
+				}
 			}
 		}
 
@@ -50,17 +62,53 @@ class BlockStatement extends Node {
 			$list = array();
 		}
 
-		if (count($nodes) === 1) {
+		if (($c = count($nodes)) === 1) {
 			return $nodes[0];
 		}
 
-		if (count($nodes) === 0) {
+		if ($c === 0) {
 			return new VoidExpression(new Number(0));
 		}
 
-		$this->nodes = $nodes;
+		// simple optimization, a,b,c;return d; -> return a,b,c,d; (comma operator)
+		if ($c === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && $nodes[1]->value()) {
+			// double comma operators get fixed
+			$result = new ReturnNode(new CommaExpression(array($nodes[0], $nodes[1]->value())));
+			$revisit = true;
+		} else {
+			$result = $this->reverseIfElse($nodes, $revisit);
+		}
 
-		return $this;
+		if ($revisit) {
+			return $result->visit($ast);
+		}
+
+		return $result;
+	}
+
+	protected function reverseIfElse(array $nodes, &$revisit) {
+		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
+		$add = $base = new BlockStatement(array());
+
+		foreach($nodes as $node) {
+			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && !$node->then()->value()) {
+				// got one!
+				$old = $add;
+				$add = new BlockStatement(array());
+
+				$old->add(new IfNode($node->condition()->negate(), $add));
+
+				$revisit = true;
+			} else {
+				$add->add($node);
+			}
+		}
+
+		return $base;
+	}
+
+	public function add(Node $n) {
+		$this->nodes[] = $n;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -118,7 +166,7 @@ class BlockStatement extends Node {
 			 * Enfin, when a statements first thing is one of these, it needs parens
 			 */
 			if ($f instanceof FunctionExpression || $f instanceof ObjectExpression) {
-				$x = '(' . $x . ')';
+				$x = '!' . $x;
 			}
 
 			if ($n instanceof Expression || $n instanceof VarNode || $n instanceof ReturnNode
@@ -140,6 +188,8 @@ class BlockStatement extends Node {
 
 		if ($forceNoBraces === null && $size > 1 || $forceNoBraces === false) {
 			$o = '{' . Stream::trimSemicolon($o) . '}';
+		} elseif ($forceNoBraces === true) {
+			$o = Stream::trimSemicolon($o);
 		}
 
 		if ($o === '' && $forceOut) {
@@ -155,5 +205,21 @@ class BlockStatement extends Node {
 
 	public function isSingle() {
 		return count($this->nodes) === 1 ? $this->nodes[0] : null;
+	}
+
+	public function breaking() {
+		$nodes = array();
+		$broken = false;
+
+		foreach($this->nodes as $node) {
+			$nodes[] = $node;
+
+			if ($node->isBreaking()) {
+				$broken = true;
+				break;
+			}
+		}
+
+		return $broken ? $nodes : null;
 	}
 }

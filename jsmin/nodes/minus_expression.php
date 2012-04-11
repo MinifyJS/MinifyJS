@@ -20,12 +20,12 @@ class MinusExpression extends BinaryExpression {
 
 
 	public function toString() {
-		$r = (string)$this->right;
+		$r = $this->group($this, $this->right, false);
 		if ($r[0] === '-') {
 			$r = ' ' . $r;
 		}
 
-		return $this->left . '-' . $r;
+		return $this->group($this, $this->left) . '-' . $r;
 	}
 
 	public function type() {

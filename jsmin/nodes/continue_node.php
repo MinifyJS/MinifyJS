@@ -17,4 +17,8 @@ class ContinueNode extends Node {
 	public function toString() {
 		return 'continue' . ($this->label ? Stream::legalStart($this->label->toString()) : '');
 	}
+
+	public function isBreaking() {
+		return true;
+	}
 }

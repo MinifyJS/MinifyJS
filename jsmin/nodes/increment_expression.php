@@ -23,4 +23,8 @@ class IncrementExpression extends UnaryExpression {
 	public function precedence() {
 		return 15;
 	}
+
+	public function removeUseless() {
+		return new DecrementExpression($this->left->removeUseless(), $this->postfix);
+	}
 }

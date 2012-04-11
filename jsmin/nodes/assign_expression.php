@@ -2,11 +2,11 @@
 class AssignExpression extends Expression {
 	protected $type;
 
-	public function __construct($type, Node $a, Expression $r) {
+	public function __construct($type, Node $lval, Expression $value) {
 		$this->type = $type;
 
-		$this->left = $a;
-		$this->right = $r;
+		$this->left = $lval;
+		$this->right = $value;
 
 		parent::__construct();
 	}

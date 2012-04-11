@@ -18,7 +18,7 @@ class MulExpression extends BinaryExpression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . '*' . $this->group($this, $this->right, false);
+		return $this->binary('*');
 	}
 
 	public function type() {

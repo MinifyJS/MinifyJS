@@ -26,8 +26,6 @@ abstract class Node {
 				tracer();
 				exit;
 			}
-
-			$n->parent($this);
 		}
 	}
 
@@ -94,5 +92,17 @@ abstract class Node {
 
 	public function hasStructure(Node $cmp) {
 		return $cmp instanceof static;
+	}
+
+	public function breaking() {
+		return null;
+	}
+
+	/**
+	 * Check if a node contains a breaking statement (return, continue, break, throw)
+	 * @return boolean
+	 */
+	public function isBreaking() {
+		return false;
 	}
 }

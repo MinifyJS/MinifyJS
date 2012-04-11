@@ -21,4 +21,12 @@ class ThrowNode extends Node {
 	public function toString() {
 		return 'throw' . Stream::legalStart($this->exception->toString());
 	}
+
+	public function value() {
+		return $this->exception;
+	}
+
+	public function isBreaking() {
+		return true;
+	}
 }

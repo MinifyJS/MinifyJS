@@ -22,6 +22,7 @@ try {
 	$ast = new AST($parser->parse($s, $f, 0));
 	$ast->squeeze();
 	$tree = $ast->tree()->toString();
+	$gzipped = strlen(gzencode($tree, 9));
 
 	//echo implode("\n", array_slice(explode("\n", $tree), 0, 20)) . "\n\n";
 
@@ -32,6 +33,7 @@ try {
 	}
 
 	echo "\n\nfrom " . strlen($s) . ' to ' . strlen($tree) . ': ' . -round(((strlen($tree) - strlen($s)) / strlen($s)) * 100) . '% profit';
+	echo "\ngzipped: " . $gzipped;
 } catch(Exception $e) {
 	echo $e->getMessage();
 }

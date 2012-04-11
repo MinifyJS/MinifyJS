@@ -29,6 +29,15 @@ class HookExpression extends Expression {
 			return $result->visit($ast);
 		}
 
+		return AST::bestOption(array(
+			$this,
+			new HookExpression(
+				$this->left->negate(),
+				$this->right,
+				$this->middle
+			)
+		));
+
 		return $this;
 	}
 

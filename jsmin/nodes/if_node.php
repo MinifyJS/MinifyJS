@@ -46,12 +46,21 @@ class IfNode extends Node {
 			$result = new HookExpression($this->condition, $this->then, $this->else);
 			$option = new HookExpression($this->condition->negate(), $this->else, $this->then);
 
-			$result = strlen($result->toString()) <= strlen($option->toString()) ? $result : $option;
+			$result = AST::bestOption(array($result, $option));
 		} elseif (!$this->else && $this->then instanceof Expression) {
 			$and = new AndExpression($this->condition, $this->then);
 			$or = new OrExpression($this->condition->negate(), $this->then);
 
-			$result = (strlen($and->toString()) <= strlen($or->toString())) ? $and : $or;
+			$result = AST::bestOption(array($and, $or));
+		} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
+				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
+			if ($this->then->value() && $this->else->value()) {
+				$result = new ReturnNode(new HookExpression(
+					$this->condition,
+					$this->then->value(),
+					$this->else->value()
+				));
+			}
 		}
 
 		return $result ? $result->visit($ast) : $this;
@@ -95,9 +104,28 @@ class IfNode extends Node {
 		return $this->then;
 	}
 
-	public function hasStructure(Node $n) {
-		return $n instanceof IfNode
-			&& (!$n->then === !$this->then)
-			&& (!$n->else === !$this->else);
+	public function _else() {
+		return $this->else;
+	}
+
+	public function breaking() {
+		// bail early if we don't have to break
+		if (!$this->else) {
+			return null;
+		}
+
+		// check if we have a breaking statement here. In that case, discard all unreachable
+		// nodes and return the resulting statements
+
+		if ($new = $this->then->asBlock()->breaking()) {
+			// the then clause breaks, no need for the else
+
+			$result = array(new IfNode($this->condition, new BlockStatement($new)));
+			foreach ($this->else->asBlock()->nodes as $n) {
+				$result[] = $n;
+			}
+
+			return $result;
+		}
 	}
 }

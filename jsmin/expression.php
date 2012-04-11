@@ -89,7 +89,7 @@ abstract class Expression extends Node {
 	public function represents() {
 		return $this;
 	}
-	
+
 	protected function group(Expression $base, Expression $hook, $left = true) {
 		$l = $base->precedence();
 		$r = $hook->precedence();
@@ -111,5 +111,17 @@ abstract class Expression extends Node {
 
 	public function hasStructure(Node $cmp) {
 		return $cmp instanceof Expression;
+	}
+
+	public function removeUseless() {
+		return $this;
+	}
+
+	public function binary($op) {
+		return $this->group($this, $this->left) . $op . $this->group($this, $this->right, false);
+	}
+
+	public function unary($op) {
+		return $op . $this->group($this, $this->right, false);
 	}
 }

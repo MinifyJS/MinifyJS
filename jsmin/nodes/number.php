@@ -40,4 +40,8 @@ class Number extends ConstantExpression {
 	public function asNumber() {
 		return $this->value();
 	}
+
+	public function removeUseless() {
+		return new VoidExpression(new Number(0));
+	}
 }

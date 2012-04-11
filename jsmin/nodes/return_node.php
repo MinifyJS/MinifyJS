@@ -37,4 +37,8 @@ class ReturnNode extends Node {
 	public function toString() {
 		return 'return' . (!($this->value instanceof VoidExpression && $this->value->isEmpty()) ? Stream::legalStart($this->value) : '');
 	}
+
+	public function isBreaking() {
+		return true;
+	}
 }

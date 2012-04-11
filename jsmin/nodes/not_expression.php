@@ -1,10 +1,5 @@
 <?php
-class NotExpression extends Expression {
-	public function __construct(Expression $left) {
-		$this->left = $left;
-		parent::__construct();
-	}
-
+class NotExpression extends UnaryExpression {
 	public function visit(AST $ast) {
 		$this->left = $this->left->visit($ast);
 
@@ -21,7 +16,7 @@ class NotExpression extends Expression {
 	}
 
 	public function toString() {
-		return '!' . $this->group($this, $this->left, true);
+		return '!' . $this->group($this, $this->left);
 	}
 
 	public function isConstant() {
@@ -58,9 +53,5 @@ class NotExpression extends Expression {
 
 	public function negate() {
 		return $this->left;
-	}
-
-	public function precedence() {
-		return 14;
 	}
 }

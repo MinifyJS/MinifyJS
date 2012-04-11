@@ -34,4 +34,8 @@ class VoidExpression extends Expression {
 	public function precedence() {
 		return 14;
 	}
+
+	public function removeUseless() {
+		return $this->left->removeUseless();
+	}
 }

@@ -94,7 +94,7 @@ class Scope {
 			}
 
 			if ($this->nameIndex === null) {
-				$this->nameIndex = $this->parent ? $this->parent->nameIndex : 0;
+				$this->nameIndex = $this->parent ? $this->parent->nameIndex + 1 : 0;
 			}
 
 			do {

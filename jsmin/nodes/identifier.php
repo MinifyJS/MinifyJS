@@ -69,12 +69,12 @@ class Identifier {
 	}
 
 	public function toString() {
-		if (AST::$finalize) {
-		//	$this->small();
-		}
-
 		if (!$this->scope || !$this->scope->parent()) {
 			return (string)$this->name;
+		}
+
+		if (AST::$finalize) {
+			$this->small();
 		}
 
 		return $this->small ? $this->small : $this->name;

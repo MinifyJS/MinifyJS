@@ -21,7 +21,7 @@ abstract class BinaryExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . $this->type . $this->group($this, $this->right, false);
+		return $this->binary($this->type);
 	}
 
 	public function type() {
