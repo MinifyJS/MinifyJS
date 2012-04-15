@@ -3,15 +3,10 @@
  *
  */
 class Scope {
-	static private $prefix = array(
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'$', '_'
-	);
 	static private $all = array(
 		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'_','0','1','2','3','4','5','6','7','8','9','$'
+		'$','_','0','1','2','3','4','5','6','7','8','9'
 	);
 
 	public static $reserved = array(
@@ -43,9 +38,14 @@ class Scope {
 
 	protected $nameIndex;
 
+
 	public function __construct(AST $program, Scope $parent = null) {
 		$this->program = $program;
 		$this->parent = $parent;
+
+		if ($parent === null) {
+			$this->nameIndex = -1;
+		}
 	}
 
 	public function parent() {
@@ -103,24 +103,8 @@ class Scope {
 				$this->nameIndex = $this->parent ? $this->parent->nameIndex + 1 : 0;
 			}
 
-			$prefixSize = 54;
-
 			do {
-				$name = '';
-				$i = $this->nameIndex;
-
-				$name = self::$prefix[$i % $prefixSize];
-				$i = (int)($i / $prefixSize);
-
-				$prefixSize = 64;
-
-				while ($i > 0) {
-					--$i;
-					$name .= self::$all[$i % $prefixSize];
-					$i = (int)($i / $prefixSize);
-				}
-
-				++$this->nameIndex;
+				$name = $this->base54($this->nameIndex++);
 			} while(isset(self::$reserved[$name]) || $this->declared($name));
 
 			return $name;
@@ -135,5 +119,18 @@ class Scope {
 
 			return $n;
 		}
+	}
+
+	public function base54($i) {
+		$name = '';
+		$base = 54;
+
+		do {
+			$name .= self::$all[$i % $base];
+			$i = floor($i / $base);
+			$base = 64;
+		} while ($i > 0);
+
+		return $name;
 	}
 }

@@ -7,11 +7,21 @@ class UnaryPlusExpression extends UnaryExpression {
 			return $this->left;
 		}
 
+		if (null !== $value = $this->left->asNumber()) {
+			if (is_nan($value)) {
+				return new DivExpression(new Number(0), new Number(0));
+			}
+		}
+
 		return $this;
 	}
 
 	public function toString() {
 		return '+' . $this->left->toString();
+	}
+
+	public function asNumber() {
+		return $this->left->asNumber();
 	}
 
 	public function type() {

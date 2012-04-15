@@ -6,77 +6,37 @@ class BlockStatement extends Node {
 	}
 
 	public function visit(AST $ast) {
-		// omzetten naar comma-statement
-		$list = array();
-		$nodes = array();
-
 		$revisit = false;
 
-		foreach($this->nodes as $n) {
-			$n = $n->visit($ast);
+		$count = count($nodes = $this->moveVars(
+			$this->transformToComma(
+				$ast,
+				$this->redoIfElse($this->nodes),
+				$revisit
+			),
+			$revisit
+		));
 
-			if ($n instanceof Expression) {
-				$n = $n->removeUseless();
-
-				if ($n instanceof CommaExpression) {
-					foreach($n->nodes as $x) {
-						$x = $x->removeUseless();
-						if (!$x->isVoid()) {
-							$list[] = $x;
-						}
-					}
-				} else {
-					$x = $n->removeUseless();
-					if (!$x->isVoid()) {
-						$list[] = $x;
-					}
-				}
-			} else {
-				if ($list) {
-					if (count($list) === 1) {
-						$nodes[] = $list[0];
-					} else {
-						$nodes[] = new CommaExpression($list);
-					}
-
-					$list = array();
-				}
-
-				// okay… let's get smart!
-				if ($tune = $n->breaking()) {
-					foreach($tune as $x) {
-						$nodes[] = $x;
-
-						$revisit = true;
-					}
-				} else {
-					$nodes[] = $n;
-				}
-			}
-		}
-
-		if ($list) {
-			if (count($list) === 1) {
-				$nodes[] = $list[0];
-			} else {
-				$nodes[] = new CommaExpression($list);
+		if ($count === 1) {
+			if ($revisit) {
+				return $nodes[0]->visit($ast);
 			}
 
-			$list = array();
-		}
-
-		if (($c = count($nodes)) === 1) {
 			return $nodes[0];
 		}
 
-		if ($c === 0) {
+		if ($count === 0) {
 			return new VoidExpression(new Number(0));
 		}
 
-		// simple optimization, a,b,c;return d; -> return a,b,c,d; (comma operator)
-		if ($c === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && $nodes[1]->value()) {
-			// double comma operators get fixed
-			$result = new ReturnNode(new CommaExpression(array($nodes[0], $nodes[1]->value())));
+		// small optimization, a,b,c;return d; -> return a,b,c,d;
+		if ($count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && $nodes[1]->value()) {
+			// double comma operators gets fixed at CommaExpression::visit( )
+			$result = new ReturnNode(new CommaExpression(array_merge(
+				$nodes[0]->nodes(),
+				$nodes[1]->value()->nodes()
+			)));
+
 			$revisit = true;
 		} else {
 			$result = $this->reverseIfElse($nodes, $revisit);
@@ -94,7 +54,7 @@ class BlockStatement extends Node {
 		$add = $base = new BlockStatement(array());
 
 		foreach($nodes as $node) {
-			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && !$node->then()->value()) {
+			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
 				// got one!
 				$old = $add;
 				$add = new BlockStatement(array());
@@ -112,6 +72,123 @@ class BlockStatement extends Node {
 
 	public function add(Node $n) {
 		$this->nodes[] = $n;
+	}
+
+	protected function transformToComma(AST $ast, array $original, &$revisit) {
+		$list = array();
+		$nodes = array();
+
+		foreach($original as $n) {
+			$n = $n->visit($ast);
+
+			if ($n instanceof Expression) {
+				foreach($n->removeUseless()->nodes() as $x) {
+					$x = $x->removeUseless();
+					if (!$x->isVoid()) {
+						$list[] = $x;
+					}
+				}
+			} else {
+				if ($list) {
+					$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
+					$list = array();
+				}
+
+				// okay… let's get smart!
+				if ($tune = $n->breaking()) {
+					foreach($tune as $x) {
+						$nodes[] = $x;
+
+						//$revisit = true;
+					}
+				} else {
+					$nodes[] = $n;
+				}
+			}
+		}
+
+		if ($list) {
+			$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
+			$list = array();
+		}
+
+		return $nodes;
+	}
+
+	protected function redoIfElse(array $nodes) {
+//		return $nodes;
+
+		for ($i = 0, $length = count($nodes); $i < $length; ++$i) {
+			$n = $nodes[$i];
+
+			if ($n instanceof IfNode && !$n->_else()) {
+				if (($l = $n->then()->last()) && $l->isBreaking()) {
+					$r = array_slice($nodes, $i + 1);
+
+					if (!$r) {
+						continue;
+					}
+
+					$e = $this->redoIfElse($r);
+
+					return array_merge(
+						array_slice($nodes, 0, $i),
+						array(new IfNode(
+							$n->condition(),
+							$n->then(),
+							count($e) === 1 ? $e[0] : new BlockStatement($e)
+						))
+					);
+				}
+			}
+		}
+
+		return $nodes;
+	}
+
+	protected function moveVars(array $original, &$revisit) {
+		$vars = array();
+		$nodes = array();
+
+		foreach($original as $n) {
+			if ($n instanceof VarNode) {
+				$vars[] = $n;
+			} else {
+				$finished = false;
+				if ($n instanceof ForNode) {
+					if ($vars) {
+						if ($n->initializer()->isVoid()) {
+							$n->initializer(new VarDeclarationsNode($vars));
+							$finished = true;
+						} elseif ($n->initializer() instanceof VarDeclarationsNode) {
+							$var = new VarDeclarationsNode($vars);
+							$finished = $var->merge($n->initializer());
+							$var = null;
+						}
+					}
+				}
+
+				if ($vars) {
+					if (!$finished) {
+						foreach($vars as $var) {
+							$nodes[] = $var;
+						}
+					}
+
+					$vars = array();
+				}
+
+				$nodes[] = $n;
+			}
+		}
+
+		if ($vars) {
+			foreach($vars as $var) {
+				$nodes[] = $var;
+			}
+		}
+
+		return $nodes;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -211,6 +288,8 @@ class BlockStatement extends Node {
 	}
 
 	public function breaking() {
+//		return array();
+
 		$nodes = array();
 		$broken = false;
 
@@ -224,5 +303,18 @@ class BlockStatement extends Node {
 		}
 
 		return $broken ? $nodes : null;
+	}
+
+	public function nodes() {
+		return $this->nodes;
+	}
+
+	public function debug() {
+		$out = array();
+		foreach($this->nodes as $n) {
+			$out[] = $n->debug();
+		}
+
+		return "{\n" . preg_replace('~^~m', '    ', implode("\n", $out)) . "\n}";
 	}
 }

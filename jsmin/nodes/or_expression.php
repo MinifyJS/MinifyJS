@@ -7,6 +7,14 @@ class OrExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
+		$else = $this->left->asBoolean();
+
+		if ($else === true) {
+			return $this->left;
+		} elseif ($else === false) {
+			return $this->right;
+		}
+
 		return $this;
 	}
 

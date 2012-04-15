@@ -7,7 +7,17 @@ class BitwiseOrExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
+		if (null !== $result = $this->asNumber()) {
+			return AST::bestOption(array(new Number($result), $this));
+		}
+
 		return $this;
+	}
+
+	public function asNumber() {
+		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			return $left | $right;
+		}
 	}
 
 	public function toString() {

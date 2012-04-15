@@ -9,6 +9,8 @@ class ForInNode extends Node {
 		$this->object = $object;
 		$this->body = $body;
 
+		$this->iterator->write();
+
 		$this->body->parent($this);
 
 		parent::__construct();

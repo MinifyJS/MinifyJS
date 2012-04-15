@@ -7,6 +7,11 @@ class BitwiseAndExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
+		// division can be messy (1/3 = 0.333…)
+		if (null !== $result = $this->asNumber()) {
+			return AST::bestOption(array(new Number($result), $this));
+		}
+
 		return $this;
 	}
 
@@ -16,6 +21,12 @@ class BitwiseAndExpression extends BinaryExpression {
 
 	public function type() {
 		return null;
+	}
+
+	public function asNumber() {
+		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			return $left & $right;
+		}
 	}
 
 	public function precedence() {

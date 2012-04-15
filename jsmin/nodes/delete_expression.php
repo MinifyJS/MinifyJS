@@ -29,7 +29,7 @@ class DeleteExpression extends Expression {
 	}
 
 	public function type() {
-		return null;
+		return 'boolean';
 	}
 
 	public function precedence() {

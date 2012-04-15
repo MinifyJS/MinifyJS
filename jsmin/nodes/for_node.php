@@ -39,6 +39,18 @@ class ForNode extends Node {
 		return $this;
 	}
 
+	public function initializer(Node $n = null) {
+		if ($n) {
+			if ($this->initializer && !$this->initializer->isVoid()) {
+				throw new Exception('Will not overwrite non-void initializer');
+			}
+
+			$this->initializer = $n;
+		}
+
+		return $this->initializer;
+	}
+
 	public function collectStatistics(AST $ast) {
 		if ($this->initializer) {
 			$this->initializer->collectStatistics($ast);
@@ -56,7 +68,7 @@ class ForNode extends Node {
 	}
 
 	public function last() {
-		return $this->body->last();
+		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}
 
 	public function toString() {

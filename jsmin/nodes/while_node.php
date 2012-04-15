@@ -25,7 +25,7 @@ class WhileNode extends Node {
 	}
 
 	public function last() {
-		return $this->body->last();
+		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}
 
 	public function toString() {

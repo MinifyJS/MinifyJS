@@ -4,7 +4,7 @@ class NotExpression extends UnaryExpression {
 		$this->left = $this->left->visit($ast);
 
 		if (null !== $result = $this->asBoolean()) {
-			$result =  new Boolean($result);
+			$result = new Boolean($result);
 			return $result->visit($ast);
 		}
 

@@ -77,14 +77,19 @@ class IfNode extends Node {
 	}
 
 	public function toString() {
-		$useBlock = null;
+		$noBlock = null;
+
 		if ($this->else) {
-			if (($last = $this->then->last()) && $last instanceof IfNode && !$last->else) {
-				$useBlock = false;
-			}
+			$noBlock = false;
+
+			// does not work
+			//$last = $this->then->last();
+			//if (($last = $this->then->last()) instanceof IfNode && !$last->else) {
+			//	$noBlock = false;
+			//}
 		}
 
-		$o = 'if(' . $this->condition->toString() . ')' . $this->then->asBlock()->toString($useBlock, true);
+		$o = 'if(' . $this->condition->toString() . ')' . $this->then->asBlock()->toString($noBlock, true);
 		if ($this->else) {
 			$e = Stream::legalStart($this->else->asBlock()->toString());
 			$o .= 'else' . ($e === ';' ? '{}' : $e);
@@ -94,11 +99,11 @@ class IfNode extends Node {
 	}
 
 	public function last() {
-		if ($this->else) {
-			return $this->else->last();
-		}
+		return $this;
+	}
 
-		return $this->then->last();
+	public function condition() {
+		return $this->condition;
 	}
 
 	public function then() {

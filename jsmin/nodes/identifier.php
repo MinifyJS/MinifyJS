@@ -45,9 +45,9 @@ class Identifier {
 			$this->usage++;
 		} elseif ($bool === false) {
 			$this->usage--;
-		} else {
-			return $this->usage;
 		}
+
+		return $this->usage;
 	}
 
 	public function small($new = null) {
@@ -73,7 +73,7 @@ class Identifier {
 			return (string)$this->name;
 		}
 
-		if (AST::$finalize) {
+		if (AST::$finalize && AST::$options['mangle']) {
 			$this->small();
 		}
 

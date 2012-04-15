@@ -7,6 +7,14 @@ class AndExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
+		$else = $this->left->asBoolean();
+
+		if ($else === true) {
+			return $this->right;
+		} elseif ($else === false) {
+			return $this->left;
+		}
+
 		return $this;
 	}
 

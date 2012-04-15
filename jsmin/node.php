@@ -10,7 +10,9 @@ abstract class Node {
 
 	protected $debug = true;
 
-	abstract public function visit(AST $ast);
+	public function visit(AST $ast) {
+		throw new Exception('Not implemented');
+	}
 
 	abstract public function collectStatistics(AST $ast);
 
@@ -38,8 +40,8 @@ abstract class Node {
 	}
 
 	public function parent(Node $p = null) {
-		if ($p !== null) {
-			$this->parent = $p;
+		if ($p) {
+			return null;
 		}
 
 		if (!$this->parent) {
@@ -96,6 +98,10 @@ abstract class Node {
 
 	public function breaking() {
 		return null;
+	}
+
+	public function nodes() {
+		return array($this);
 	}
 
 	/**

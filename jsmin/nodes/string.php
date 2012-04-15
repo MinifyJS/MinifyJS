@@ -20,6 +20,10 @@ class String extends ConstantExpression {
 		return $this->left;
 	}
 
+	public function asNumber() {
+		return is_numeric($this->left) || !$this->left ? (float)$this->left : NAN;
+	}
+
 	public function toString() {
 		$a = $this->quote('"');
 		$b = $this->quote("'");
@@ -32,7 +36,7 @@ class String extends ConstantExpression {
 	}
 
 	protected function quote($c) {
-	    $escape = '~(?:\\\\(?=[btnfru' . $c . ']|\\\\*$)|[' . $c . '\x00-\x1f\x7f-\x{ffff}])~u';
+	    $escape = '~\\\\|[' . $c . '\x00-\x1f\x7f-\x{ffff}]~u';
 
 		return $c . preg_replace_callback($escape, array($this, 'escapeHelper'), $this->value()) . $c;
 	}
@@ -149,5 +153,9 @@ class String extends ConstantExpression {
 		}
 
 		return null;
+	}
+
+	public function debug() {
+		return $this->toString();
 	}
 }

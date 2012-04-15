@@ -17,13 +17,14 @@ class CallExpression extends Expression {
 
 		$result = null;
 
-		if (!$this->right && $this->left instanceof DotExpression && $this->left->right() instanceof Identifier) {
+		if (!$this->right && $this->left instanceof DotExpression) {
 			if ($this->left->right()->name() === 'toString' && !$argc) {
 				$result = new PlusExpression($this->left->left(), new String('', false));
 			}
 		}
 
-		if ($this->left->value() === 'RegExp') {
+		switch ($this->left->value()) {
+		case 'RegExp':
 			$flags = null;
 			$regexp = null;
 
@@ -43,6 +44,40 @@ class CallExpression extends Expression {
 
 			if ($regexp !== null) {
 				$result = new RegExp($regexp);
+			}
+			break;
+		case 'Array':
+			if ($argc !== 1) {
+				$result = new ArrayExpression($this->right);
+			}
+			break;
+		case 'Boolean':
+			if ($argc === 0) {
+				return new Boolean(false);
+			} else {
+				$result = new CommaExpression(array_merge(
+					array_slice($this->right, 0, -1),
+					new NotExpression(new NotExpression(end($this->right)))
+				));
+			}
+
+			break;
+		case 'String':
+			$result = new PlusExpression($this->left, new String('', false));
+			break;
+		case 'Object':
+			if (!$this->right) {
+				return new ObjectExpression(array());
+			}
+			break;
+		}
+
+		if (!$result && $this->left instanceof DotExpression) {
+			// check for array shortening..
+			if ($this->left->left()->actualType() === 'array' && $this->left->right()->name() === 'join') {
+				if (!$this->right || (count($this->right === 1) && $this->right[0]->asString() === ',')) {
+					$result = new PlusExpression($this->left->left(), new String('', false));
+				}
 			}
 		}
 
@@ -66,5 +101,11 @@ class CallExpression extends Expression {
 
 	public function isRedundant() {
 		return false;
+	}
+
+	public function debug() {
+		return $this->left->debug() . ' ( ' . implode(', ', array_map(function ($e) {
+			return $e->debug();
+		})) . ' )';
 	}
 }

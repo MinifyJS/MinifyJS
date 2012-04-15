@@ -11,6 +11,13 @@ class AST {
 
 	protected $reports = array();
 
+	public static $options = array(
+		'crush-bool' => true,
+		'mangle' => true,
+		'unsafe' => true,
+		'strip-console' => false
+	);
+
 	protected $binaryClasses = array(
 		OP_PLUS => 'Plus',
 		OP_MINUS => 'Minus',

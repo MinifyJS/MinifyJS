@@ -28,15 +28,59 @@ class ArrayExpression extends Expression {
 		return 'object';
 	}
 
+	public function actualType() {
+		return 'array';
+	}
+
 	public function precedence() {
 		return 0;
 	}
 
 	public function asBoolean() {
+		if (!$this->nodes) {
+			return true;
+		}
+	}
+
+	public function isConstant() {
+		foreach($this->nodes as $n) {
+			if (!$n->isConstant()) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
+	public function asString() {
+		$options = array();
+		foreach($this->nodes as $n) {
+			if (null == $v = $n->asString()) {
+				return null;
+			}
+
+			$options[] = $v;
+		}
+
+		return implode(',', $options);
+	}
+
 	public function asNumber() {
-		return 0;
+		if (!$this->nodes) {
+			return 0;
+		}
+
+		if (count($this->nodes) === 1) {
+			return $this->nodes[0]->asNumber();
+		}
+	}
+
+	public function debug() {
+		$out = array();
+		foreach($this->nodes as $n) {
+			$out[] = $n->debug();
+		}
+
+		return "[\n" . preg_replace('~^~m', '    ', implode("\n", $out)) . "\n]";
 	}
 }

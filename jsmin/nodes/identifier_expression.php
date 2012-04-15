@@ -8,6 +8,10 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function visit(AST $ast) {
+		if (!$this->write) {
+			// check for some common variables
+		}
+
 		//if (!$this->write && $this->left->name() === 'undefined') {
 		//	return new VoidExpression(new Number(0));
 		//}
@@ -21,8 +25,8 @@ class IdentifierExpression extends ConstantExpression {
 		$this->write = true;
 	}
 
-	public function used() {
-		return $this->left->used();
+	public function used($bool = null) {
+		return max($this->left->used($bool), $this->write ? 1 : 0);
 	}
 
 	public function value() {

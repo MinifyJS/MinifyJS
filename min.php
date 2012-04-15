@@ -1,5 +1,9 @@
 <?php
-echo "\n";
+date_default_timezone_set('Europe/Amsterdam');
+error_reporting(E_ALL);
+ini_set('display_errors', 'on');
+
+header('Content-Type: text/plain;charset=UTF-8');
 
 if (!defined('MIN_BASE')) {
 	define('MIN_BASE', dirname(__FILE__) . '/jsmin/');
@@ -13,15 +17,33 @@ $parser = new JSParser();
 
 require 'jsmin/ast.php';
 
+AST::$options['mangle'] = false;
+AST::$options['unsafe'] = false;
+
 $f = 'jquery-1.7.2.js';
 $s = file_get_contents($f);
 
 //echo $s . PHP_EOL;
 
+$timers = array();
+
 try {
-	$ast = new AST($parser->parse($s, $f, 0));
+	$t = microtime(true);
+	$tree = $parser->parse($s, $f, 0);
+	$timers['parse'] = microtime(true) - $t;
+
+	$t = microtime(true);
+	$ast = new AST($tree);
+	$timers['ast'] = microtime(true) - $t;
+
+	$t = microtime(true);
 	$ast->squeeze();
+	$timers['squeeze'] = microtime(true) - $t;
+
+	$t = microtime(true);
 	$tree = $ast->tree()->toString();
+	$timers['tostring'] = microtime(true) - $t;
+
 	$gzipped = strlen(gzencode($tree, 9));
 
 	//echo implode("\n", array_slice(explode("\n", $tree), 0, 20)) . "\n\n";
@@ -34,6 +56,7 @@ try {
 
 	echo "\n\nfrom " . strlen($s) . ' to ' . strlen($tree) . ': ' . -round(((strlen($tree) - strlen($s)) / strlen($s)) * 100) . '% profit';
 	echo "\ngzipped: " . $gzipped;
+	echo "\n", print_r($timers, true);
 } catch(Exception $e) {
 	echo $e->getMessage();
 }

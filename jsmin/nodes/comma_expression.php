@@ -16,7 +16,7 @@ class CommaExpression extends Expression {
 				if ($node instanceof CommaExpression) {
 					foreach($node->nodes as $n) {
 						$n = $n->removeUseless();
-						
+
 						if (!$n->isVoid()) {
 							$nodes[] = $n;
 						}

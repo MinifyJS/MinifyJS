@@ -19,15 +19,17 @@ class ComparisonExpression extends BinaryExpression {
 	}
 
 	public function negate() {
-		$map = array(
-			OP_LE => OP_GT,
-			OP_GE => OP_LT,
-			OP_LT => OP_GE,
-			OP_GT => OP_LE
-		);
+		if (AST::$options['unsafe']) {
+			$map = array(
+				OP_LE => OP_GT,
+				OP_GE => OP_LT,
+				OP_LT => OP_GE,
+				OP_GT => OP_LE
+			);
 
-		if (isset($map[$this->type])) {
-			return new ComparisonExpression($map[$this->type], $this->left, $this->right);
+			if (isset($map[$this->type])) {
+				return new ComparisonExpression($map[$this->type], $this->left, $this->right);
+			}
 		}
 
 		return parent::negate();

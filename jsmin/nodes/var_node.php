@@ -7,23 +7,28 @@ class VarNode extends Node {
 		$this->name = $i;
 		$this->initializer = $init;
 
-		$this->name->parent($this);
-
-		if ($this->initializer) {
-			$this->initializer->parent($this);
-		}
-
 		parent::__construct();
 	}
 
 	public function visit(AST $ast) {
 		$this->name = $this->name->visit($ast);
 
+		// because it's declared here, decrease usage one time
+		$this->name->used(false);
+
 		if ($this->initializer) {
 			$this->initializer = $this->initializer->visit($ast);
 		}
 
 		return $this;
+	}
+
+	public function write() {
+		return $this->name->write();
+	}
+
+	public function name() {
+		return $this->name;
 	}
 
 	public function collectStatistics(AST $ast) {

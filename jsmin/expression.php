@@ -82,6 +82,10 @@ abstract class Expression extends Node {
 		return null;
 	}
 
+	public function actualType() {
+		return $this->type();
+	}
+
 	public function negate() {
 		return new NotExpression($this);
 	}

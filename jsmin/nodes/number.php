@@ -8,6 +8,14 @@ class Number extends ConstantExpression {
 		return $this->left;
 	}
 
+	public function visit(AST $ast) {
+		if (is_nan($this->left)) {
+			return new DivExpression(new Number(0), new Number(0));
+		}
+
+		return $this;
+	}
+
 	public function toString() {
 		$t = $this->left;
 

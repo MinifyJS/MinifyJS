@@ -52,4 +52,8 @@ class FunctionNode extends Node {
 
 		return null;
 	}
+
+	public function debug() {
+		return 'function ' . ($this->name ? $this->name->debug() : '') . '( ' . implode(',', $this->params) . ') ' . $this->body->asBlock()->toString(false);
+	}
 }

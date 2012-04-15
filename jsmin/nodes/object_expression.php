@@ -36,4 +36,13 @@ class ObjectExpression extends Expression {
 	public function precedence() {
 		return 0;
 	}
+
+	public function debug() {
+		$out = array();
+		foreach($this->nodes as $n) {
+			$out[] = $n->debug();
+		}
+
+		return "{\n" . preg_replace('~^~m', '    ', implode("\n", $out)) . "\n}";
+	}
 }

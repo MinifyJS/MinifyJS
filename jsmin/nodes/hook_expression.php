@@ -13,6 +13,14 @@ class HookExpression extends Expression {
 		$this->middle = $this->middle->visit($ast);
 		$this->right = $this->right->visit($ast);
 
+		$condition = $this->left->asBoolean();
+
+		if ($condition === true) {
+			return $this->middle;
+		} elseif ($condition === false) {
+			return $this->right;
+		}
+
 		if ($this->middle instanceof AssignExpression && $this->right instanceof AssignExpression
 				&& $this->middle->assignType() === $this->right->assignType()
 				&& $this->middle->left()->toString() === $this->right->left()->toString()) {
@@ -55,7 +63,7 @@ class HookExpression extends Expression {
 
 	public function negate() {
 		return AST::bestOption(array(
-			new NotExpression($this),
+			parent::negate(),
 			new HookExpression($this->left, $this->middle->negate(), $this->right->negate())
 		));
 	}

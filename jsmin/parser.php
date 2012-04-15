@@ -614,6 +614,7 @@ class JSParser {
 						$operators[] = new JSNode($this->t);
 					} else {
 						$t = $this->t->tokens[($this->t->tokenIndex + $this->t->lookahead - 1) & 3];
+
 						if ($t && $t->lineno !== $this->t->lineno) {
 							break 2;
 						}

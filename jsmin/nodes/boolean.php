@@ -9,7 +9,9 @@ class Boolean extends ConstantExpression {
 	}
 
 	public function visit(AST $ast) {
-		return $this;
+		if (!AST::$options['crush-bool']) {
+			return $this;
+		}
 
 		return new NotExpression(new Number($this->negate()->asNumber()));
 	}

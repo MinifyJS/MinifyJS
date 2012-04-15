@@ -30,4 +30,8 @@ class FunctionExpression extends Expression {
 	public function onlyReturns() {
 		return $this->middle->onlyReturns();
 	}
+
+	public function debug () {
+		return '(' . $this->middle->debug() . ')';
+	}
 }
