@@ -20,12 +20,16 @@ class Identifier {
 	public function __construct(Scope $scope = null, $name, Identifier $linkedTo = null) {
 		$this->scope = $scope;
 		$this->name = $name;
-		$this->linkedTo = $linkedTo;
+		//$this->linkedTo = $linkedTo;
 		$this->id = self::$seq++;
 	}
 
 	public function mustDeclare() {
 		$this->mustDeclare = true;
+	}
+
+	public function declared() {
+		return $this->mustDeclare;
 	}
 
 	public function name() {
@@ -34,6 +38,14 @@ class Identifier {
 
 	public function id() {
 		return $this->id;
+	}
+
+	public function keep() {
+		return $this->used() || !$this->scope->parent();
+	}
+
+	public function scope() {
+		return $this->scope;
 	}
 
 	public function linkedTo() {
@@ -56,12 +68,6 @@ class Identifier {
 				$this->small = $this->name;
 			} else {
 				$this->small = $new;
-			}
-		} elseif (!$this->small && $this->mustDeclare && $this->scope->parent()) {
-			if ($this->linkedTo) {
-				$this->small = $this->linkedTo->small();
-			} else {
-				$this->small = $this->scope->gen($this);
 			}
 		}
 

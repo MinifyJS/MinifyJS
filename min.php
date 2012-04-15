@@ -17,13 +17,12 @@ $parser = new JSParser();
 
 require 'jsmin/ast.php';
 
-AST::$options['mangle'] = false;
-AST::$options['unsafe'] = false;
+AST::$options['mangle'] = true;
+AST::$options['unsafe'] = true;
+AST::$options['crush-bool'] = true;
 
 $f = 'jquery-1.7.2.js';
 $s = file_get_contents($f);
-
-//echo $s . PHP_EOL;
 
 $timers = array();
 

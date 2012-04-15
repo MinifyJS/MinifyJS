@@ -16,9 +16,15 @@ class IdentifierExpression extends ConstantExpression {
 		//	return new VoidExpression(new Number(0));
 		//}
 
-		$this->left->used(true);
-
 		return $this;
+	}
+
+	public function collectStatistics(AST $ast) {
+		$this->left->used(true);
+	}
+
+	public function keep() {
+		return $this->left->keep();;
 	}
 
 	public function write() {

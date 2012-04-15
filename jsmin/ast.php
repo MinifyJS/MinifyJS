@@ -7,6 +7,8 @@ class AST {
 	protected $tree;
 	protected $scope;
 
+	protected $rootScope;
+
 	public static $finalize = false;
 
 	protected $reports = array();
@@ -41,7 +43,7 @@ class AST {
 	}
 
 	public function __construct(JSNode $root) {
-		$this->enter();
+		$this->rootScope = $this->enter();
 		$this->tree = $this->generate($root);
 		$this->leave();
 	}
@@ -50,6 +52,10 @@ class AST {
 		$this->tree->visit($this);
 
 		$this->tree->collectStatistics($this);
+
+		if (AST::$options['mangle']) {
+			$this->rootScope->optimize();
+		}
 
 		self::$finalize = true;
 	}
@@ -67,11 +73,11 @@ class AST {
 	}
 
 	protected function enter() {
-		$this->scope = new Scope($this, $this->scope);
+		return $this->scope = new Scope($this, $this->scope);
 	}
 
 	protected function leave() {
-		$this->scope = $this->scope->parent();
+		return $this->scope = $this->scope->parent();
 	}
 
 	protected function generate($n = null, $dotBase = true, $asArray = true) {

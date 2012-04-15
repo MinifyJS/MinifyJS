@@ -34,32 +34,86 @@ class Scope {
 	protected $program;
 	protected $parent;
 
-	protected $declared = array();
+	protected $children = array();
 
 	protected $nameIndex;
 
+	protected $declared = array();
+
+	// large - small
+	protected $ls = array();
+	// small - large
+	protected $sl = array();
+
+	protected $uses = array();
 
 	public function __construct(AST $program, Scope $parent = null) {
 		$this->program = $program;
 		$this->parent = $parent;
 
-		if ($parent === null) {
-			$this->nameIndex = -1;
+		if ($parent) {
+			$parent->add($this);
 		}
+	}
+
+	public function optimize() {
+		foreach($this->declared as $ident) {
+			if ($ident->declared() && $ident->scope() === $this) {
+				for (;;) {
+					$name = $this->base54($this->nameIndex++);
+
+					if (isset(self::$reserved[$name])) {
+						continue;
+					}
+
+					if ($prev = $this->hasOptimized($name)) {
+      					// still need to check if this name is used here...
+      					$test = &$this->declared[$prev->sl[$name]];
+      					if (isset($test) && $test->scope() === $prev) {
+							continue;
+						}
+					}
+
+					$prev = $this->has($name);
+					if ($prev && $prev !== $this && !$prev->hasOptimized($name)) {
+						continue;
+					}
+
+					$ident->small($name);
+					$this->sl[$name] = $ident->name();
+
+					break;
+				}
+			}
+		}
+
+		foreach($this->children as $child) {
+			$child->optimize();
+		}
+	}
+
+	protected function has($name) {
+		for ($s = $this; $s; $s = $s->parent) {
+			if (isset($s->declared[$name]) && $s->declared[$name]->scope() === $s) {
+				return $s;
+			}
+		}
+	}
+
+	protected function hasOptimized($name) {
+		for ($s = $this; $s; $s = $s->parent) {
+			if (isset($s->sl[$name])) {
+				return $s;
+			}
+		}
+	}
+
+	protected function add(Scope $child) {
+		$this->children[] = $child;
 	}
 
 	public function parent() {
 		return $this->parent;
-	}
-
-	public function exists($name) {
-		if (isset($this->declared[$name])) {
-			return $this->declared[$name];
-		} elseif($this->parent) {
-			return $this->parent->exists($name);
-		}
-
-		return null;
 	}
 
 	public static function reserved($name) {
@@ -70,17 +124,22 @@ class Scope {
 		if (!$declare) {
 			if (!isset($this->declared[$name])) {
 				if (!$this->parent) {
-					return $this->gen($name, false);
+					$this->declared[$name] = new Identifier($this, $name);
+				} else {
+					$this->declared[$name] = $this->parent->find($name);
 				}
-
-				return $this->parent->find($name);
 			}
+		} elseif (!isset($this->declared[$name])) {
+			$this->declared[$name] = new Identifier($this, $name);
+			$this->declared[$name]->mustDeclare();
+		}
 
-			return $this->declared[$name];
-		} else {
-			$find = $this->exists($name);
+		return $this->declared[$name];
+	}
 
-			return $this->gen($name, true, $find);
+	public function small($n) {
+		if (isset($this->small[$n])) {
+			return $this->small[$n];
 		}
 	}
 
@@ -121,7 +180,7 @@ class Scope {
 		}
 	}
 
-	public function base54($i) {
+	protected function base54($i) {
 		$name = '';
 		$base = 54;
 

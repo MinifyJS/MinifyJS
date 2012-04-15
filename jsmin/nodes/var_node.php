@@ -13,9 +13,6 @@ class VarNode extends Node {
 	public function visit(AST $ast) {
 		$this->name = $this->name->visit($ast);
 
-		// because it's declared here, decrease usage one time
-		$this->name->used(false);
-
 		if ($this->initializer) {
 			$this->initializer = $this->initializer->visit($ast);
 		}
@@ -41,7 +38,7 @@ class VarNode extends Node {
 
 	public function toString() {
 		$init = $this->initializer;
-		if (!$this->name->used() && (!$init || $init->isRedundant())) {
+		if (!$this->name->keep() && (!$init || $init->isRedundant())) {
 			return '';
 		}
 
