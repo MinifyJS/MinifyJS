@@ -19,7 +19,7 @@ class AST {
 	public static $options = array(
 		'crush-bool' => true,
 		'mangle' => true,
-		'unsafe' => true,
+		'unsafe' => false,
 		'strip-console' => false
 	);
 
