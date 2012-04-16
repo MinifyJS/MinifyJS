@@ -40,18 +40,22 @@ class IfNode extends Node {
 			$this->then = $this->then->right();
 		}
 
+		if ($this->then->isVoid() && (!$this->else || $this->else->isVoid())) {
+			return $this->condition;
+		}
+
 		$result = null;
 
 		if ($this->then instanceof Expression && $this->else instanceof Expression) {
-			$result = new HookExpression($this->condition, $this->then, $this->else);
-			$option = new HookExpression($this->condition->negate(), $this->else, $this->then);
-
-			$result = AST::bestOption(array($result, $option));
+			$result = AST::bestOption(array(
+				new HookExpression($this->condition->negate(), $this->else, $this->then),
+				new HookExpression($this->condition, $this->then, $this->else)
+			));
 		} elseif (!$this->else && $this->then instanceof Expression) {
-			$and = new AndExpression($this->condition, $this->then);
-			$or = new OrExpression($this->condition->negate(), $this->then);
-
-			$result = AST::bestOption(array($and, $or));
+			$result = AST::bestOption(array(
+				new AndExpression($this->condition, $this->then),
+				new OrExpression($this->condition->negate(), $this->then)
+			));
 		} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
 				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
 			if ($this->then->value() && $this->else->value()) {
@@ -61,6 +65,12 @@ class IfNode extends Node {
 					$this->then->value(),
 					$this->else->value()
 				));
+			}
+		} elseif ($this->then && $this->else) {
+			$option = new IfNode($this->condition->negate(), $this->else, $this->then);
+
+			if (strlen($this->toString()) > strlen($option->toString())) {
+				$result = $option;
 			}
 		}
 
