@@ -8,6 +8,9 @@ class AST {
 	protected $scope;
 
 	protected $rootScope;
+	protected $rootLabelScope;
+
+	protected $labelScope;
 
 	public static $finalize = false;
 
@@ -16,7 +19,7 @@ class AST {
 	public static $options = array(
 		'crush-bool' => true,
 		'mangle' => true,
-		'unsafe' => true,
+		'unsafe' => false,
 		'strip-console' => false
 	);
 
@@ -44,6 +47,8 @@ class AST {
 
 	public function __construct(JSNode $root) {
 		$this->rootScope = $this->enter();
+		$this->rootLabelScope = $this->labelScope;
+
 		$this->tree = $this->generate($root);
 		$this->leave();
 	}
@@ -55,6 +60,7 @@ class AST {
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimize();
+			$this->rootLabelScope->optimize();
 		}
 
 		self::$finalize = true;
@@ -73,10 +79,14 @@ class AST {
 	}
 
 	protected function enter() {
+		$this->labelScope = new Scope($this, $this->labelScope);
+
 		return $this->scope = new Scope($this, $this->scope);
 	}
 
 	protected function leave() {
+		$this->labelScope = $this->labelScope->parent();
+
 		return $this->scope = $this->scope->parent();
 	}
 
@@ -139,7 +149,7 @@ class AST {
 				$this->generate($n->nodes[1])
 			);
 		case JS_LABEL:
-			return new LabelNode(new Identifier(null, $n->label), $this->generate($n->statement));
+			return new LabelNode($this->labelScope->find($n->label, true), $this->generate($n->statement));
 		case KEYWORD_FUNCTION:
 			if ($n->functionForm === EXPRESSED_FORM) {
 				$this->enter();
@@ -313,9 +323,9 @@ class AST {
 			}
 			return new ObjectExpression($list);
 		case KEYWORD_BREAK:
-			return new BreakNode($n->label ? $this->generate($n->label, false) : null);
+			return new BreakNode($n->label ? $this->labelScope->find($n->label) : null);
 		case KEYWORD_CONTINUE:
-			return new ContinueNode($n->label ? $this->generate($n->label, false) : null);
+			return new ContinueNode($n->label ? $this->labelScope->find($n->label) : null);
 		case JS_LIST:
 			return $this->nodeList($n->nodes);
 		case OP_COMMA:
@@ -338,7 +348,7 @@ class AST {
 			);
 		case KEYWORD_CASE:
 			return new CaseNode(
-				$this->generate($n->label),
+				$this->generate($n->caseLabel),
 				$this->generate($n->statements)
 			);
 		case KEYWORD_DEFAULT:

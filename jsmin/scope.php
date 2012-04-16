@@ -57,32 +57,34 @@ class Scope {
 	}
 
 	public function optimize() {
-		foreach($this->declared as $ident) {
-			if ($ident->declared() && $ident->scope() === $this) {
-				for (;;) {
-					$name = $this->base54($this->nameIndex++);
+		if ($this->parent) {
+			foreach($this->declared as $ident) {
+				if ($ident->declared() && $ident->scope() === $this) {
+					for (;;) {
+						$name = $this->base54($this->nameIndex++);
 
-					if (isset(self::$reserved[$name])) {
-						continue;
-					}
-
-					if ($prev = $this->hasOptimized($name)) {
-      					// still need to check if this name is used here...
-      					$test = &$this->declared[$prev->sl[$name]];
-      					if (isset($test) && $test->scope() === $prev) {
+						if (isset(self::$reserved[$name])) {
 							continue;
 						}
+
+						if ($prev = $this->hasOptimized($name)) {
+							// still need to check if this name is used here...
+							$test = &$this->declared[$prev->sl[$name]];
+							if (isset($test) && $test->scope() === $prev) {
+								continue;
+							}
+						}
+
+						$prev = $this->has($name);
+						if ($prev && $prev !== $this && !$prev->hasOptimized($name)) {
+							continue;
+						}
+
+						$ident->small($name);
+						$this->sl[$name] = $ident->name();
+
+						break;
 					}
-
-					$prev = $this->has($name);
-					if ($prev && $prev !== $this && !$prev->hasOptimized($name)) {
-						continue;
-					}
-
-					$ident->small($name);
-					$this->sl[$name] = $ident->name();
-
-					break;
 				}
 			}
 		}

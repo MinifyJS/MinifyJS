@@ -24,7 +24,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function keep() {
-		return $this->left->keep();;
+		return $this->left->keep() || $this->used();
 	}
 
 	public function write() {
