@@ -257,7 +257,7 @@ class BlockStatement extends Node {
 			$o[] = $x;
 		}
 
-		if ($varCache && !$n instanceof VarNode) {
+		if ($varCache) {
 			$o[] = 'var ' . implode(',', $varCache) . ';';
 			$varCache = array();
 		}
