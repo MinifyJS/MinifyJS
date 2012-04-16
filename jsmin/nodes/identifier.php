@@ -79,10 +79,6 @@ class Identifier {
 			return (string)$this->name;
 		}
 
-		if (AST::$finalize && AST::$options['mangle']) {
-			$this->small();
-		}
-
 		return $this->small ? $this->small : $this->name;
 	}
 
