@@ -43,7 +43,7 @@ try {
 	$tree = $ast->tree()->toString();
 	$timers['tostring'] = microtime(true) - $t;
 
-	$gzipped = strlen(gzencode($tree, 9));
+	$gzipped = function_exists('gzencode') ? strlen(gzencode($tree, 9)) : null;
 
 	//echo implode("\n", array_slice(explode("\n", $tree), 0, 20)) . "\n\n";
 
@@ -54,7 +54,7 @@ try {
 	}
 
 	echo "\n\nfrom " . strlen($s) . ' to ' . strlen($tree) . ': ' . -round(((strlen($tree) - strlen($s)) / strlen($s)) * 100) . '% profit';
-	echo "\ngzipped: " . $gzipped;
+	echo "\ngzipped: " . ($gzipped === null ? 'unknown' : $gzipped);
 	echo "\n", print_r($timers, true);
 } catch(Exception $e) {
 	echo $e->getMessage();
