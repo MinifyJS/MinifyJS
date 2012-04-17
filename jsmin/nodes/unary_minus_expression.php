@@ -7,7 +7,7 @@ class UnaryMinusExpression extends UnaryExpression {
 	}
 
 	public function toString() {
-		return '-' . $this->left->toString();
+		return $this->unary('-');
 	}
 
 	public function type() {

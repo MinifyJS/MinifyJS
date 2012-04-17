@@ -126,6 +126,6 @@ abstract class Expression extends Node {
 	}
 
 	public function unary($op) {
-		return $op . $this->group($this, $this->right, false);
+		return $op . $this->group($this, $this->left, false);
 	}
 }
