@@ -15,17 +15,13 @@ class CommaExpression extends Expression {
 			if ($node && !$node->isVoid()) {
 				if ($node instanceof CommaExpression) {
 					foreach($node->nodes as $n) {
-						$n = $n->removeUseless();
-
 						if (!$n->isVoid()) {
 							$nodes[] = $n;
 						}
 					}
 				} else {
-					$n = $node->removeUseless();
-
-					if (!$n->isVoid()) {
-						$nodes[] = $n->removeUseless();
+					if (!$node->isVoid()) {
+						$nodes[] = $node;
 					}
 				}
 			}
