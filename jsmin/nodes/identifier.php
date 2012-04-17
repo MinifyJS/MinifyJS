@@ -63,10 +63,6 @@ class Identifier {
 	}
 
 	public function toString() {
-		if (!$this->scope || !$this->scope->parent()) {
-			return (string)$this->name;
-		}
-
 		return $this->small ? $this->small : $this->name;
 	}
 

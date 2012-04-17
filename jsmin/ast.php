@@ -83,7 +83,7 @@ class AST {
 	}
 
 	protected function enter() {
-		$this->labelScope = new Scope($this, $this->labelScope);
+		$this->labelScope = new Scope($this, $this->labelScope, true);
 
 		return $this->scope = new Scope($this, $this->scope);
 	}
