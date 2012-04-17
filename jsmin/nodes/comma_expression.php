@@ -40,7 +40,7 @@ class CommaExpression extends Expression {
 
 	public function first() {
 		if ($this->nodes) {
-			return $this->nodes[0];
+			return $this->nodes[0]->first();
 		}
 	}
 
