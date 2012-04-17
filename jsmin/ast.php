@@ -54,7 +54,7 @@ class AST {
 	}
 
 	public function squeeze() {
-		$this->tree->visit($this);
+		$this->tree = $this->tree->visit($this);
 
 		$this->tree->collectStatistics($this);
 
@@ -64,6 +64,10 @@ class AST {
 		}
 
 		self::$finalize = true;
+	}
+
+	public function toString() {
+		return $this->tree->toString(true);
 	}
 
 	public function report($rep = null) {

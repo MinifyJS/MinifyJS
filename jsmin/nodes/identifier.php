@@ -15,13 +15,9 @@ class Identifier {
 
 	protected $linkedTo;
 
-	private $id;
-
-	public function __construct(Scope $scope = null, $name, Identifier $linkedTo = null) {
+	public function __construct(Scope $scope = null, $name) {
 		$this->scope = $scope;
 		$this->name = $name;
-		//$this->linkedTo = $linkedTo;
-		$this->id = self::$seq++;
 	}
 
 	public function mustDeclare() {
@@ -36,20 +32,12 @@ class Identifier {
 		return $this->name;
 	}
 
-	public function id() {
-		return $this->id;
-	}
-
 	public function keep() {
 		return $this->used() || !$this->scope->parent();
 	}
 
 	public function scope() {
 		return $this->scope;
-	}
-
-	public function linkedTo() {
-		return $this->linkedTo;
 	}
 
 	public function used($bool = null) {

@@ -60,7 +60,7 @@ $ast->squeeze();
 $timers['squeeze'] = microtime(true) - $t;
 
 $t = microtime(true);
-$tree = $ast->tree()->toString();
+$tree = $ast->toString();
 $timers['tostring'] = microtime(true) - $t;
 
 echo $tree;
