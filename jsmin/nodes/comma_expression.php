@@ -38,6 +38,12 @@ class CommaExpression extends Expression {
 		return new CommaExpression($nodes);
 	}
 
+	public function first() {
+		if ($this->nodes) {
+			return $this->nodes[0];
+		}
+	}
+
 	public function nodes() {
 		return $this->nodes;
 	}
