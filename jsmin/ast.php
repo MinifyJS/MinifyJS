@@ -67,7 +67,7 @@ class AST {
 	}
 
 	public function toString() {
-		return $this->tree->toString(true);
+		return $this->tree->asBlock()->toString(true);
 	}
 
 	public function report($rep = null) {
