@@ -20,7 +20,8 @@ class AST {
 		'crush-bool' => true,
 		'mangle' => true,
 		'unsafe' => false,
-		'strip-console' => false
+		'strip-console' => false,
+		'timer' => false
 	);
 
 	protected $binaryClasses = array(

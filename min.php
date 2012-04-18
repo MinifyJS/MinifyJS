@@ -26,7 +26,10 @@ $options = array(
 	'--strip-console' => array('strip-console' => true),
 
 	'-nm' => array('mangle' => false),
-	'--no-mangle' => array('mangle' => false)
+	'--no-mangle' => array('mangle' => false),
+
+	'-t' => array('timer' => true),
+	'--timer' => array('timer' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
@@ -63,4 +66,8 @@ $t = microtime(true);
 $tree = $ast->toString();
 $timers['tostring'] = microtime(true) - $t;
 
-echo $tree;
+if (AST::$options['timer']) {
+	print_r($timers);
+} else {
+	echo $tree;
+}
