@@ -16,6 +16,14 @@ class WhileNode extends Node {
 		$this->condition = $this->condition->visit($ast);
 		$this->body = $this->body->visit($ast);
 
+		$result = $this->condition->asBoolean();
+
+		if ($result === false) {
+			return new VoidExpression(new Number(0));
+		} elseif ($result === true) {
+			return new ForNode(null, null, null, $this->body);
+		}
+
 		return $this;
 	}
 

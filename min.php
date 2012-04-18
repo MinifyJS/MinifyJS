@@ -26,7 +26,7 @@ $options = array(
 	'--strip-console' => array('strip-console' => true),
 
 	'-nm' => array('mangle' => false),
-	'--no-mangle' => array('mangle' => false)
+	'--no-mangle' => array('mangle' => false),
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {

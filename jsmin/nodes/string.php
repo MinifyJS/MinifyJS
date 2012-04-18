@@ -25,10 +25,7 @@ class String extends ConstantExpression {
 	}
 
 	public function toString() {
-		$a = $this->quote('"');
-		$b = $this->quote("'");
-
-		return strlen($a) < strlen($b) ? $a : $b;
+		return AST::bestOption(array($this->quote('"'), $this->quote("'")));
 	}
 
 	public function asBoolean() {

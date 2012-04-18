@@ -111,6 +111,7 @@ define('KEYWORD_WITH', 'with');
 class JSTokenizer {
 	private $cursor = 0;
 	private $source;
+	private $length;
 
 	public $tokens = array();
 	public $tokenIndex = 0;
@@ -189,6 +190,7 @@ class JSTokenizer {
 	public function init($source, $filename = '', $lineno = 1) {
 		$this->source = $source;
 		$this->source .= "\n";
+		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
 
@@ -254,7 +256,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 1000) {
+	public function get($chunksize = 750) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -284,17 +286,19 @@ class JSTokenizer {
 					$this->lineno += substr_count($spaces, "\n");
 				}
 
-				if ($spacelen === $chunksize) {
+				if ($spacelen === strlen($input)) {
 					continue; // complete chunk contained whitespace
-				}
-
-				$input = $this->getInput($chunksize);
-				if ($input === false || $input[0] !== '/') {
-					break;
 				}
 			}
 
-			if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
+			$input = $this->getInput($chunksize);
+			if ($input === false || $input[0] !== '/') {
+				break;
+			}
+
+			// don't want to support conditional comments just yet
+			//if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
+			if (!preg_match('~^/(?:\*[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
 				if (!$chunksize) {
 					break;
 				}
@@ -303,18 +307,14 @@ class JSTokenizer {
 				continue;
 			}
 
-			if (!empty($match[1])) {
-				$match[0] = '/*' . $match[1];
-				$conditional_comment = true;
-				break;
-			} else {
-				if(substr($match[0], 0, 3) === '/**') {
-					$lastComment = $match[0];
-				}
-
+			//if (!empty($match[1])) {
+			//	$match[0] = '/*' . $match[1];
+			//	$conditional_comment = true;
+			//	break;
+			//} else {
 				$this->cursor += strlen($match[0]);
 				$this->lineno += substr_count($match[0], "\n");
-			}
+			//}
 		}
 
 		if ($input === false) {
@@ -360,7 +360,11 @@ class JSTokenizer {
 					}
 					break;
 				case '/':
-					if ($this->scanOperand && preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[gim]*%', $input, $match)) {
+					if ($this->scanOperand) {
+						if (!preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[gim]*%', $input, $match)) {
+							throw $this->newSyntaxError('Unterminated regex literal');
+						}
+
 						$tt = TOKEN_REGEXP;
 						break;
 					}

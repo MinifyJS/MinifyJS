@@ -15,6 +15,10 @@ class LabelNode extends Node {
 	}
 
 	public function toString() {
+		if (!$this->label->used()) {
+			return $this->stmt->toString();
+		}
+		
 		return $this->label->toString() . ':' . $this->stmt->toString();
 	}
 
