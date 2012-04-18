@@ -467,10 +467,6 @@ class JSTokenizer {
 			$token->value = $match[0];
 		}
 
-		if( $lastComment ) {
-			$this->lastComment = $lastComment;
-		}
-
 		$this->cursor += strlen($match[0]);
 
 		$token->end = $this->cursor;
@@ -479,8 +475,8 @@ class JSTokenizer {
 		return $tt;
 	}
 
-	private function decomposeUnicode($m) {
-		if (is_array($m)) {
+	private function decomposeUnicode($original) {
+		return preg_replace_callback('~\\\\(?|u([a-fA-F0-9]{4})|x([a-fA-F0-9]{2}))~', function ($m) {
 			$cp = (int)base_convert($m[1], 16, 10);
 
 	        if($cp < 0x80) {
@@ -500,9 +496,7 @@ class JSTokenizer {
 			}
 
 			return $returnStr;
-		}
-
-		return preg_replace_callback('~\\\\(?|u([\da-f]{4})|x([\da-f]{2}))~i', array($this, 'decomposeUnicode'), $m);
+		}, $original);
 	}
 
 	public function unget() {
@@ -514,7 +508,7 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor . ' (' . substr($this->source, $this->cursor, 15));
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor);
 	}
 }
 

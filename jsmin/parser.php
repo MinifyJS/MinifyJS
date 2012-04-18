@@ -520,267 +520,267 @@ class JSParser {
 			}
 
 			switch ($tt) {
-				case OP_SEMICOLON:
+			case OP_SEMICOLON:
+				break 2;
+			case OP_HOOK:
+				if ($this->t->scanOperand) {
 					break 2;
-				case OP_HOOK:
-					if ($this->t->scanOperand) {
-						break 2;
-					}
+				}
 
-					while (!empty($operators) && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
-						$this->reduce($operators, $operands);
-					}
+				while (!empty($operators) && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
+					$this->reduce($operators, $operands);
+				}
 
+				$operators[] = new JSNode($this->t);
+
+				++$x->hookLevel;
+				$this->t->scanOperand = true;
+				$n = $this->Expression($x);
+
+				if (!$this->t->match(OP_COLON)) {
+					break 2;
+				}
+
+				--$x->hookLevel;
+				$operands[] = $n;
+				break;
+			case OP_COLON:
+				if ($x->hookLevel) {
+					break 2;
+				}
+
+				throw $this->t->newSyntaxError('Invalid label');
+				break;
+			case OP_ASSIGN:
+				if ($this->t->scanOperand) {
+					break 2;
+				}
+
+				while ($operators && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
+					$this->reduce($operators, $operands);
+				}
+
+				$operators[] = new JSNode($this->t);
+				end($operands)->assignOp = $this->t->currentToken()->assignOp;
+				$this->t->scanOperand = true;
+				break;
+			case KEYWORD_IN:
+				if ($x->inForLoopInit && !$x->hookLevel && !$x->bracketLevel && !$x->curlyLevel && !$x->parenLevel) {
+					break 2;
+				}
+			case OP_COMMA:
+				if ($tt === OP_COMMA && $x->hookLevel && !$x->bracketLevel && !$x->curlyLevel && !$x->parenLevel) {
+					break 2;
+				}
+			case OP_OR:
+			case OP_AND:
+			case OP_BITWISE_OR:
+			case OP_BITWISE_XOR:
+			case OP_BITWISE_AND:
+			case OP_EQ: case OP_NE: case OP_STRICT_EQ: case OP_STRICT_NE:
+			case OP_LT: case OP_LE: case OP_GE: case OP_GT:
+			case KEYWORD_INSTANCEOF:
+			case OP_LSH: case OP_RSH: case OP_URSH:
+			case OP_PLUS: case OP_MINUS:
+			case OP_MUL: case OP_DIV: case OP_MOD:
+			case OP_DOT:
+				if ($this->t->scanOperand) {
+					break 2;
+				}
+
+				while (!empty($operators) && $this->opPrecedence[end($operators)->type] >= $this->opPrecedence[$tt]) {
+					$this->reduce($operators, $operands);
+				}
+
+				if ($tt === OP_DOT) {
+					$this->t->mustMatch(TOKEN_IDENTIFIER);
+					$operands[] = new JSNode($this->t, OP_DOT, array_pop($operands), new JSNode($this->t));
+				} else {
 					$operators[] = new JSNode($this->t);
-
-					++$x->hookLevel;
 					$this->t->scanOperand = true;
-					$n = $this->Expression($x);
+				}
+				break;
+			case KEYWORD_DELETE: case KEYWORD_VOID: case KEYWORD_TYPEOF:
+			case OP_NOT: case OP_BITWISE_NOT: case OP_UNARY_PLUS: case OP_UNARY_MINUS:
+			case KEYWORD_NEW:
+				if (!$this->t->scanOperand) {
+					break 2;
+				}
 
-					if (!$this->t->match(OP_COLON)) {
+				$operators[] = new JSNode($this->t);
+				break;
+			case OP_INCREMENT: case OP_DECREMENT:
+				if ($this->t->scanOperand) {
+					$operators[] = new JSNode($this->t);
+				} else {
+					$t = $this->t->tokens[($this->t->tokenIndex + $this->t->lookahead - 1) & 3];
+
+					if ($t && $t->lineno !== $this->t->lineno) {
 						break 2;
 					}
 
-					--$x->hookLevel;
+					if ($operators) {
+						while ($this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
+							$this->reduce($operators, $operands);
+						}
+					}
+
+					$n = new JSNode($this->t, $tt, array_pop($operands));
+					$n->postfix = true;
 					$operands[] = $n;
-					break;
-				case OP_COLON:
-					if ($x->hookLevel) {
-						break 2;
-					}
+				}
+				break;
+			case KEYWORD_FUNCTION:
+				if (!$this->t->scanOperand) {
+					break 2;
+				}
 
-					throw $this->t->newSyntaxError('Invalid label');
-					break;
-				case OP_ASSIGN:
-					if ($this->t->scanOperand) {
-						break 2;
-					}
+				$operands[] = $this->FunctionDefinition($x, false, EXPRESSED_FORM);
+				$this->t->scanOperand = false;
 
-					while ($operators && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
-						$this->reduce($operators, $operands);
-					}
+				break;
+			case KEYWORD_NULL: case KEYWORD_THIS: case KEYWORD_TRUE: case KEYWORD_FALSE:
+			case TOKEN_IDENTIFIER: case TOKEN_NUMBER: case TOKEN_STRING: case TOKEN_REGEXP:
+				if (!$this->t->scanOperand) {
+					break 2;
+				}
 
+				$operands[] = new JSNode($this->t);
+				$this->t->scanOperand = false;
+				break;
+			case TOKEN_CONDCOMMENT_START:
+			case TOKEN_CONDCOMMENT_END:
+				if ($this->t->scanOperand) {
 					$operators[] = new JSNode($this->t);
-					end($operands)->assignOp = $this->t->currentToken()->assignOp;
-					$this->t->scanOperand = true;
-					break;
-				case KEYWORD_IN:
-					if ($x->inForLoopInit && !$x->hookLevel && !$x->bracketLevel && !$x->curlyLevel && !$x->parenLevel) {
-						break 2;
-					}
-				case OP_COMMA:
-					if ($tt === OP_COMMA && $x->hookLevel && !$x->bracketLevel && !$x->curlyLevel && !$x->parenLevel) {
-						break 2;
-					}
-				case OP_OR:
-				case OP_AND:
-				case OP_BITWISE_OR:
-				case OP_BITWISE_XOR:
-				case OP_BITWISE_AND:
-				case OP_EQ: case OP_NE: case OP_STRICT_EQ: case OP_STRICT_NE:
-				case OP_LT: case OP_LE: case OP_GE: case OP_GT:
-				case KEYWORD_INSTANCEOF:
-				case OP_LSH: case OP_RSH: case OP_URSH:
-				case OP_PLUS: case OP_MINUS:
-				case OP_MUL: case OP_DIV: case OP_MOD:
-				case OP_DOT:
-					if ($this->t->scanOperand) {
-						break 2;
-					}
-
-					while (!empty($operators) && $this->opPrecedence[end($operators)->type] >= $this->opPrecedence[$tt]) {
-						$this->reduce($operators, $operands);
-					}
-
-					if ($tt === OP_DOT) {
-						$this->t->mustMatch(TOKEN_IDENTIFIER);
-						$operands[] = new JSNode($this->t, OP_DOT, array_pop($operands), new JSNode($this->t));
-					} else {
-						$operators[] = new JSNode($this->t);
-						$this->t->scanOperand = true;
-					}
-					break;
-				case KEYWORD_DELETE: case KEYWORD_VOID: case KEYWORD_TYPEOF:
-				case OP_NOT: case OP_BITWISE_NOT: case OP_UNARY_PLUS: case OP_UNARY_MINUS:
-				case KEYWORD_NEW:
-					if (!$this->t->scanOperand) {
-						break 2;
-					}
-
-					$operators[] = new JSNode($this->t);
-					break;
-				case OP_INCREMENT: case OP_DECREMENT:
-					if ($this->t->scanOperand) {
-						$operators[] = new JSNode($this->t);
-					} else {
-						$t = $this->t->tokens[($this->t->tokenIndex + $this->t->lookahead - 1) & 3];
-
-						if ($t && $t->lineno !== $this->t->lineno) {
-							break 2;
-						}
-
-						if ($operators) {
-							while ($this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
-								$this->reduce($operators, $operands);
-							}
-						}
-
-						$n = new JSNode($this->t, $tt, array_pop($operands));
-						$n->postfix = true;
-						$operands[] = $n;
-					}
-					break;
-				case KEYWORD_FUNCTION:
-					if (!$this->t->scanOperand) {
-						break 2;
-					}
-
-					$operands[] = $this->FunctionDefinition($x, false, EXPRESSED_FORM);
-					$this->t->scanOperand = false;
-
-					break;
-				case KEYWORD_NULL: case KEYWORD_THIS: case KEYWORD_TRUE: case KEYWORD_FALSE:
-				case TOKEN_IDENTIFIER: case TOKEN_NUMBER: case TOKEN_STRING: case TOKEN_REGEXP:
-					if (!$this->t->scanOperand) {
-						break 2;
-					}
-
+				} else {
 					$operands[] = new JSNode($this->t);
-					$this->t->scanOperand = false;
-					break;
-				case TOKEN_CONDCOMMENT_START:
-				case TOKEN_CONDCOMMENT_END:
-					if ($this->t->scanOperand) {
-						$operators[] = new JSNode($this->t);
-					} else {
-						$operands[] = new JSNode($this->t);
+				}
+
+				break;
+			case OP_LEFT_BRACKET:
+				if ($this->t->scanOperand) {
+					$n = new JSNode($this->t, JS_ARRAY_INIT);
+					while (($tt = $this->t->peek()) !== OP_RIGHT_BRACKET) {
+						$n->addNode($this->Expression($x, OP_COMMA));
+						if (!$this->t->match(OP_COMMA)) {
+							break;
+						}
 					}
 
-					break;
-				case OP_LEFT_BRACKET:
-					if ($this->t->scanOperand) {
-						$n = new JSNode($this->t, JS_ARRAY_INIT);
-						while (($tt = $this->t->peek()) !== OP_RIGHT_BRACKET) {
-							$n->addNode($this->Expression($x, OP_COMMA));
-							if (!$this->t->match(OP_COMMA)) {
-								break;
-							}
+					$this->t->mustMatch(OP_RIGHT_BRACKET);
+					$operands[] = $n;
+					$this->t->scanOperand = false;
+				} else {
+					$operators[] = new JSNode($this->t, JS_INDEX);
+					$this->t->scanOperand = true;
+					++$x->bracketLevel;
+				}
+
+				break;
+			case OP_RIGHT_BRACKET:
+				if ($this->t->scanOperand || $x->bracketLevel === $bl) {
+					break 2;
+				}
+
+				while ($this->reduce($operators, $operands)->type !== JS_INDEX);
+
+				--$x->bracketLevel;
+
+				break;
+			case OP_LEFT_CURLY:
+				if (!$this->t->scanOperand) {
+					break 2;
+				}
+
+				++$x->curlyLevel;
+				$n = new JSNode($this->t, JS_OBJECT_INIT);
+				while (!$this->t->match(OP_RIGHT_CURLY)) {
+					do {
+						$tt = $this->t->get();
+						$tv = $this->t->currentToken()->value;
+
+						switch ($tt) {
+						case TOKEN_IDENTIFIER:
+						case TOKEN_NUMBER:
+						case TOKEN_STRING:
+							$id = new JSNode($this->t);
+							break;
+						case OP_RIGHT_CURLY:
+							throw $this->t->newSyntaxError('Illegal trailing ,');
+						default:
+							throw $this->t->newSyntaxError('Invalid property name');
 						}
 
-						$this->t->mustMatch(OP_RIGHT_BRACKET);
+						$this->t->mustMatch(OP_COLON);
+						$n->addNode(new JSNode($this->t, JS_PROPERTY_INIT, $id, $this->Expression($x, OP_COMMA)));
+					} while ($this->t->match(OP_COMMA));
+
+					$this->t->mustMatch(OP_RIGHT_CURLY);
+					break;
+				}
+
+				$operands[] = $n;
+				$this->t->scanOperand = false;
+				--$x->curlyLevel;
+
+				break;
+			case OP_RIGHT_CURLY:
+				if (!$this->t->scanOperand && $x->curlyLevel !== $cl) {
+					throw new Exception('PANIC: right curly botch');
+				}
+				break 2;
+			case OP_LEFT_PAREN:
+				if ($this->t->scanOperand) {
+					$operators[] = new JSNode($this->t, JS_GROUP);
+				} else {
+					while ($operators && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[KEYWORD_NEW]) {
+						$this->reduce($operators, $operands);
+					}
+
+					$n = end($operators);
+					$this->t->scanOperand = true;
+					if ($this->t->match(OP_RIGHT_PAREN)) {
+						if ($n && $n->type === KEYWORD_NEW) {
+							array_pop($operators);
+							$n->addNode(array_pop($operands));
+						} else {
+							$n = new JSNode($this->t, JS_CALL, array_pop($operands), new JSNode($this->t, JS_LIST));
+						}
+
 						$operands[] = $n;
 						$this->t->scanOperand = false;
-					} else {
-						$operators[] = new JSNode($this->t, JS_INDEX);
-						$this->t->scanOperand = true;
-						++$x->bracketLevel;
-					}
-
-					break;
-				case OP_RIGHT_BRACKET:
-					if ($this->t->scanOperand || $x->bracketLevel === $bl) {
-						break 2;
-					}
-
-					while ($this->reduce($operators, $operands)->type !== JS_INDEX);
-
-					--$x->bracketLevel;
-
-					break;
-				case OP_LEFT_CURLY:
-					if (!$this->t->scanOperand) {
-						break 2;
-					}
-
-					++$x->curlyLevel;
-					$n = new JSNode($this->t, JS_OBJECT_INIT);
-					while (!$this->t->match(OP_RIGHT_CURLY)) {
-						do {
-							$tt = $this->t->get();
-							$tv = $this->t->currentToken()->value;
-
-							switch ($tt) {
-							case TOKEN_IDENTIFIER:
-							case TOKEN_NUMBER:
-							case TOKEN_STRING:
-								$id = new JSNode($this->t);
-								break;
-							case OP_RIGHT_CURLY:
-								throw $this->t->newSyntaxError('Illegal trailing ,');
-							default:
-								throw $this->t->newSyntaxError('Invalid property name');
-							}
-
-							$this->t->mustMatch(OP_COLON);
-							$n->addNode(new JSNode($this->t, JS_PROPERTY_INIT, $id, $this->Expression($x, OP_COMMA)));
-						} while ($this->t->match(OP_COMMA));
-
-						$this->t->mustMatch(OP_RIGHT_CURLY);
 						break;
 					}
 
-					$operands[] = $n;
-					$this->t->scanOperand = false;
-					--$x->curlyLevel;
-
-					break;
-				case OP_RIGHT_CURLY:
-					if (!$this->t->scanOperand && $x->curlyLevel !== $cl) {
-						throw new Exception('PANIC: right curly botch');
-					}
-					break 2;
-				case OP_LEFT_PAREN:
-					if ($this->t->scanOperand) {
-						$operators[] = new JSNode($this->t, JS_GROUP);
+					if ($n && $n->type === KEYWORD_NEW) {
+						$n->type = JS_NEW_WITH_ARGS;
 					} else {
-						while ($operators && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[KEYWORD_NEW]) {
-							$this->reduce($operators, $operands);
-						}
-
-						$n = end($operators);
-						$this->t->scanOperand = true;
-						if ($this->t->match(OP_RIGHT_PAREN)) {
-							if ($n && $n->type === KEYWORD_NEW) {
-								array_pop($operators);
-								$n->addNode(array_pop($operands));
-							} else {
-								$n = new JSNode($this->t, JS_CALL, array_pop($operands), new JSNode($this->t, JS_LIST));
-							}
-
-							$operands[] = $n;
-							$this->t->scanOperand = false;
-							break;
-						}
-
-						if ($n && $n->type === KEYWORD_NEW) {
-							$n->type = JS_NEW_WITH_ARGS;
-						} else {
-							$operators[] = new JSNode($this->t, JS_CALL);
-						}
+						$operators[] = new JSNode($this->t, JS_CALL);
 					}
+				}
 
-					++$x->parenLevel;
-					break;
-				case OP_RIGHT_PAREN:
-					if ($this->t->scanOperand || $x->parenLevel === $pl) {
-						break 2;
-					}
-
-					while (($tt = $this->reduce($operators, $operands)->type) !== JS_GROUP && $tt !== JS_CALL && $tt !== JS_NEW_WITH_ARGS);
-
-					if ($tt !== JS_GROUP) {
-						$n = end($operands);
-						if ($n->nodes[1]->type !== OP_COMMA) {
-							$n->nodes[1] = new JSNode($this->t, JS_LIST, $n->nodes[1]);
-						} else {
-							$n->nodes[1]->type = JS_LIST;
-						}
-					}
-
-					--$x->parenLevel;
-					break;
-				default:
+				++$x->parenLevel;
+				break;
+			case OP_RIGHT_PAREN:
+				if ($this->t->scanOperand || $x->parenLevel === $pl) {
 					break 2;
+				}
+
+				while (($tt = $this->reduce($operators, $operands)->type) !== JS_GROUP && $tt !== JS_CALL && $tt !== JS_NEW_WITH_ARGS) {}
+
+				if ($tt !== JS_GROUP) {
+					$n = end($operands);
+					if ($n->nodes[1]->type !== OP_COMMA) {
+						$n->nodes[1] = new JSNode($this->t, JS_LIST, $n->nodes[1]);
+					} else {
+						$n->nodes[1]->type = JS_LIST;
+					}
+				}
+
+				--$x->parenLevel;
+				break;
+			default:
+				break 2;
 			}
 		}
 
@@ -856,12 +856,6 @@ class JSParser {
 			$n->addNode($a[$i]);
 		}
 
-		// Include closing bracket or postfix operator in [start,end]
-		$te = $this->t->currentToken()->end;
-		if ($n->end < $te) {
-			$n->end = $te;
-		}
-
 		$operands[] = $n;
 
 		return $n;
@@ -889,13 +883,8 @@ class JSCompilerContext {
 }
 
 class JSNode {
-	private $type;
-	private $value;
-	private $lineno;
-	private $start;
-	private $end;
-
-	private $tree = array();
+	public $type;
+	public $value;
 
 	public $data = array();
 	public $parent;
@@ -909,17 +898,8 @@ class JSNode {
 			if ($token = $t->currentToken()) {
 				$this->type = $type ? $type : $token->type;
 				$this->value = $token->value;
-				$this->lineno = $token->lineno;
-				$this->start = $token->start;
-				$this->end = $token->end;
 			} else {
 				$this->type = $type;
-				$this->lineno = $t->lineno;
-			}
-
-			if( $t->lastComment ) {
-				$this->comment = $t->lastComment;
-				$t->lastComment = null;
 			}
 		} else {
 			$this->type = $t;
@@ -936,19 +916,14 @@ class JSNode {
 
 	// we don't want to bloat our object with all kind of specific properties, so we use overloading
 	public function __set($name, $value) {
-		$this->data[$name] = $value;
 		$this->$name = $value;
 	}
 
 	public function __isset($name) {
-		return isset($this->data[$name]);
+		return false;
 	}
 
 	public function __get($name) {
-		if (isset($this->$name)) {
-			return $this->$name;
-		}
-
 		return null;
 	}
 

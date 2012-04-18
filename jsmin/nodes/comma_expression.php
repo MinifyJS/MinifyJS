@@ -8,20 +8,17 @@ class CommaExpression extends Expression {
 
 	public function visit(AST $ast) {
 		$nodes = array();
+		$last = count($this->nodes) - 1;
 
 		foreach($this->nodes as $i => $e) {
-			$node = $e->visit($ast);
-
-			if ($node && !$node->isVoid()) {
-				if ($node instanceof CommaExpression) {
-					foreach($node->nodes as $n) {
-						if (!$n->isVoid()) {
-							$nodes[] = $n;
-						}
+			if (($node = $e->visit($ast)) && !$node->isVoid()) {
+				foreach($node->nodes() as $n) {
+					if ($i !== $last) {
+						$n = $n->removeUseless();
 					}
-				} else {
-					if (!$node->isVoid()) {
-						$nodes[] = $node;
+
+					if (!$n->isVoid()) {
+						$nodes[] = $n;
 					}
 				}
 			}
