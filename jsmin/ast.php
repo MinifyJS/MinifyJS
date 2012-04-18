@@ -115,11 +115,13 @@ class AST {
 
 			return new ScriptNode($this->nodeList($n->nodes));
 		case JS_BLOCK:
-			if (count($n->nodes) === 1) {
-				return $this->generate($n->nodes[0]);
+			$nl = $this->nodeList($n->nodes);
+
+			if (count($nl) === 1) {
+				return $nl[0];
 			}
 
-			return new BlockStatement($this->nodeList($n->nodes));
+			return new BlockStatement($nl);
 		case JS_FOR_IN:
 			$it = $this->generate($n->varDecl ? $n->varDecl : $n->iterator);
 
@@ -237,9 +239,9 @@ class AST {
 		case KEYWORD_NULL:
 			return new Nil();
 		case KEYWORD_WHILE:
-			return new WhileNode($this->generate($n->condition), $this->generate($n->body));
+			return new WhileNode($this->generate($n->condition), $this->block($n->body));
 		case KEYWORD_DO:
-			return new DoWhileNode($this->generate($n->condition), $this->generate($n->body));
+			return new DoWhileNode($this->generate($n->condition), $this->block($n->body));
 		case OP_OR:
 			return new OrExpression($this->generate($n->nodes[0]), $this->generate($n->nodes[1]));
 		case OP_AND:
@@ -338,7 +340,7 @@ class AST {
 		case KEYWORD_CATCH:
 			return new CatchNode(
 				$this->scope->find($n->varName, true),
-				$this->generate($n->block)
+				$this->block($n->block)
 			);
 		case KEYWORD_SWITCH:
 			return new SwitchNode(
