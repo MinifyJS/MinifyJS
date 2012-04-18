@@ -8,9 +8,9 @@ class NotEqualExpression extends ComparisonExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$that = parent::visit($ast);
 
-		return $this;
+		return $that;
 	}
 
 	public function type() {

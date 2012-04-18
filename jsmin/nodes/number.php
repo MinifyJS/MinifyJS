@@ -1,6 +1,10 @@
 <?php
 class Number extends ConstantExpression {
 	public function __construct($value) {
+		if (!is_numeric($value)) {
+			throw new Exception($value . ' is not numeric');
+		}
+		
 		parent::__construct(eval('return ' . $value . ';'));
 	}
 

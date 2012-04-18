@@ -25,6 +25,9 @@ class CallExpression extends Expression {
 
 		switch ($this->left->value()) {
 		case 'RegExp':
+			break;
+
+			// premature break
 			$flags = null;
 			$regexp = null;
 
@@ -75,7 +78,7 @@ class CallExpression extends Expression {
 		if (!$result && $this->left instanceof DotExpression) {
 			// check for array shortening..
 			if ($this->left->left()->actualType() === 'array' && $this->left->right()->name() === 'join') {
-				if (!$this->right || (count($this->right === 1) && $this->right[0]->asString() === ',')) {
+				if (!$this->right || (count($this->right) === 1 && $this->right[0]->asString() === ',')) {
 					$result = new PlusExpression($this->left->left(), new String('', false));
 				}
 			}

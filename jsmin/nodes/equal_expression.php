@@ -8,9 +8,7 @@ class EqualExpression extends ComparisonExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
-
-		return $this;
+		return parent::visit($ast);
 	}
 
 	public function precedence() {
