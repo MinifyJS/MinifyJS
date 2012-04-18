@@ -25,7 +25,7 @@ class String extends ConstantExpression {
 	}
 
 	public function toString() {
-		return AST::bestOption(array($this->quote('"'), $this->quote("'")));
+		return AST::bestOption(array($this->quote("'"), $this->quote('"')));
 	}
 
 	public function asBoolean() {
