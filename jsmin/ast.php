@@ -155,15 +155,10 @@ class AST {
 		case JS_LABEL:
 			return new LabelNode($this->labelScope->find($n->label, true), $this->generate($n->statement));
 		case KEYWORD_FUNCTION:
-			if ($n->functionForm === EXPRESSED_FORM) {
-				$this->enter();
-			}
-
 			$ident = $n->name === null ? null : new IdentifierExpression($this->scope->find($n->name, true));
 
-			if ($n->functionForm !== EXPRESSED_FORM) {
-				$this->enter();
-			}
+			// because of IE, include the name in the parent scope
+			$this->enter();
 
 			$f = new FunctionNode(
 				$ident,

@@ -15,6 +15,8 @@ class CatchNode extends Node {
 	}
 
 	public function collectStatistics(AST $ast) {
+		$this->variable->used(true);
+
 		$this->body->collectStatistics($ast);
 	}
 

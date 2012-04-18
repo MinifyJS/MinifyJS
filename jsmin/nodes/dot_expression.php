@@ -15,9 +15,7 @@ class DotExpression extends Expression {
 	}
 
 	public function collectStatistics(AST $ast) {
-		if ($this->left instanceof IdentifierExpression) {
-			$this->left->collectStatistics($ast);
-		}
+		$this->left->collectStatistics($ast);
 	}
 
 	public function toString() {
