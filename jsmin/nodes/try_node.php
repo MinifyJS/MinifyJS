@@ -29,7 +29,7 @@ class TryNode extends Node {
 			$this->catch->collectStatistics($ast);
 		}
 		if ($this->finally) {
-			$this->catch->collectStatistics($ast);
+			$this->finally->collectStatistics($ast);
 		}
 	}
 
