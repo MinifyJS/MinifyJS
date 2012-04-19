@@ -26,6 +26,10 @@ class DotExpression extends Expression {
 		return $this->left->isRedundant();
 	}
 
+	public function isConstant() {
+		return false;
+	}
+
 	public function precedence() {
 		return 17;
 	}

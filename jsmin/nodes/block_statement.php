@@ -288,7 +288,7 @@ class BlockStatement extends Node {
 	}
 
 	public function breaking() {
-//		return array();
+		//return array();
 
 		$nodes = array();
 		$broken = false;

@@ -106,6 +106,10 @@ class CallExpression extends Expression {
 		return false;
 	}
 
+	public function isConstant() {
+		return false;
+	}
+
 	public function debug() {
 		return $this->left->debug() . ' ( ' . implode(', ', array_map(function ($e) {
 			return $e->debug();

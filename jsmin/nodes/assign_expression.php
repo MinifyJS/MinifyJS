@@ -39,6 +39,10 @@ class AssignExpression extends Expression {
 		return 2;
 	}
 
+	public function isConstant() {
+		return false;
+	}
+
 	public function assignType() {
 		return $this->type;
 	}

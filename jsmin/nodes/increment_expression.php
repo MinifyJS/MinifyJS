@@ -10,9 +10,9 @@ class IncrementExpression extends UnaryExpression {
 
 	public function toString() {
 		if ($this->postfix) {
-			return $this->left->toString() . '++';
+			return $this->group($this, $this->left, false) . '++';
 		} else {
-			return '++' . $this->left->toString();
+			return '++' . $this->group($this, $this->left);
 		}
 	}
 
@@ -24,7 +24,11 @@ class IncrementExpression extends UnaryExpression {
 		return 15;
 	}
 
+	public function isConstant() {
+		return false;
+	}
+
 	public function removeUseless() {
-		return new DecrementExpression($this->left->removeUseless(), $this->postfix);
+		return new IncrementExpression($this->left->removeUseless(), $this->postfix);
 	}
 }

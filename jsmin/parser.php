@@ -706,7 +706,9 @@ class JSParser {
 							$id = new JSNode($this->t);
 							break;
 						case OP_RIGHT_CURLY:
-							throw $this->t->newSyntaxError('Illegal trailing ,');
+							//throw $this->t->newSyntaxError('Illegal trailing ,');
+							// instead of the error, close it
+							break 3;
 						default:
 							throw $this->t->newSyntaxError('Invalid property name');
 						}
