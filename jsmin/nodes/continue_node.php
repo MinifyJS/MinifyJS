@@ -18,8 +18,16 @@ class ContinueNode extends Node {
 		}
 	}
 
+	public function hasLabel() {
+		return !!$this->label;
+	}
+
 	public function toString() {
 		return 'continue' . ($this->label ? Stream::legalStart($this->label->toString()) : '');
+	}
+
+	public function optimizeBreak() {
+		return new VoidExpression(new Number(0));
 	}
 
 	public function isBreaking() {

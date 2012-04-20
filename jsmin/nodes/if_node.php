@@ -81,6 +81,18 @@ class IfNode extends Node {
 		}
 	}
 
+	public function optimizeBreak() {
+		$this->then = $this->then->optimizeBreak();
+		if ($this->else) {
+			$this->else = $this->else->optimizeBreak();
+			if ($this->else->isVoid()) {
+				$this->else = null;
+			}
+		}
+
+		return $this;
+	}
+
 	public function toString() {
 		$noBlock = null;
 
