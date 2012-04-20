@@ -42,11 +42,15 @@ class AssignExpression extends Expression {
 	}
 
 	public function type() {
-		return $this->right->type();
+		if ($this->type !== '+=' || $this->right->type() === 'string') {
+			return $this->right->type();
+		}
 	}
 
 	public function value() {
-		return $this->right->value();
+		if ($this->type === '=') {
+			return $this->right->value();
+		}
 	}
 
 	public function precedence() {
