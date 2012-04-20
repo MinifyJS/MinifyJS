@@ -213,24 +213,33 @@ class BlockStatement extends Node {
 				continue;
 			}
 
-			if ($varCache && !$n instanceof VarNode) {
-				$o[] = 'var ' . implode(',', $varCache) . ';';
-				$varCache = array();
-			}
-
 			if ($n instanceof VarNode) {
 				$a = $n->toString();
 
 				if ($a !== '') {
-					$varCache[] = substr($a, 4);
+					$a = substr($a, 4);
+
+					if (AST::$options['beautify']) {
+						$a = ltrim(preg_replace('~^~m', '    ', $a));
+					}
+
+					$varCache[] = $a;
 				}
 
 				continue;
+			} elseif ($varCache) {
+				if (AST::$options['beautify']) {
+					$o[] = 'var ' . ltrim(Stream::indent(implode(",\n", $varCache))) . ';';
+				} else {
+					$o[] = 'var ' . implode(',', $varCache) . ';';
+				}
+
+				$varCache = array();
 			}
 
 			$f = $n->first();
 
-			$x = $n->toString();
+			$x = $n->toString(false);
 
 			/*
 			 * ECMA-262, 12.4 Expression Statement
@@ -256,18 +265,31 @@ class BlockStatement extends Node {
 		}
 
 		if ($varCache) {
-			$o[] = 'var ' . implode(',', $varCache) . ';';
+			if (AST::$options['beautify']) {
+				$o[] = 'var ' . ltrim(Stream::indent(implode(",\n", $varCache))) . ';';
+			} else {
+				$o[] = 'var ' . implode(',', $varCache) . ';';
+			}
+
 			$varCache = array();
 		}
 
 		$size = count($o);
 
-		$o = implode('', $o);
+		$o = implode(AST::$options['beautify'] ? "\n" : '', $o);
 
-		if ($forceNoBraces === null && $size > 1 || $forceNoBraces === false) {
-			$o = '{' . Stream::trimSemicolon($o) . '}';
-		} elseif ($forceNoBraces === true) {
-			$o = Stream::trimSemicolon($o);
+		if (AST::$options['beautify']) {
+			$o = "\n" . preg_replace('~^~m', '    ', $o) . "\n";
+
+			if ($forceNoBraces !== true) {
+				$o = '{' . $o . '}';
+			}
+		} else {
+			if ($forceNoBraces === null && $size > 1 || $forceNoBraces === false) {
+				$o = '{' . Stream::trimSemicolon($o) . '}';
+			} elseif ($forceNoBraces === true) {
+				$o = Stream::trimSemicolon($o);
+			}
 		}
 
 		if ($o === '' && $forceOut) {

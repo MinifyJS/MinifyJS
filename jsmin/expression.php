@@ -122,7 +122,8 @@ abstract class Expression extends Node {
 	}
 
 	public function binary($op) {
-		return $this->group($this, $this->left) . $op . $this->group($this, $this->right, false);
+		$space = AST::$options['beautify'] ? ' ' : '';
+		return $this->group($this, $this->left) . $space . $op . $space . $this->group($this, $this->right, false);
 	}
 
 	public function unary($op) {

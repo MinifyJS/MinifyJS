@@ -21,7 +21,7 @@ class ArrayExpression extends Expression {
 	}
 
 	public function toString() {
-		return '[' . implode(',', $this->nodes) . ']';
+		return '[' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $this->nodes) . ']';
 	}
 
 	public function type() {

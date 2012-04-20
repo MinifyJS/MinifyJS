@@ -65,9 +65,11 @@ class HookExpression extends Expression {
 	}
 
 	public function toString() {
+		$space = AST::$options['beautify'] ? ' ' : '';
+
 		return $this->group($this, $this->left)
-			. '?' . $this->group($this, $this->middle, false)
-			. ':' . $this->group($this, $this->right);
+			. $space . '?' . $space . $this->group($this, $this->middle, false)
+			. $space . ':' . $space . $this->group($this, $this->right);
 	}
 
 	public function negate() {

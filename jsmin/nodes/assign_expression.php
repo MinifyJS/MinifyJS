@@ -38,7 +38,9 @@ class AssignExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . $this->type . $this->group($this, $this->right);
+		$space = AST::$options['beautify'] ? ' ' : '';
+
+		return $this->group($this, $this->left) . $space . $this->type . $space . $this->group($this, $this->right);
 	}
 
 	public function type() {

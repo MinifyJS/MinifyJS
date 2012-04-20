@@ -21,7 +21,8 @@ class AST {
 		'mangle' => true,
 		'unsafe' => false,
 		'strip-console' => false,
-		'timer' => false
+		'timer' => false,
+		'beautify' => false
 	);
 
 	protected $binaryClasses = array(

@@ -95,7 +95,7 @@ class CallExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . '(' . implode(',', $this->right) . ')';
+		return $this->group($this, $this->left) . '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $this->right) . ')';
 	}
 
 	public function precedence() {

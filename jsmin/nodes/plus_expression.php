@@ -31,6 +31,10 @@ class PlusExpression extends BinaryExpression {
 	}
 
 	public function toString() {
+		if (AST::$options['beautify']) {
+			return $this->binary('+');
+		}
+
 		$r = $this->group($this, $this->right, false);
 		if ($r[0] === '+') {
 			$r = ' ' . $r;

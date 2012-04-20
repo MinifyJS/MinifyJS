@@ -29,7 +29,10 @@ $options = array(
 	'--no-mangle' => array('mangle' => false),
 
 	'-t' => array('timer' => true),
-	'--timer' => array('timer' => true)
+	'--timer' => array('timer' => true),
+
+	'-b' => array('beautify' => true),
+	'--beautify' => array('beautify' => true),
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {

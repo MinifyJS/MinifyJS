@@ -51,8 +51,12 @@ class CommaExpression extends Expression {
 		}
 	}
 
-	public function toString() {
-		return implode(',', $this->nodes);
+	public function toString($indent = true) {
+		$result = implode(',' . (AST::$options['beautify'] ? "\n" : ''), $this->nodes);
+		if (AST::$options['beautify'] && $indent) {
+			$result = ltrim(Stream::indent($result));
+		}
+		return $result;
 	}
 
 	public function asBoolean() {

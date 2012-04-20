@@ -17,7 +17,12 @@ class CaseNode extends Node {
 	}
 
 	public function toString() {
-		return 'case' . Stream::legalStart($this->label->toString()) . ':' . $this->stmt->toString();
+		if (AST::$options['beautify']) {
+			return 'case ' . $this->label->toString() . ':'
+				. $this->stmt->asBlock()->toString(true);
+		}
+
+		return 'case' . Stream::legalStart($this->label->toString()) . ':' . $this->stmt->asBlock()->toString(true);
 	}
 
 	public function collectStatistics(AST $ast) {

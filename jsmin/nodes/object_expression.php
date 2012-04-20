@@ -26,6 +26,15 @@ class ObjectExpression extends Expression {
 			$output[] = $n->toString();
 		}
 
+		if (AST::$options['beautify']) {
+			$output = implode(",\n", $output);
+			if (trim($output) === '') {
+				return '{}';
+			}
+
+			return "{\n" . Stream::indent($output) . "\n}";
+		}
+
 		return '{' . implode(',', $output) . '}';
 	}
 
