@@ -4,8 +4,6 @@
  *
  */
 class Identifier {
-	static private $seq = 0;
-
 	protected $scope;
 	protected $name;
 	protected $small;
