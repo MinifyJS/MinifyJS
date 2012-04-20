@@ -28,9 +28,9 @@ class FunctionNode extends Node {
 	}
 
 	public function collectStatistics(AST $ast) {
-		if ($this->name) {
-			$this->name->collectStatistics($ast);
-		}
+		//if ($this->name) {
+		//	$this->name->collectStatistics($ast);
+		//}
 
 		foreach($this->params as $p) {
 			$p->collectStatistics($ast);
@@ -40,7 +40,7 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
-		return 'function' . ($this->name ? ' ' . $this->name->toString() : '') . '(' . implode(',', $this->params) . '){' . $this->body->asBlock()->toString(true) . '}';
+		return 'function' . ($this->name && $this->name->used() ? ' ' . $this->name->toString() : '') . '(' . implode(',', $this->params) . '){' . $this->body->asBlock()->toString(true) . '}';
 	}
 
 	public function onlyReturns() {

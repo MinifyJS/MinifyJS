@@ -4,8 +4,6 @@
  *
  */
 class Identifier {
-	static private $seq = 0;
-
 	protected $scope;
 	protected $name;
 	protected $small;
@@ -23,7 +21,7 @@ class Identifier {
 	public function mustDeclare() {
 		$this->mustDeclare = true;
 	}
-
+	
 	public function declared() {
 		return $this->mustDeclare;
 	}
@@ -52,6 +50,7 @@ class Identifier {
 
 	public function small($new = null) {
 		if ($new !== null) {
+			echo $this->name . ' : ' . $this->used() . "\n";
 			if ($new === false) {
 				$this->small = $this->name;
 			} else {
