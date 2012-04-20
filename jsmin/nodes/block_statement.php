@@ -116,8 +116,6 @@ class BlockStatement extends Node {
 	}
 
 	protected function redoIfElse(array $nodes) {
-//		return $nodes;
-
 		for ($i = 0, $length = count($nodes); $i < $length; ++$i) {
 			$n = $nodes[$i];
 
@@ -307,6 +305,21 @@ class BlockStatement extends Node {
 
 	public function nodes() {
 		return $this->nodes;
+	}
+
+	public function optimizeBreak() {
+		if ($this->nodes) {
+			$check = end($this->nodes)->optimizeBreak();
+			if ($check instanceof ContinueNode && !$check->hasLabel()) {
+				array_splice($this->nodes, -1);
+			}
+		}
+
+		if (!$this->nodes) {
+			return new VoidExpression(new Number(0));
+		}
+
+		return $this;
 	}
 
 	public function debug() {

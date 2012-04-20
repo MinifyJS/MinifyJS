@@ -34,7 +34,7 @@ class ForNode extends Node {
 			$this->update = $this->update->visit($ast);
 		}
 
-		$this->body = $this->body->visit($ast);
+		$this->body = $this->body->visit($ast)->optimizeBreak();
 
 		return $this;
 	}
