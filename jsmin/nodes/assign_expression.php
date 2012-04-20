@@ -15,6 +15,20 @@ class AssignExpression extends Expression {
 		$this->left = $this->left->visit($ast);
 		$this->right = $this->right->visit($ast);
 
+		if ($this->type === '=') {
+			// you're a stupid jerk if you do c[i++] = c[i++] + 5;
+			if (($this->right instanceof PlusExpression && $type = '+=')
+					|| ($this->right instanceof MinusExpression && $type = '-=')
+					|| ($this->right instanceof MulExpression && $type = '*=')
+					|| ($this->right instanceof DivExpression && $type = '/=')
+					|| ($this->right instanceof ModExpression && $type = '%=')) {
+				if ($this->right->left()->toString() === $this->left->toString()) {
+					$this->type = $type;
+					$this->right = $this->right->right();
+				}
+			}
+		}
+
 		return $this;
 	}
 

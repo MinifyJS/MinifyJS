@@ -92,11 +92,19 @@ define('KEYWORD_FINALLY', 'finally');
 define('KEYWORD_FOR', 'for');
 define('KEYWORD_FUNCTION', 'function');
 define('KEYWORD_IF', 'if');
+define('KEYWORD_IMPLEMENTS', 'implements');
 define('KEYWORD_IN', 'in');
 define('KEYWORD_INSTANCEOF', 'instanceof');
+define('KEYWORD_INTERFACE', 'interface');
+define('KEYWORD_LET', 'let');
 define('KEYWORD_NEW', 'new');
 define('KEYWORD_NULL', 'null');
+define('KEYWORD_PACKAGE', 'package');
+define('KEYWORD_PRIVATE', 'private');
+define('KEYWORD_PROTECTED', 'protected');
+define('KEYWORD_PUBLIC', 'public');
 define('KEYWORD_RETURN', 'return');
+define('KEYWORD_STATIC', 'static');
 define('KEYWORD_SWITCH', 'switch');
 define('KEYWORD_THIS', 'this');
 define('KEYWORD_THROW', 'throw');
@@ -107,6 +115,7 @@ define('KEYWORD_VAR', 'var');
 define('KEYWORD_VOID', 'void');
 define('KEYWORD_WHILE', 'while');
 define('KEYWORD_WITH', 'with');
+define('KEYWORD_YIELD', 'yield');
 
 class JSTokenizer {
 	private $cursor = 0;
@@ -130,13 +139,16 @@ class JSTokenizer {
 		'debugger', 'default', 'delete', 'do',
 		'else', 'enum',
 		'false', 'finally', 'for', 'function',
-		'if', 'in', 'instanceof',
+		'if', 'implements', 'in', 'instanceof', 'interface',
+		'let',
 		'new', 'null',
+		'package', 'private', 'protected', 'public',
 		'return',
-		'switch',
+		'static', 'switch',
 		'this', 'throw', 'true', 'try', 'typeof',
 		'var', 'void',
-		'while', 'with'
+		'while', 'with',
+		'yield'
 	);
 
 	private $opTypeNames = array(
