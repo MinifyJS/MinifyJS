@@ -28,6 +28,10 @@ class CommaExpression extends Expression {
 			return new VoidExpression(new Number(0));
 		}
 
+		if (count($nodes) === 1) {
+			return $nodes[0];
+		}
+
 		return new CommaExpression($nodes);
 	}
 
