@@ -14,7 +14,15 @@ class WhileNode extends Node {
 
 	public function visit(AST $ast) {
 		$this->condition = $this->condition->visit($ast);
-		$this->body = $this->body->visit($ast);
+		$this->body = $this->body->visit($ast)->optimizeBreak();
+
+		$result = $this->condition->asBoolean();
+
+		if ($result === false) {
+			return new VoidExpression(new Number(0));
+		} elseif ($result === true) {
+			return new ForNode(null, null, null, $this->body);
+		}
 
 		return $this;
 	}

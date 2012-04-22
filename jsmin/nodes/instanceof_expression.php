@@ -20,6 +20,13 @@ class InstanceofExpression extends Expression {
 	}
 
 	public function toString() {
+		$left = $this->group($this, $this->left);
+		$right = $this->group($this, $this->right, false);
+
+		if (AST::$options['beautify']) {
+			return $left . ' instanceof ' . $right;
+		}
+
 		return Stream::legalEnd($this->group($this, $this->left)) . 'instanceof' . Stream::legalStart($this->group($this, $this->right, false));
 	}
 

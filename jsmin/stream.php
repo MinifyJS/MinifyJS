@@ -9,6 +9,10 @@ class Stream {
 	}
 
 	public static function trimSemicolon($t) {
-		return str_replace("\0", '', preg_replace('~(?|(;)\x00|;(\n?))+\z~', '$1', $t));
+		return str_replace("\0", '', preg_replace('~(?|(;\s*)\x00|;(\s*\n?))+\z~', '$1', $t));
+	}
+
+	public static function indent($o) {
+		return preg_replace('~^~m', '    ', $o);
 	}
 }

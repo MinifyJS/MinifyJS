@@ -24,6 +24,10 @@ class DecrementExpression extends UnaryExpression {
 		return 15;
 	}
 
+	public function isConstant() {
+		return false;
+	}
+
 	public function removeUseless() {
 		return new DecrementExpression($this->left->removeUseless(), $this->postfix);
 	}

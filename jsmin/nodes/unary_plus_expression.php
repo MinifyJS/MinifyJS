@@ -17,7 +17,7 @@ class UnaryPlusExpression extends UnaryExpression {
 	}
 
 	public function toString() {
-		return '+' . $this->left->toString();
+		return $this->unary('+');
 	}
 
 	public function asNumber() {

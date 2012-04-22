@@ -9,6 +9,12 @@ class TypeofExpression extends Expression {
 	public function visit(AST $ast) {
 		$this->left = $this->left->visit($ast);
 
+		if (!$this->left->hasSideEffects()) {
+			if (null !== $n = $this->left->type()) {
+				return new String($n, false);
+			}
+		}
+
 		return $this;
 	}
 
@@ -21,14 +27,6 @@ class TypeofExpression extends Expression {
 	}
 
 	public function toString() {
-		if (!$this->left->hasSideEffects()) {
-			$n = $this->left->type();
-
-			if ($n !== null) {
-				return "'" . $n . "'";
-			}
-		}
-
 		return 'typeof' . Stream::legalStart($this->group($this, $this->left, false));
 	}
 

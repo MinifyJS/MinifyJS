@@ -25,6 +25,12 @@ class TryNode extends Node {
 
 	public function collectStatistics(AST $ast) {
 		$this->body->collectStatistics($ast);
+		if ($this->catch) {
+			$this->catch->collectStatistics($ast);
+		}
+		if ($this->finally) {
+			$this->finally->collectStatistics($ast);
+		}
 	}
 
 	public function toString() {

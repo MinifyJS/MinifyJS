@@ -15,6 +15,20 @@ class AssignExpression extends Expression {
 		$this->left = $this->left->visit($ast);
 		$this->right = $this->right->visit($ast);
 
+		if ($this->type === '=') {
+			// you're a stupid jerk if you do c[i++] = c[i++] + 5;
+			if (($this->right instanceof PlusExpression && $type = '+=')
+					|| ($this->right instanceof MinusExpression && $type = '-=')
+					|| ($this->right instanceof MulExpression && $type = '*=')
+					|| ($this->right instanceof DivExpression && $type = '/=')
+					|| ($this->right instanceof ModExpression && $type = '%=')) {
+				if ($this->right->left()->toString() === $this->left->toString()) {
+					$this->type = $type;
+					$this->right = $this->right->right();
+				}
+			}
+		}
+
 		return $this;
 	}
 
@@ -24,19 +38,29 @@ class AssignExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . $this->type . $this->group($this, $this->right);
+		$space = AST::$options['beautify'] ? ' ' : '';
+
+		return $this->group($this, $this->left) . $space . $this->type . $space . $this->group($this, $this->right);
 	}
 
 	public function type() {
-		return $this->right->type();
+		if ($this->type !== '+=' || $this->right->type() === 'string') {
+			return $this->right->type();
+		}
 	}
 
 	public function value() {
-		return $this->right->value();
+		if ($this->type === '=') {
+			return $this->right->value();
+		}
 	}
 
 	public function precedence() {
 		return 2;
+	}
+
+	public function isConstant() {
+		return false;
 	}
 
 	public function assignType() {

@@ -24,8 +24,8 @@ class AndExpression extends BinaryExpression {
 
 	public function negate() {
 		return AST::bestOption(array(
-			new NotExpression($this),
-			new OrExpression($this->left->negate(), $this->right->negate())
+			new OrExpression($this->left->negate(), $this->right->negate()),
+			parent::negate()
 		));
 	}
 

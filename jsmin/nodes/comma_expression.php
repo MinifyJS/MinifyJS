@@ -8,24 +8,17 @@ class CommaExpression extends Expression {
 
 	public function visit(AST $ast) {
 		$nodes = array();
+		$last = count($this->nodes) - 1;
 
 		foreach($this->nodes as $i => $e) {
-			$node = $e->visit($ast);
-
-			if ($node && !$node->isVoid()) {
-				if ($node instanceof CommaExpression) {
-					foreach($node->nodes as $n) {
+			if (($node = $e->visit($ast)) && !$node->isVoid()) {
+				foreach($node->nodes() as $n) {
+					if ($i !== $last) {
 						$n = $n->removeUseless();
-
-						if (!$n->isVoid()) {
-							$nodes[] = $n;
-						}
 					}
-				} else {
-					$n = $node->removeUseless();
 
 					if (!$n->isVoid()) {
-						$nodes[] = $n->removeUseless();
+						$nodes[] = $n;
 					}
 				}
 			}
@@ -35,7 +28,17 @@ class CommaExpression extends Expression {
 			return new VoidExpression(new Number(0));
 		}
 
+		if (count($nodes) === 1) {
+			return $nodes[0];
+		}
+
 		return new CommaExpression($nodes);
+	}
+
+	public function first() {
+		if ($this->nodes) {
+			return $this->nodes[0]->first();
+		}
 	}
 
 	public function nodes() {
@@ -48,8 +51,12 @@ class CommaExpression extends Expression {
 		}
 	}
 
-	public function toString() {
-		return implode(',', $this->nodes);
+	public function toString($indent = true) {
+		$result = implode(',' . (AST::$options['beautify'] ? "\n" : ''), $this->nodes);
+		if (AST::$options['beautify'] && $indent) {
+			$result = ltrim(Stream::indent($result));
+		}
+		return $result;
 	}
 
 	public function asBoolean() {

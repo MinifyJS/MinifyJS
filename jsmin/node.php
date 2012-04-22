@@ -52,6 +52,10 @@ abstract class Node {
 		return $this->parent;
 	}
 
+	public function optimizeBreak() {
+		return $this;
+	}
+
 	public function first() {
 		if (!$this->nodes) {
 			return $this;

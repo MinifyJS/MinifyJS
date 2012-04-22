@@ -19,7 +19,7 @@ class ForInNode extends Node {
 	public function visit(AST $ast) {
 		$this->iterator = $this->iterator->visit($ast);
 		$this->object = $this->object->visit($ast);
-		$this->body = $this->body->visit($ast);
+		$this->body = $this->body->visit($ast)->optimizeBreak();
 
 		return $this;
 	}

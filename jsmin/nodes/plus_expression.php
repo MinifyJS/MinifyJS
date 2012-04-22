@@ -7,11 +7,11 @@ class PlusExpression extends BinaryExpression {
 	public function visit(AST $ast) {
 		$that = parent::visit($ast);
 
-		//if ($that->left->type() === 'string' || $that->right->type() === 'string') {
+		if ($that->left->type() === 'string' || $that->right->type() === 'string') {
 			if ((null !== $left = $that->left->asString()) && (null !== $right = $that->right->asString())) {
 				return new String($left . $right, false);
 			}
-		//}
+		}
 
 		if ($that->left instanceof PlusExpression
 				&& $that->left->right()->type() === 'string'
@@ -31,6 +31,10 @@ class PlusExpression extends BinaryExpression {
 	}
 
 	public function toString() {
+		if (AST::$options['beautify']) {
+			return $this->binary('+');
+		}
+
 		$r = $this->group($this, $this->right, false);
 		if ($r[0] === '+') {
 			$r = ' ' . $r;

@@ -35,7 +35,15 @@ class ReturnNode extends Node {
 	}
 
 	public function toString() {
-		return 'return' . (!($this->value instanceof VoidExpression && $this->value->isEmpty()) ? Stream::legalStart($this->value) : '');
+		if ($this->value->isVoid()) {
+			return 'return';
+		}
+
+		if (AST::$options['beautify']) {
+			return 'return ' . $this->value->toString();
+		}
+
+		return 'return' . Stream::legalStart($this->value);
 	}
 
 	public function isBreaking() {

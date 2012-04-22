@@ -8,9 +8,16 @@ class EqualExpression extends ComparisonExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$that = parent::visit($ast);
 
-		return $this;
+		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
+			if ($left !== null) {
+				$that->strict = false;
+				$that->type = OP_EQ;
+			}
+		}
+
+		return $that;
 	}
 
 	public function precedence() {

@@ -42,6 +42,8 @@ class VarNode extends Node {
 			return '';
 		}
 
-		return 'var ' . $this->name . ($init && !$init->isVoid() ? '=' . $this->initializer : '');
+		$space = AST::$options['beautify'] ? ' ' : '';
+
+		return 'var ' . $this->name . ($init && !$init->isVoid() ? ($space . '=' . $space . $this->initializer) : '');
 	}
 }

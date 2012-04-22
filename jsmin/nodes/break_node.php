@@ -12,7 +12,11 @@ class BreakNode extends Node {
 		return $this;
 	}
 
-	public function collectStatistics(AST $ast) {}
+	public function collectStatistics(AST $ast) {
+		if ($this->label) {
+			$this->label->used(true);
+		}
+	}
 
 	public function toString() {
 		return 'break' . ($this->label ? Stream::legalStart($this->label->toString()) : '');

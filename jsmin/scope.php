@@ -33,6 +33,7 @@ class Scope {
 
 	protected $program;
 	protected $parent;
+	protected $labelScope;
 
 	protected $children = array();
 
@@ -47,19 +48,21 @@ class Scope {
 
 	protected $uses = array();
 
-	public function __construct(AST $program, Scope $parent = null) {
+	public function __construct(AST $program, Scope $parent = null, $labelScope = false) {
 		$this->program = $program;
 		$this->parent = $parent;
 
 		if ($parent) {
 			$parent->add($this);
 		}
+
+		$this->labelScope = $labelScope;
 	}
 
 	public function optimize() {
-		if ($this->parent) {
+		if ($this->parent || $this->labelScope) {
 			foreach($this->declared as $ident) {
-				if ($ident->declared() && $ident->scope() === $this) {
+				if (($ident->declared() && $ident->scope() === $this) || $this->labelScope) {
 					for (;;) {
 						$name = $this->base54($this->nameIndex++);
 

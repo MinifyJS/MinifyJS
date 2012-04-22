@@ -26,7 +26,13 @@ $options = array(
 	'--strip-console' => array('strip-console' => true),
 
 	'-nm' => array('mangle' => false),
-	'--no-mangle' => array('mangle' => false)
+	'--no-mangle' => array('mangle' => false),
+
+	'-t' => array('timer' => true),
+	'--timer' => array('timer' => true),
+
+	'-b' => array('beautify' => true),
+	'--beautify' => array('beautify' => true),
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
@@ -47,20 +53,30 @@ $s = file_get_contents($f);
 
 $timers = array();
 
-$t = microtime(true);
-$tree = $parser->parse($s, $f, 0);
-$timers['parse'] = microtime(true) - $t;
+try {
+	$t = microtime(true);
+	$tree = $parser->parse($s, $f, 0);
+	$timers['parse'] = microtime(true) - $t;
 
-$t = microtime(true);
-$ast = new AST($tree);
-$timers['ast'] = microtime(true) - $t;
+	$t = microtime(true);
+	$ast = new AST($tree);
+	$timers['ast'] = microtime(true) - $t;
 
-$t = microtime(true);
-$ast->squeeze();
-$timers['squeeze'] = microtime(true) - $t;
+	$t = microtime(true);
+	$ast->squeeze();
+	$timers['squeeze'] = microtime(true) - $t;
 
-$t = microtime(true);
-$tree = $ast->tree()->toString();
-$timers['tostring'] = microtime(true) - $t;
+	$t = microtime(true);
+	$tree = $ast->toString();
+	$timers['tostring'] = microtime(true) - $t;
 
-echo $tree;
+	if (AST::$options['timer']) {
+		print_r($timers);
+	} else {
+		echo $tree;
+	}
+} catch (Exception $e) {
+	echo $e->getMessage();
+
+	exit(1);
+}

@@ -12,9 +12,13 @@ class IdentifierExpression extends ConstantExpression {
 			// check for some common variables
 		}
 
-		//if (!$this->write && $this->left->name() === 'undefined') {
-		//	return new VoidExpression(new Number(0));
-		//}
+		if (!$this->write && (!$this->left->declared() || !AST::$options['mangle'])) {
+			switch ($this->left->toString()) {
+			case 'undefined':
+				return new VoidExpression(new Number(0));
+				break;
+			}
+		}
 
 		return $this;
 	}

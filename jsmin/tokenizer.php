@@ -92,11 +92,19 @@ define('KEYWORD_FINALLY', 'finally');
 define('KEYWORD_FOR', 'for');
 define('KEYWORD_FUNCTION', 'function');
 define('KEYWORD_IF', 'if');
+define('KEYWORD_IMPLEMENTS', 'implements');
 define('KEYWORD_IN', 'in');
 define('KEYWORD_INSTANCEOF', 'instanceof');
+define('KEYWORD_INTERFACE', 'interface');
+define('KEYWORD_LET', 'let');
 define('KEYWORD_NEW', 'new');
 define('KEYWORD_NULL', 'null');
+define('KEYWORD_PACKAGE', 'package');
+define('KEYWORD_PRIVATE', 'private');
+define('KEYWORD_PROTECTED', 'protected');
+define('KEYWORD_PUBLIC', 'public');
 define('KEYWORD_RETURN', 'return');
+define('KEYWORD_STATIC', 'static');
 define('KEYWORD_SWITCH', 'switch');
 define('KEYWORD_THIS', 'this');
 define('KEYWORD_THROW', 'throw');
@@ -107,10 +115,12 @@ define('KEYWORD_VAR', 'var');
 define('KEYWORD_VOID', 'void');
 define('KEYWORD_WHILE', 'while');
 define('KEYWORD_WITH', 'with');
+define('KEYWORD_YIELD', 'yield');
 
 class JSTokenizer {
 	private $cursor = 0;
 	private $source;
+	private $length;
 
 	public $tokens = array();
 	public $tokenIndex = 0;
@@ -129,13 +139,16 @@ class JSTokenizer {
 		'debugger', 'default', 'delete', 'do',
 		'else', 'enum',
 		'false', 'finally', 'for', 'function',
-		'if', 'in', 'instanceof',
+		'if', 'implements', 'in', 'instanceof', 'interface',
+		'let',
 		'new', 'null',
+		'package', 'private', 'protected', 'public',
 		'return',
-		'switch',
+		'static', 'switch',
 		'this', 'throw', 'true', 'try', 'typeof',
 		'var', 'void',
-		'while', 'with'
+		'while', 'with',
+		'yield'
 	);
 
 	private $opTypeNames = array(
@@ -189,6 +202,7 @@ class JSTokenizer {
 	public function init($source, $filename = '', $lineno = 1) {
 		$this->source = $source;
 		$this->source .= "\n";
+		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
 
@@ -254,7 +268,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 1000) {
+	public function get($chunksize = 750) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -284,17 +298,19 @@ class JSTokenizer {
 					$this->lineno += substr_count($spaces, "\n");
 				}
 
-				if ($spacelen === $chunksize) {
+				if ($spacelen === strlen($input)) {
 					continue; // complete chunk contained whitespace
-				}
-
-				$input = $this->getInput($chunksize);
-				if ($input === false || $input[0] !== '/') {
-					break;
 				}
 			}
 
-			if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
+			$input = $this->getInput($chunksize);
+			if ($input === false || $input[0] !== '/') {
+				break;
+			}
+
+			// don't want to support conditional comments just yet
+			//if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
+			if (!preg_match('~^/(?:\*[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
 				if (!$chunksize) {
 					break;
 				}
@@ -303,18 +319,14 @@ class JSTokenizer {
 				continue;
 			}
 
-			if (!empty($match[1])) {
-				$match[0] = '/*' . $match[1];
-				$conditional_comment = true;
-				break;
-			} else {
-				if(substr($match[0], 0, 3) === '/**') {
-					$lastComment = $match[0];
-				}
-
+			//if (!empty($match[1])) {
+			//	$match[0] = '/*' . $match[1];
+			//	$conditional_comment = true;
+			//	break;
+			//} else {
 				$this->cursor += strlen($match[0]);
 				$this->lineno += substr_count($match[0], "\n");
-			}
+			//}
 		}
 
 		if ($input === false) {
@@ -360,7 +372,11 @@ class JSTokenizer {
 					}
 					break;
 				case '/':
-					if ($this->scanOperand && preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[gim]*%', $input, $match)) {
+					if ($this->scanOperand) {
+						if (!preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[gim]*%', $input, $match)) {
+							throw $this->newSyntaxError('Unterminated regex literal');
+						}
+
 						$tt = TOKEN_REGEXP;
 						break;
 					}
@@ -463,10 +479,6 @@ class JSTokenizer {
 			$token->value = $match[0];
 		}
 
-		if( $lastComment ) {
-			$this->lastComment = $lastComment;
-		}
-
 		$this->cursor += strlen($match[0]);
 
 		$token->end = $this->cursor;
@@ -475,8 +487,8 @@ class JSTokenizer {
 		return $tt;
 	}
 
-	private function decomposeUnicode($m) {
-		if (is_array($m)) {
+	private function decomposeUnicode($original) {
+		return preg_replace_callback('~\\\\(?|u([a-fA-F0-9]{4})|x([a-fA-F0-9]{2}))~', function ($m) {
 			$cp = (int)base_convert($m[1], 16, 10);
 
 	        if($cp < 0x80) {
@@ -496,9 +508,7 @@ class JSTokenizer {
 			}
 
 			return $returnStr;
-		}
-
-		return preg_replace_callback('~\\\\(?|u([\da-f]{4})|x([\da-f]{2}))~i', array($this, 'decomposeUnicode'), $m);
+		}, $original);
 	}
 
 	public function unget() {
@@ -510,7 +520,7 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor . ' (' . substr($this->source, $this->cursor, 15));
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor);
 	}
 }
 

@@ -12,7 +12,15 @@ class Nil extends ConstantExpression {
 		return 'object';
 	}
 
+	public function actualType() {
+		return 'null';
+	}
+
 	public function asBoolean() {
 		return false;
+	}
+
+	public function negate() {
+		return new Boolean(true);
 	}
 }

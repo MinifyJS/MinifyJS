@@ -20,7 +20,9 @@ class InExpression extends Expression {
 	}
 
 	public function toString() {
-		return Stream::legalEnd($this->group($this, $this->left)) . 'in' . Stream::legalStart($this->group($this, $this->right, false));
+		return Stream::legalEnd($this->group($this, $this->left))
+			. 'in'
+			. Stream::legalStart($this->group($this, $this->right, false));
 	}
 
 	public function type() {

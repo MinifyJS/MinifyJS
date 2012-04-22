@@ -29,12 +29,18 @@ class SwitchNode extends Node {
 	}
 
 	public function toString() {
-		$result = 'switch(' . $this->discriminant->toString() . '){';
+		$result = 'switch(' . $this->discriminant->toString() . ')';
+		if (AST::$options['beautify']) {
+			$result .= ' {' . "\n";
+		} else {
+			$result .= '{';
+		}
+
 		$semi = '';
 
 		foreach($this->cases as $case) {
 			$result .= $semi . $case->toString();
-			$semi = ';';
+			$semi = substr(rtrim($result), -1) === ';' ? '' : ';';
 		}
 
 		$result .= '}';

@@ -22,9 +22,9 @@ class BitwiseShiftExpression extends BinaryExpression {
 				return $left << $right;
 			case OP_RSH:
 				return $left >> $right;
-				break;
 			case OP_URSH:
-				return $left >>> $right;
+				// silly me, PHP doesn't support >>>
+				break;
 			}
 		}
 	}

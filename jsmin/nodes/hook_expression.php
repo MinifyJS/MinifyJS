@@ -37,6 +37,16 @@ class HookExpression extends Expression {
 			return $result->visit($ast);
 		}
 
+		if ($this->middle instanceof IndexExpression && $this->right instanceof IndexExpression
+				&& $this->middle->left()->toString() === $this->middle->left()->toString()) {
+			$result = new IndexExpression(
+				$this->middle->left(),
+				new HookExpression($this->left, $this->middle->right(), $this->right->right())
+			);
+
+			return $result->visit($ast);
+		}
+
 		return AST::bestOption(array(
 			$this,
 			new HookExpression(
@@ -46,7 +56,6 @@ class HookExpression extends Expression {
 			)
 		));
 
-		return $this;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -56,9 +65,11 @@ class HookExpression extends Expression {
 	}
 
 	public function toString() {
+		$space = AST::$options['beautify'] ? ' ' : '';
+
 		return $this->group($this, $this->left)
-			. '?' . $this->group($this, $this->middle, false)
-			. ':' . $this->group($this, $this->right);
+			. $space . '?' . $space . $this->group($this, $this->middle, false)
+			. $space . ':' . $space . $this->group($this, $this->right);
 	}
 
 	public function negate() {
