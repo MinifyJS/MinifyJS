@@ -28,7 +28,14 @@ class DotExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . '.' . $this->right->toString();
+		$left = $this->group($this, $this->left);
+
+		// 5.fn() is a syntax error, so fix it up
+		if ($this->left instanceof Number && false === strpos($left, '.')) {
+			$left .= '.';
+		}
+
+		return $left . '.' . $this->right->toString();
 	}
 
 	public function isRedundant() {
