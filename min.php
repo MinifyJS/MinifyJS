@@ -33,6 +33,9 @@ $options = array(
 
 	'-b' => array('beautify' => true),
 	'--beautify' => array('beautify' => true),
+
+	'-nc' => array('no-copyright' => true),
+	'--no-copyright' => array('no-copyright' => true),
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
@@ -73,6 +76,12 @@ try {
 	if (AST::$options['timer']) {
 		print_r($timers);
 	} else {
+		if (!AST::$options['no-copyright']) {
+			foreach($parser->getLicenses() as $license) {
+				echo $license . "\n";
+			}
+		}
+		
 		echo $tree;
 	}
 } catch (Exception $e) {

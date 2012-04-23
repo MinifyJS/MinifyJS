@@ -66,6 +66,7 @@ require_once MIN_BASE . 'tokenizer.php';
 
 class JSParser {
 	private $t;
+	private $licenses = array();
 
 	private $opPrecedence = array(
 		';' => 0,
@@ -134,9 +135,15 @@ class JSParser {
 			throw $this->t->newSyntaxError('Syntax error');
 		}
 
+		$this->licenses = $this->t->licenses;
+
 		$this->t = null;
 
 		return $n;
+	}
+
+	public function getLicenses() {
+		return $this->licenses;
 	}
 
 	private function Script($x) {

@@ -131,7 +131,7 @@ class JSTokenizer {
 	public $filename;
 	public $lineno;
 
-	public $lastComment;
+	public $licenses;
 
 	private $keywords = array(
 		'break',
@@ -205,6 +205,7 @@ class JSTokenizer {
 		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
+		$this->licenses = array();
 
 		$this->cursor = 0;
 		$this->tokens = array();
@@ -317,6 +318,11 @@ class JSTokenizer {
 
 				$chunksize = null;
 				continue;
+			}
+
+			if (substr($match[0], 0, 3) === '/*!') {
+				// simple unindent for properly formatted license comments
+				$this->licenses[] = preg_replace('~^(?:\t+|(?: {4})+|(?:  )+)~m', '', $match[0]);
 			}
 
 			//if (!empty($match[1])) {

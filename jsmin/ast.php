@@ -22,7 +22,8 @@ class AST {
 		'unsafe' => false,
 		'strip-console' => false,
 		'timer' => false,
-		'beautify' => false
+		'beautify' => false,
+		'no-copyright' => false
 	);
 
 	protected $binaryClasses = array(
