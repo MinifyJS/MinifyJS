@@ -42,7 +42,11 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
-		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : '') . '(' . implode(',', $this->params) . '){' . $this->body->asBlock()->toString(true) . '}';
+		$space = AST::$options['beautify'] ? ' ' : '';
+
+		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : $space)
+			. '(' . implode(',' . $space, $this->params) . ')' . $space
+			. '{' . $this->body->asBlock()->toString(true) . '}';
 	}
 
 	public function onlyReturns() {

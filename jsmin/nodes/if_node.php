@@ -98,7 +98,7 @@ class IfNode extends Node {
 	public function toString() {
 		$noBlock = null;
 
-		if ($this->else && !($this->else instanceof Expression)) {
+		if (($this->else && !($this->then instanceof Expression)) || AST::$options['beautify']) {
 			$noBlock = false;
 		}
 

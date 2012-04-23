@@ -16,9 +16,7 @@ class Property extends Node {
 
 	public function visit(AST $ast) {
 		if ($this->key instanceof String) {
-			$test = $this->key->asString();
-
-			if (Identifier::isValid($test)) {
+			if (Identifier::isValid($test = $this->key->asString())) {
 				$this->key = new Identifier(null, $test);
 			}
 		}
@@ -33,6 +31,6 @@ class Property extends Node {
 	}
 
 	public function toString() {
-		return $this->key->toString() . ':' . $this->value->toString();
+		return $this->key->toString() . ':' . (AST::$options['beautify'] ? ' ' : '') . $this->value->toString();
 	}
 }

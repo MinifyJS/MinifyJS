@@ -14,7 +14,7 @@ class AndExpression extends BinaryExpression {
 		} elseif ($else === false) {
 			return $this->left;
 		}
-
+		
 		return $this;
 	}
 
@@ -30,6 +30,10 @@ class AndExpression extends BinaryExpression {
 	}
 
 	public function type() {
+		if ((null !== ($type = $this->left->type())) && $type === $this->right->type()) {
+			return $type;
+		}
+
 		return null;
 	}
 

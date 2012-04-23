@@ -25,4 +25,8 @@ class BreakNode extends Node {
 	public function isBreaking() {
 		return true;
 	}
+
+	public function hasLabel() {
+		return !!$this->label;
+	}
 }

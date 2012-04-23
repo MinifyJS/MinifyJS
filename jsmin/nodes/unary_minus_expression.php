@@ -10,6 +10,12 @@ class UnaryMinusExpression extends UnaryExpression {
 		return $this->unary('-');
 	}
 
+	public function asNumber() {
+		if (null !== $left = $this->left->asNumber()) {
+			return -$left;
+		}
+	}
+
 	public function type() {
 		return 'number';
 	}

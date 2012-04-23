@@ -348,12 +348,19 @@ class JSTokenizer {
 						$tt = TOKEN_NUMBER;
 						break;
 					}
+
+					if ($input[1] !== '.' && preg_match('~\A0[0-7]+~', $input, $match)) {
+						$tt = TOKEN_NUMBER;
+						break;
+					}
+
 					// FALL THROUGH
 				case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
 					if (preg_match('~\A\d+\.?\d*(?:[eE][-+]?\d+)?~', $input, $match)) {
 						$tt = TOKEN_NUMBER;
 					}
+
 					break;
 				case '"':
 					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/', $input, $match)) {

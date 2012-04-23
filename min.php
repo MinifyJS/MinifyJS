@@ -31,8 +31,8 @@ $options = array(
 	'-t' => array('timer' => true),
 	'--timer' => array('timer' => true),
 
-	'-b' => array('beautify' => true),
-	'--beautify' => array('beautify' => true),
+	'-b' => array('beautify' => true, 'crush-bool' => false),
+	'--beautify' => array('beautify' => true, 'crush-bool' => false),
 
 	'-nc' => array('no-copyright' => true),
 	'--no-copyright' => array('no-copyright' => true),

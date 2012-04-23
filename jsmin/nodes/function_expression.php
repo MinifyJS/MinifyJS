@@ -16,7 +16,7 @@ class FunctionExpression extends Expression {
 	}
 
 	public function toString() {
-		return (string)$this->middle;
+		return $this->middle->toString();
 	}
 
 	public function type() {

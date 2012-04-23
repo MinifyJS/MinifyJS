@@ -57,6 +57,9 @@ class AST {
 	}
 
 	public function squeeze() {
+		$oldBeautify = self::$options['beautify'];
+		self::$options['beautify'] = false;
+
 		$this->tree = $this->tree->visit($this);
 
 		$this->tree->collectStatistics($this);
@@ -65,6 +68,8 @@ class AST {
 			$this->rootScope->optimize();
 			$this->rootLabelScope->optimize();
 		}
+
+		self::$options['beautify'] = $oldBeautify;
 
 		self::$finalize = true;
 	}

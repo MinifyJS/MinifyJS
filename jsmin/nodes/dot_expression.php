@@ -31,7 +31,7 @@ class DotExpression extends Expression {
 		$left = $this->group($this, $this->left);
 
 		// 5.fn() is a syntax error, so fix it up
-		if ($this->left instanceof Number && false === strpos($left, '.')) {
+		if ($this->left instanceof Number && preg_match('~^[1-9]\d*$~', $left)) {
 			$left .= '.';
 		}
 

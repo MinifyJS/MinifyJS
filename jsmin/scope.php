@@ -60,6 +60,10 @@ class Scope {
 	}
 
 	public function optimize() {
+		if (!AST::$options['mangle']) {
+			return;
+		}
+
 		if ($this->parent || $this->labelScope) {
 			foreach($this->declared as $ident) {
 				if (($ident->declared() && $ident->scope() === $this && $ident->keep()) || $this->labelScope) {
