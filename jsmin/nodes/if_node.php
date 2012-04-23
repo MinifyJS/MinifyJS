@@ -47,6 +47,17 @@ class IfNode extends Node {
 					$this->then,
 					$this->else
 				);
+			} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
+				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
+				if ($this->then->value() && $this->else->value()) {
+					$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
+
+					$result = new $class(new HookExpression(
+						$this->condition,
+						$this->then->value(),
+						$this->else->value()
+					));
+				}
 			} else {
 				$option = new IfNode($this->condition->negate(), $this->else, $this->then);
 
@@ -56,17 +67,6 @@ class IfNode extends Node {
 			}
 		} elseif (!$this->else && $this->then instanceof Expression) {
 			$result = new AndExpression($this->condition, $this->then);
-		} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
-				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
-			if ($this->then->value() && $this->else->value()) {
-				$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
-
-				$result = new $class(new HookExpression(
-					$this->condition,
-					$this->then->value(),
-					$this->else->value()
-				));
-			}
 		}
 
 		return $result ? $result->visit($ast) : $this;
