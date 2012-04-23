@@ -62,7 +62,7 @@ class Scope {
 	public function optimize() {
 		if ($this->parent || $this->labelScope) {
 			foreach($this->declared as $ident) {
-				if (($ident->declared() && $ident->scope() === $this) || $this->labelScope) {
+				if (($ident->declared() && $ident->scope() === $this && $ident->keep()) || $this->labelScope) {
 					for (;;) {
 						$name = $this->base54($this->nameIndex++);
 

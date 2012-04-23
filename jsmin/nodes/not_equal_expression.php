@@ -10,6 +10,13 @@ class NotEqualExpression extends ComparisonExpression {
 	public function visit(AST $ast) {
 		$that = parent::visit($ast);
 
+		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
+			if ($left !== null) {
+				$that->strict = false;
+				$that->type = OP_NE;
+			}
+		}
+
 		return $that;
 	}
 

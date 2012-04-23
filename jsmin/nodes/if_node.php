@@ -21,6 +21,7 @@ class IfNode extends Node {
 			$this->else = $this->else->visit($ast);
 		}
 
+		// if (*) {} else *; -> if (!*) *
 		if ($this->else && $this->then->isVoid()) {
 			$this->condition = $this->condition->negate()->visit($ast);
 			$this->then = $this->else;
@@ -41,6 +42,7 @@ class IfNode extends Node {
 		$result = null;
 
 		if ($this->then && $this->else) {
+			// if (a) f(); else g(); -> a?f():g()
 			if ($this->then instanceof Expression && $this->else instanceof Expression) {
 				$result = new HookExpression(
 					$this->condition,
@@ -48,7 +50,7 @@ class IfNode extends Node {
 					$this->else
 				);
 			} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
-				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
+					|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
 				if ($this->then->value() && $this->else->value()) {
 					$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
 
@@ -61,7 +63,7 @@ class IfNode extends Node {
 			} else {
 				$option = new IfNode($this->condition->negate(), $this->else, $this->then);
 
-				if (strlen($this->toString()) > strlen($option->toString())) {
+				if (strlen($option->toString()) < strlen($this->toString())) {
 					$result = $option;
 				}
 			}
@@ -96,7 +98,7 @@ class IfNode extends Node {
 	public function toString() {
 		$noBlock = null;
 
-		if ($this->else) {
+		if ($this->else && !($this->else instanceof Expression)) {
 			$noBlock = false;
 		}
 

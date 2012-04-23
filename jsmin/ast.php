@@ -168,7 +168,8 @@ class AST {
 			$f = new FunctionNode(
 				$ident,
 				$this->identifierList($n->params),
-				$this->generate($n->body)
+				$this->generate($n->body),
+				$n->functionForm
 			);
 
 			$this->leave();

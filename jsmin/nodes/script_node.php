@@ -1,5 +1,13 @@
 <?php
 class ScriptNode extends BlockStatement {
+	public function __construct(array $nodes, $strict = false) {
+		$this->nodes = $nodes;
+		$this->strict = $strict;
+
+		parent::__construct($nodes);
+	}
+
+
 	public function visit(AST $ast) {
 		$new = parent::visit($ast);
 
