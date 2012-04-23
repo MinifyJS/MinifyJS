@@ -78,10 +78,10 @@ try {
 	} else {
 		if (!AST::$options['no-copyright']) {
 			foreach($parser->getLicenses() as $license) {
-				echo $license . "\n";
+				echo $license;
 			}
 		}
-		
+
 		echo $tree;
 	}
 } catch (Exception $e) {
