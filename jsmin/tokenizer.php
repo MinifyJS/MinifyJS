@@ -269,7 +269,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 750) {
+	public function get($chunksize = 1000) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -289,7 +289,7 @@ class JSTokenizer {
 				break;
 			}
 
-			$re = $this->scanNewlines ? '/^[\t\v\f \xA0]+/u' : '/^[\t\v\f \xA0\p{Zs}\n]+/u';
+			$re = $this->scanNewlines ? '/^[\t\v\f \h\xA0\p{Zs}]+/u' : '/^[\t\v\f\s \xA0\p{Zs}\n]+/u';
 			if (preg_match($re, $input, $match)) {
 				$spaces = $match[0];
 				$spacelen = strlen($spaces);
@@ -339,6 +339,9 @@ class JSTokenizer {
 					break;
 				}
 			//}
+		}
+
+		if (ctype_space($input[0])) {
 		}
 
 		if ($input[0] === "\n" && $this->scanNewlines) {
@@ -460,15 +463,16 @@ class JSTokenizer {
 						$match = array('@*/');
 						$tt = TOKEN_CONDCOMMENT_END;
 					} else {
-						throw $this->newSyntaxError('Illegal token');
+						throw $this->newSyntaxError('Illegal @ token');
 					}
 					break;
 				case "\n":
-					throw $this->newSyntaxError('Illegal token');
+					throw $this->newSyntaxError('Illegal newline token');
 				default:
 					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
 					} else {
+						echo '"' . substr($input, 0, 30) . '"' . "\n";
 						throw $this->newSyntaxError('Illegal token');
 					}
 			}
