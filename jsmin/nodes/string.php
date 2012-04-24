@@ -41,7 +41,7 @@ class String extends ConstantExpression {
 	protected function escapeHelper($m) {
 		$meta = array(
 	        "\x08" => '\b',
-	        "\t"   => '\t',
+	        "\t"   => "\t",
 	        "\n"   => '\n',
 	        "\x0C" => '\f',
 	        "\r"   => '\r',
