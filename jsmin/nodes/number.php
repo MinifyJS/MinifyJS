@@ -21,7 +21,7 @@ class Number extends ConstantExpression {
 	}
 
 	public function toString() {
-		$t = $this->left;
+		$t = rtrim(preg_replace('~(\.[^0\n]*(?:0+[^0\n]+)*)0+$~', '$1', number_format($this->left, 10, '.', '')), '.');
 
 		if (AST::$options['beautify']) {
 			return $t;

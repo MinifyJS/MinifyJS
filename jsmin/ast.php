@@ -16,6 +16,8 @@ class AST {
 
 	protected $reports = array();
 
+	protected $visitScope = null;
+
 	public static $options = array(
 		'crush-bool' => true,
 		'mangle' => true,
@@ -74,6 +76,14 @@ class AST {
 		self::$finalize = true;
 	}
 
+	public function visitScope(Scope $scope = null) {
+		if ($scope !== null) {
+			$this->visitScope = $scope;
+		}
+
+		return $this->visitScope;
+	}
+
 	public function toString() {
 		return $this->tree->asBlock()->toString(true);
 	}
@@ -121,7 +131,7 @@ class AST {
 				$this->scope->find($var, true);
 			}
 
-			return new ScriptNode($this->nodeList($n->nodes));
+			return new ScriptNode($this->nodeList($n->nodes), $this->scope);
 		case JS_BLOCK:
 			$nl = $this->nodeList($n->nodes);
 
@@ -367,6 +377,11 @@ class AST {
 			);
 		case KEYWORD_DEBUGGER:
 			return new DebuggerNode();
+		case KEYWORD_WITH:
+			return new WithNode(
+				$this->generate($n->object),
+				$this->block($n->body)
+			);
 		}
 
 		throw new RuntimeException('Unknown handler for ' . $n->type);

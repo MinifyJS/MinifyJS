@@ -40,6 +40,7 @@ class String extends ConstantExpression {
 
 	protected function escapeHelper($m) {
 		$meta = array(
+			"\0"   => '\0',
 	        "\x08" => '\b',
 	        "\t"   => "\t",
 	        "\n"   => '\n',
@@ -67,15 +68,19 @@ class String extends ConstantExpression {
 
 	protected function unescape($m) {
 		if (is_array($m)) {
-			if (isset($m[2])) {
-				switch($m[2]) {
+			if (isset($m[3])) {
+				switch($m[3]) {
 				case 't': return "\t";
 				case 'n': return "\n";
 				case 'r': return "\r";
 				case 'b': return "\x08";
 				case 'f': return "\x0C";
-				default:  return $m[2];
+				default:  return $m[3];
 				}
+			}
+
+			if (isset($m[2])) {
+				return "\0";
 			}
 
 			$cp = (int)base_convert($m[1], 16, 10);
@@ -101,7 +106,7 @@ class String extends ConstantExpression {
 
 		$c = $m[0];
 		if ($c === substr($m, -1)) {
-			return preg_replace_callback('~\\\\(?:(?|u([\da-f]{4})|x([\da-f]{2}))|(.))~i', array($this, 'unescape'), substr($m, 1, -1));
+			return preg_replace_callback('~\\\\(?:(?|u([\da-f]{4})|x([\da-f]{2}))|(0)(?!\d)|(.))~i', array($this, 'unescape'), substr($m, 1, -1));
 		} return $m;
 	}
 

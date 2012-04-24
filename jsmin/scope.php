@@ -35,6 +35,8 @@ class Scope {
 	protected $parent;
 	protected $labelScope;
 
+	protected $usesWith = false;
+
 	protected $children = array();
 
 	protected $nameIndex;
@@ -59,8 +61,23 @@ class Scope {
 		$this->labelScope = $labelScope;
 	}
 
+	public function usesWith($parents = false) {
+		$this->usesWith = true;
+
+		foreach($this->children as $c) {
+			$c->usesWith(true);
+		}
+
+		if ($parents) {
+			$n = $this;
+			while ($n = $n->parent) {
+				$n->usesWith = true;
+			}
+		}
+	}
+
 	public function optimize() {
-		if (!AST::$options['mangle']) {
+		if (!AST::$options['mangle'] || $this->usesWith) {
 			return;
 		}
 

@@ -200,7 +200,7 @@ class JSTokenizer {
 	}
 
 	public function init($source, $filename = '', $lineno = 1) {
-		$this->source = $source;
+		$this->source = str_replace(array("\r\n", "\n\r", "\r"), "\n", $source);
 		$this->source .= "\n";
 		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
@@ -289,7 +289,7 @@ class JSTokenizer {
 				break;
 			}
 
-			$re = $this->scanNewlines ? '/\A[\t\v\f \xA0\p{Zs}]+/u' : '/\A[\t\v\f \xA0\p{Zs}\r\n]+/u';
+			$re = $this->scanNewlines ? '/^[\t\v\f \xA0]+/u' : '/^[\t\v\f \xA0\p{Zs}\n]+/u';
 			if (preg_match($re, $input, $match)) {
 				$spaces = $match[0];
 				$spacelen = strlen($spaces);
@@ -331,7 +331,13 @@ class JSTokenizer {
 			//	break;
 			//} else {
 				$this->cursor += strlen($match[0]);
-				$this->lineno += substr_count($match[0], "\n");
+				$this->lineno += $c = substr_count($match[0], "\n");
+
+				if ($c > 0 && $this->scanNewlines) {
+					$input = "\n";
+					--$this->cursor;
+					break;
+				}
 			//}
 		}
 
