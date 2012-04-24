@@ -365,6 +365,8 @@ class AST {
 			return new DefaultCaseNode(
 				$this->generate($n->statements)
 			);
+		case KEYWORD_DEBUGGER:
+			return new DebuggerNode();
 		}
 
 		throw new RuntimeException('Unknown handler for ' . $n->type);

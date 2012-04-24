@@ -280,7 +280,8 @@ class BlockStatement extends Node {
 			}
 
 			if ($n instanceof Expression || $n instanceof VarNode || $n instanceof ReturnNode
-					|| $n instanceof BreakNode || $n instanceof ContinueNode || $n instanceof ThrowNode) {
+					|| $n instanceof BreakNode || $n instanceof ContinueNode || $n instanceof ThrowNode
+					|| $n instanceof DebuggerNode) {
 				$x .= ';';
 			}
 
