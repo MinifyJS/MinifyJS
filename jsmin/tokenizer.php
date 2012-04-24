@@ -289,7 +289,7 @@ class JSTokenizer {
 				break;
 			}
 
-			$re = $this->scanNewlines ? '/\A\h+/' : '/\A\s+/';
+			$re = $this->scanNewlines ? '/\A[\t\v\f \xA0\p{Zs}]+/u' : '/\A[\t\v\f \xA0\p{Zs}\r\n]+/u';
 			if (preg_match($re, $input, $match)) {
 				$spaces = $match[0];
 				$spacelen = strlen($spaces);
