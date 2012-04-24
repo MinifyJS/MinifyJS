@@ -1,5 +1,5 @@
 <?php
-class DefaultCaseNode extends Node {
+class DefaultCaseNode extends CaseNode {
 	public function __construct(Node $stmt) {
 		$this->stmt = $stmt;
 	}
@@ -11,7 +11,7 @@ class DefaultCaseNode extends Node {
 	}
 
 	public function toString() {
-		return 'default:' . $this->stmt->toString();
+		return 'default:' . $this->stmt->asBlock()->toString(true);
 	}
 
 	public function collectStatistics(AST $ast) {

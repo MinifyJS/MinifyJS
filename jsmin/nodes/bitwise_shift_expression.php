@@ -23,8 +23,11 @@ class BitwiseShiftExpression extends BinaryExpression {
 			case OP_RSH:
 				return $left >> $right;
 			case OP_URSH:
-				// silly me, PHP doesn't support >>>
-				break;
+				if ($left > 0) {
+					return $left >> $right;
+				}
+
+				return (($left & 0x7fffffff) >> $right) | (0x40000000 >> ($right - 1));
 			}
 		}
 	}

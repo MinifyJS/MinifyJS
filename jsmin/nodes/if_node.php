@@ -21,6 +21,7 @@ class IfNode extends Node {
 			$this->else = $this->else->visit($ast);
 		}
 
+		// if (*) {} else *; -> if (!*) *
 		if ($this->else && $this->then->isVoid()) {
 			$this->condition = $this->condition->negate()->visit($ast);
 			$this->then = $this->else;
@@ -41,32 +42,33 @@ class IfNode extends Node {
 		$result = null;
 
 		if ($this->then && $this->else) {
+			// if (a) f(); else g(); -> a?f():g()
 			if ($this->then instanceof Expression && $this->else instanceof Expression) {
 				$result = new HookExpression(
 					$this->condition,
 					$this->then,
 					$this->else
 				);
+			} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
+					|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
+				if ($this->then->value() && $this->else->value()) {
+					$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
+
+					$result = new $class(new HookExpression(
+						$this->condition,
+						$this->then->value(),
+						$this->else->value()
+					));
+				}
 			} else {
 				$option = new IfNode($this->condition->negate(), $this->else, $this->then);
 
-				if (strlen($this->toString()) > strlen($option->toString())) {
+				if (strlen($option->toString()) < strlen($this->toString())) {
 					$result = $option;
 				}
 			}
 		} elseif (!$this->else && $this->then instanceof Expression) {
 			$result = new AndExpression($this->condition, $this->then);
-		} elseif (($this->then instanceof ReturnNode && $this->else instanceof ReturnNode)
-				|| ($this->then instanceof ThrowNode && $this->else instanceof ThrowNode)) {
-			if ($this->then->value() && $this->else->value()) {
-				$class = $this->then instanceof ReturnNode ? 'ReturnNode' : 'ThrowNode';
-
-				$result = new $class(new HookExpression(
-					$this->condition,
-					$this->then->value(),
-					$this->else->value()
-				));
-			}
 		}
 
 		return $result ? $result->visit($ast) : $this;
@@ -96,7 +98,7 @@ class IfNode extends Node {
 	public function toString() {
 		$noBlock = null;
 
-		if ($this->else) {
+		if (($this->else && !($this->then instanceof Expression)) || AST::$options['beautify']) {
 			$noBlock = false;
 		}
 

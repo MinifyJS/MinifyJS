@@ -30,6 +30,10 @@ class OrExpression extends BinaryExpression {
 	}
 
 	public function type() {
+		if ((null !== ($type = $this->left->type())) && $type === $this->right->type()) {
+			return $type;
+		}
+
 		return null;
 	}
 

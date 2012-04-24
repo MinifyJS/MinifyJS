@@ -19,6 +19,10 @@ class ThrowNode extends Node {
 	}
 
 	public function toString() {
+		if (AST::$options['beautify']) {
+			return 'throw ' . $this->exception->toString();
+		}
+
 		return 'throw' . Stream::legalStart($this->exception->toString());
 	}
 

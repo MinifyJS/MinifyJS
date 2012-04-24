@@ -17,6 +17,10 @@ class SwitchNode extends Node {
 			$this->cases[$i] = $e->visit($ast);
 		}
 
+		if ($this->cases && $last = end($this->cases)) {
+			$last->removeBreak();
+		}
+
 		return $this;
 	}
 

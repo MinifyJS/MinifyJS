@@ -11,7 +11,7 @@ class BlockStatement extends Node {
 		$count = count($nodes = $this->moveVars(
 			$this->transformToComma(
 				$ast,
-				$this->redoIfElse($this->nodes),
+				$this->mergeBlocks($this->redoIfElse($this->nodes)),
 				$revisit
 			),
 			$revisit
@@ -30,7 +30,7 @@ class BlockStatement extends Node {
 		}
 
 		// small optimization, a,b,c;return d; -> return a,b,c,d;
-		if ($count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && $nodes[1]->value()) {
+		if ($count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && ($nodes[1]->value() && !$nodes[1]->value()->isVoid())) {
 			// double comma operators gets fixed at CommaExpression::visit( )
 			$result = new ReturnNode(new CommaExpression(array_merge(
 				$nodes[0]->nodes(),
@@ -52,8 +52,9 @@ class BlockStatement extends Node {
 	protected function reverseIfElse(array $nodes, &$revisit) {
 		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
 		$add = $base = new BlockStatement(array());
+		$last = count($nodes) - 1;
 
-		foreach($nodes as $node) {
+		foreach($nodes as $i => $node) {
 			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
 				// got one!
 				$old = $add;
@@ -98,8 +99,6 @@ class BlockStatement extends Node {
 				if ($tune = $n->breaking()) {
 					foreach($tune as $x) {
 						$nodes[] = $x;
-
-						//$revisit = true;
 					}
 				} else {
 					$nodes[] = $n;
@@ -110,6 +109,30 @@ class BlockStatement extends Node {
 		if ($list) {
 			$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
 			$list = array();
+		}
+
+		return $nodes;
+	}
+
+	public function removeBreak() {
+		if (($last = end($this->nodes)) instanceof BreakNode && !$last->hasLabel()) {
+			array_pop($this->nodes);
+		}
+
+		return $this;
+	}
+
+	protected function mergeBlocks(array $original) {
+		$nodes = array();
+
+		foreach($original as $n) {
+			if ($n instanceof BlockStatement) {
+				foreach($n->nodes as $x) {
+					$nodes[] = $x;
+				}
+			} else {
+				$nodes[] = $n;
+			}
 		}
 
 		return $nodes;
@@ -219,9 +242,9 @@ class BlockStatement extends Node {
 				if ($a !== '') {
 					$a = substr($a, 4);
 
-					if (AST::$options['beautify']) {
-						$a = ltrim(preg_replace('~^~m', '    ', $a));
-					}
+					//if (AST::$options['beautify']) {
+					///	$a = ltrim(preg_replace('~^~m', '    ', $a));
+					//}
 
 					$varCache[] = $a;
 				}
@@ -257,7 +280,8 @@ class BlockStatement extends Node {
 			}
 
 			if ($n instanceof Expression || $n instanceof VarNode || $n instanceof ReturnNode
-					|| $n instanceof BreakNode || $n instanceof ContinueNode || $n instanceof ThrowNode) {
+					|| $n instanceof BreakNode || $n instanceof ContinueNode || $n instanceof ThrowNode
+					|| $n instanceof DebuggerNode) {
 				$x .= ';';
 			}
 

@@ -29,4 +29,8 @@ class CaseNode extends Node {
 		$this->label->collectStatistics($ast);
 		$this->stmt->collectStatistics($ast);
 	}
+
+	public function removeBreak() {
+		$this->stmt = $this->stmt->asBlock()->removeBreak();
+	}
 }

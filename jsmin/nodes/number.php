@@ -4,7 +4,7 @@ class Number extends ConstantExpression {
 		if (!is_numeric($value)) {
 			throw new Exception($value . ' is not numeric');
 		}
-		
+
 		parent::__construct(eval('return ' . $value . ';'));
 	}
 
@@ -21,7 +21,11 @@ class Number extends ConstantExpression {
 	}
 
 	public function toString() {
-		$t = $this->left;
+		$t = rtrim(preg_replace('~(\.[^0\n]*(?:0+[^0\n]+)*)0+$~', '$1', number_format($this->left, 10, '.', '')), '.');
+
+		if (AST::$options['beautify']) {
+			return $t;
+		}
 
 		$a = array(preg_replace('~^0+\.~', '.', $t));
 		if (floor($t) == $t) {

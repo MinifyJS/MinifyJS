@@ -131,7 +131,7 @@ class JSTokenizer {
 	public $filename;
 	public $lineno;
 
-	public $lastComment;
+	public $licenses;
 
 	private $keywords = array(
 		'break',
@@ -200,11 +200,12 @@ class JSTokenizer {
 	}
 
 	public function init($source, $filename = '', $lineno = 1) {
-		$this->source = $source;
+		$this->source = str_replace(array("\r\n", "\n\r", "\r"), "\n", $source);
 		$this->source .= "\n";
 		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
+		$this->licenses = array();
 
 		$this->cursor = 0;
 		$this->tokens = array();
@@ -268,7 +269,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 750) {
+	public function get($chunksize = 1000) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -288,7 +289,7 @@ class JSTokenizer {
 				break;
 			}
 
-			$re = $this->scanNewlines ? '/\A\h+/' : '/\A\s+/';
+			$re = $this->scanNewlines ? '/^[\t\v\f \h\xA0\p{Zs}]+/u' : '/^[\t\v\f\s \xA0\p{Zs}\n]+/u';
 			if (preg_match($re, $input, $match)) {
 				$spaces = $match[0];
 				$spacelen = strlen($spaces);
@@ -319,17 +320,34 @@ class JSTokenizer {
 				continue;
 			}
 
+			if (substr($match[0], 0, 3) === '/*!') {
+				// simple unindent for properly formatted license comments
+				$this->licenses[] = preg_replace('~^(?:\t+|(?: {4})+|(?:  )+)~m', '', $match[0]);
+			}
+
 			//if (!empty($match[1])) {
 			//	$match[0] = '/*' . $match[1];
 			//	$conditional_comment = true;
 			//	break;
 			//} else {
 				$this->cursor += strlen($match[0]);
-				$this->lineno += substr_count($match[0], "\n");
+				$this->lineno += $c = substr_count($match[0], "\n");
+
+				if ($c > 0 && $this->scanNewlines) {
+					$input = "\n";
+					--$this->cursor;
+					break;
+				}
 			//}
 		}
 
-		if ($input === false) {
+		if (ctype_space($input[0])) {
+		}
+
+		if ($input[0] === "\n" && $this->scanNewlines) {
+			$tt = TOKEN_NEWLINES;
+			$match = array("\n");
+		} elseif ($input === false) {
 			$tt = TOKEN_END;
 			$match = array('');
 		} elseif ($conditional_comment) {
@@ -342,12 +360,19 @@ class JSTokenizer {
 						$tt = TOKEN_NUMBER;
 						break;
 					}
+
+					if ($input[1] !== '.' && preg_match('~\A0[0-7]+~', $input, $match)) {
+						$tt = TOKEN_NUMBER;
+						break;
+					}
+
 					// FALL THROUGH
 				case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
 					if (preg_match('~\A\d+\.?\d*(?:[eE][-+]?\d+)?~', $input, $match)) {
 						$tt = TOKEN_NUMBER;
 					}
+
 					break;
 				case '"':
 					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/', $input, $match)) {
@@ -438,21 +463,16 @@ class JSTokenizer {
 						$match = array('@*/');
 						$tt = TOKEN_CONDCOMMENT_END;
 					} else {
-						throw $this->newSyntaxError('Illegal token');
+						throw $this->newSyntaxError('Illegal @ token');
 					}
 					break;
 				case "\n":
-					if ($this->scanNewlines) {
-						$match = array("\n");
-						$tt = TOKEN_NEWLINE;
-					} else {
-						throw $this->newSyntaxError('Illegal token');
-					}
-					break;
+					throw $this->newSyntaxError('Illegal newline token');
 				default:
 					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
 					} else {
+						echo '"' . substr($input, 0, 30) . '"' . "\n";
 						throw $this->newSyntaxError('Illegal token');
 					}
 			}
@@ -520,7 +540,7 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor);
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor . ' (' . str_replace("\n", '*\n*', substr($this->source, $this->cursor - 5, 25)) . ')');
 	}
 }
 

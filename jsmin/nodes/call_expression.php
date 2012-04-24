@@ -73,6 +73,10 @@ class CallExpression extends Expression {
 				return new ObjectExpression(array());
 			}
 			break;
+		case 'isNaN':
+			if ($argc === 1 && $this->right[0] instanceof IdentifierExpression) {
+				return new NotEqualExpression($this->right[0], $this->right[0], true);
+			}
 		}
 
 		if (!$result && $this->left instanceof DotExpression) {
@@ -108,11 +112,5 @@ class CallExpression extends Expression {
 
 	public function isConstant() {
 		return false;
-	}
-
-	public function debug() {
-		return $this->left->debug() . ' ( ' . implode(', ', array_map(function ($e) {
-			return $e->debug();
-		})) . ' )';
 	}
 }
