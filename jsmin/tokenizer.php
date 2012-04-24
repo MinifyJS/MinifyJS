@@ -341,7 +341,10 @@ class JSTokenizer {
 			//}
 		}
 
-		if ($input === false) {
+		if ($input[0] === "\n" && $this->scanNewlines) {
+			$tt = TOKEN_NEWLINES;
+			$match = array("\n");
+		} elseif ($input === false) {
 			$tt = TOKEN_END;
 			$match = array('');
 		} elseif ($conditional_comment) {
@@ -461,13 +464,7 @@ class JSTokenizer {
 					}
 					break;
 				case "\n":
-					if ($this->scanNewlines) {
-						$match = array("\n");
-						$tt = TOKEN_NEWLINE;
-					} else {
-						throw $this->newSyntaxError('Illegal token');
-					}
-					break;
+					throw $this->newSyntaxError('Illegal token');
 				default:
 					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
@@ -539,7 +536,7 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor);
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor . ' (' . str_replace("\n", '*\n*', substr($this->source, $this->cursor - 5, 25)) . ')');
 	}
 }
 
