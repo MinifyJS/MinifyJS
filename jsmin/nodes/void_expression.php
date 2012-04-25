@@ -19,6 +19,12 @@ class VoidExpression extends Expression {
 		return $this->left->isConstant();
 	}
 
+	public function asBoolean() {
+		if ($this->isConstant()) {
+			return false;
+		}
+	}
+
 	public function toString() {
 		return 'void' . Stream::legalStart($this->group($this, $this->left, false));
 	}

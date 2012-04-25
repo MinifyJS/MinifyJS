@@ -25,7 +25,8 @@ class AST {
 		'strip-console' => false,
 		'timer' => false,
 		'beautify' => false,
-		'no-copyright' => false
+		'no-copyright' => false,
+		'strip-debug' => true,
 	);
 
 	protected $binaryClasses = array(
@@ -62,7 +63,7 @@ class AST {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 
-		$this->tree = $this->tree->visit($this);
+		$this->tree = $this->tree->visit($this)->visit($this);
 
 		$this->tree->collectStatistics($this);
 
@@ -85,7 +86,8 @@ class AST {
 	}
 
 	public function toString() {
-		return $this->tree->asBlock()->toString(true);
+		// strip out final semicolons
+		return str_replace("\0", '', $this->tree->asBlock()->toString(true));
 	}
 
 	public function report($rep = null) {

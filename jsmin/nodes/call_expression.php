@@ -23,6 +23,15 @@ class CallExpression extends Expression {
 			}
 		}
 
+		if (AST::$options['strip-debug'] && $this->left instanceof DotExpression && $this->left->left()->value() === 'console') {
+			$nodes = $this->right;
+			$nodes[] = new VoidExpression(new Number(0));
+
+			$result = new CommaExpression($nodes);
+			return $result->visit($ast);
+		}
+		
+
 		switch ($this->left->value()) {
 		case 'RegExp':
 			break;

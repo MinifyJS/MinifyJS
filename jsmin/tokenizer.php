@@ -223,6 +223,10 @@ class JSTokenizer {
 		return substr($this->source, $this->cursor);
 	}
 
+	public function getChar() {
+		return $this->source[$this->cursor];
+	}
+
 	public function isDone() {
 		return $this->peek() === TOKEN_END;
 	}
@@ -472,8 +476,7 @@ class JSTokenizer {
 					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
 					} else {
-						echo '"' . substr($input, 0, 30) . '"' . "\n";
-						throw $this->newSyntaxError('Illegal token');
+						throw $this->newSyntaxError('Illegal token (' . ord($input[0] . ')'));
 					}
 			}
 		}

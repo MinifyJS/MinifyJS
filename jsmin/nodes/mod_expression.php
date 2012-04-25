@@ -17,6 +17,10 @@ class ModExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			if ($right == 0) {
+				return null;
+			}
+
 			return $left % $right;
 		}
 	}
