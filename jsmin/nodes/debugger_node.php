@@ -1,6 +1,10 @@
 <?php
 class DebuggerNode extends Node {
 	public function visit(AST $ast) {
+		if (AST::$options['strip-debug']) {
+			return new Number(0);
+		}
+
 		return $this;
 	}
 
