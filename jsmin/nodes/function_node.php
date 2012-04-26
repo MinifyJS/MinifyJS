@@ -35,7 +35,7 @@ class FunctionNode extends Node {
 		}
 
 		foreach($this->params as $p) {
-			$p->collectStatistics($ast);
+			$p->collectStatistics($ast, true);
 		}
 
 		$this->body->collectStatistics($ast);

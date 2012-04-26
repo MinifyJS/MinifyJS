@@ -15,7 +15,7 @@ class NewExpression extends Expression {
 
 		$result = null;
 
-		if ($this->left instanceof IdentifierExpression) {
+		if ($this->left instanceof IdentifierExpression && !$this->left->isLocal()) {
 			switch((string)$this->left->value()) {
 			case 'Array':
 				if (count($this->right) !== 1) {

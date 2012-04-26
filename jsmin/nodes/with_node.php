@@ -23,6 +23,6 @@ class WithNode extends Node {
 	}
 
 	public function toString() {
-		return 'with(' . $this->object->toString() . ')' . $this->body->asBlock()->toString();
+		return 'with(' . $this->object->toString() . ')' . $this->body->asBlock()->toString(null, true);
 	}
 }

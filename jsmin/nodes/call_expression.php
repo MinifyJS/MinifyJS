@@ -30,65 +30,66 @@ class CallExpression extends Expression {
 			$result = new CommaExpression($nodes);
 			return $result->visit($ast);
 		}
-		
 
-		switch ($this->left->value()) {
-		case 'RegExp':
-			break;
-
-			// premature break
-			$flags = null;
-			$regexp = null;
-
-			switch ($argc) {
-			case 2:
-				if (null === $flags = $this->right[1]->asString()) {
-					break;
-				}
-			case 1:
-				if (null === $regexp = $this->right[0]->asString()) {
-					break;
-				}
-
-				$regexp = '/' . str_replace(array('\\', '/'), array('\\\\', '\/'), $this->right[0]->asString()) . '/' . $flags;
+		if ($this->left instanceof IdentifierExpression && !$this->left->isLocal()) {
+			switch ($this->left->value()) {
+			case 'RegExp':
 				break;
-			}
 
-			if ($regexp !== null) {
-				$result = new RegExp($regexp);
-			}
-			break;
-		case 'Array':
-			if ($argc !== 1) {
-				$result = new ArrayExpression($this->right);
-			}
-			break;
-		case 'Boolean':
-			if ($argc === 0) {
-				return new Boolean(false);
-			} else {
-				$result = new CommaExpression(array_merge(
-					array_slice($this->right, 0, -1),
-					new NotExpression(new NotExpression(end($this->right)))
-				));
-			}
+				// premature break
+				$flags = null;
+				$regexp = null;
 
-			break;
-		case 'String':
-			$result = new PlusExpression($this->left, new String('', false));
-			break;
-		case 'Object':
-			if (!$this->right) {
-				return new ObjectExpression(array());
-			}
-			break;
-		case 'isNaN':
-			if ($argc === 1 && $this->right[0] instanceof IdentifierExpression) {
-				return new NotEqualExpression($this->right[0], $this->right[0], true);
+				switch ($argc) {
+				case 2:
+					if (null === $flags = $this->right[1]->asString()) {
+						break;
+					}
+				case 1:
+					if (null === $regexp = $this->right[0]->asString()) {
+						break;
+					}
+
+					$regexp = '/' . str_replace(array('\\', '/'), array('\\\\', '\/'), $this->right[0]->asString()) . '/' . $flags;
+					break;
+				}
+
+				if ($regexp !== null) {
+					$result = new RegExp($regexp);
+				}
+				break;
+			case 'Array':
+				if ($argc !== 1) {
+					$result = new ArrayExpression($this->right);
+				}
+				break;
+			case 'Boolean':
+				if ($argc === 0) {
+					return new Boolean(false);
+				} else {
+					$result = new CommaExpression(array_merge(
+						array_slice($this->right, 0, -1),
+						new NotExpression(new NotExpression(end($this->right)))
+					));
+				}
+
+				break;
+			case 'String':
+				$result = new PlusExpression($this->left, new String('', false));
+				break;
+			case 'Object':
+				if (!$this->right) {
+					return new ObjectExpression(array());
+				}
+				break;
+			case 'isNaN':
+				if ($argc === 1 && $this->right[0] instanceof IdentifierExpression) {
+					return new NotEqualExpression($this->right[0], $this->right[0], true);
+				}
 			}
 		}
 
-		if (!$result && $this->left instanceof DotExpression) {
+		if (!$result && $this->left instanceof DotExpression && AST::$options['unsafe']) {
 			// check for array shortening..
 			if ($this->left->left()->actualType() === 'array' && $this->left->right()->name() === 'join') {
 				if (!$this->right || (count($this->right) === 1 && $this->right[0]->asString() === ',')) {

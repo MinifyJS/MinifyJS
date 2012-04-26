@@ -20,6 +20,10 @@ class IncrementExpression extends UnaryExpression {
 		return $this->left->type();
 	}
 
+	public function collectStatistics(AST $ast) {
+		$this->left->collectStatistics($ast, true);
+	}
+
 	public function precedence() {
 		return 15;
 	}

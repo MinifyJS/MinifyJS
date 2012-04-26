@@ -193,7 +193,7 @@ class BlockStatement extends Node {
 			} else {
 				$finished = false;
 				if ($n instanceof ForNode) {
-					if ($vars) {
+					if ($vars && $n->initializer()) {
 						if ($n->initializer()->isVoid()) {
 							$n->initializer(new VarDeclarationsNode($vars));
 							$finished = true;
@@ -234,9 +234,9 @@ class BlockStatement extends Node {
 		}
 	}
 
-	public function toString($forceNoBraces = null, $forceOut = false) {
+	public function toString($forceNoBraces = null, $forceOut = true) {
 		if (count($this->nodes) === 1 && $this->nodes[0] instanceof BlockStatement) {
-			return $this->nodes[0]->toString($forceNoBraces);
+			return $this->nodes[0]->toString($forceNoBraces, $forceOut);
 		} elseif (!$this->nodes) {
 			if ($forceOut) {
 				return ";\0";

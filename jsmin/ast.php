@@ -63,9 +63,11 @@ class AST {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 
-		$this->tree = $this->tree->visit($this)->visit($this);
-
+		$this->secondVisit = false;
+		$this->tree = $this->tree->visit($this);
 		$this->tree->collectStatistics($this);
+		$this->secondVisit = true;
+		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimize();
@@ -83,6 +85,10 @@ class AST {
 		}
 
 		return $this->visitScope;
+	}
+
+	public function hasStats() {
+		return $this->secondVisit;
 	}
 
 	public function toString() {

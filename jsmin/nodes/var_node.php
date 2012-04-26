@@ -7,6 +7,8 @@ class VarNode extends Node {
 		$this->name = $i;
 		$this->initializer = $init;
 
+		$this->write();
+
 		parent::__construct();
 	}
 
@@ -32,13 +34,17 @@ class VarNode extends Node {
 		$this->name->collectStatistics($ast);
 
 		if ($this->initializer) {
+			if ($this->initializer instanceof ConstantExpression) {
+				$this->name->initializer($this->initializer);
+			}
+
 			$this->initializer->collectStatistics($ast);
 		}
 	}
 
 	public function toString() {
 		$init = $this->initializer;
-		if (!$this->name->keep() && (!$init || $init->isRedundant())) {
+		if (!$this->name->keep(1) && (!$init || $init->isRedundant())) {
 			return '';
 		}
 

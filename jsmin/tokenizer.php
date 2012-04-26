@@ -224,7 +224,7 @@ class JSTokenizer {
 	}
 
 	public function getChar() {
-		return $this->source[$this->cursor];
+		return $this->cursor < $this->length ? $this->source[$this->cursor] : null;
 	}
 
 	public function isDone() {
@@ -273,7 +273,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 1000) {
+	public function get($chunksize = 500) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -287,6 +287,10 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
+			while (($c = $this->getChar()) === ' ' || $c === "\t") {
+				++$this->cursor;
+			}
+
 			$input = $this->getInput($chunksize);
 
 			if ($input === false) {
@@ -309,7 +313,7 @@ class JSTokenizer {
 			}
 
 			$input = $this->getInput($chunksize);
-			if ($input === false || $input[0] !== '/') {
+			if ($input === false) {
 				break;
 			}
 

@@ -15,8 +15,8 @@ class PlusExpression extends BinaryExpression {
 
 		if ($that->left instanceof PlusExpression
 				&& $that->left->right()->type() === 'string'
-				&& $that->right()->type() === 'string') {
-			if ((null !== $left = $that->left->right()->asString()) && (null !== $right = $that->right->asString())) {
+				&& (null !== $right = $that->right()->asString())) {
+			if (null !== $left = $that->left->right()->asString()) {
 				$result = new PlusExpression($that->left->left(), new String($left . $right, false));
 				return $result->visit($ast);
 			}
