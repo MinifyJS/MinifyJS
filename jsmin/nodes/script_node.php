@@ -10,25 +10,30 @@ class ScriptNode extends BlockStatement {
 
 
 	public function visit(AST $ast) {
-		$ast->visitScope($this->scope);
 		$new = parent::visit($ast);
 
 		$nodes = array();
 		$after = array();
 
-		foreach($new->nodes as $n) {
-			if ($n instanceof FunctionNode && !$n instanceof FunctionExpression) {
+		foreach($new->nodes() as $n) {
+			if ($n instanceof FunctionNode) {
 				$nodes[] = $n;
 			} else {
 				$after[] = $n;
 			}
 		}
 
-		$new->nodes = array_merge($nodes, $after);
+		foreach($after as $n) {
+			$nodes[] = $n;
+		}
 
+		return new ScriptNode($nodes, $this->scope, $this->strict);
+	}
+
+	public function collectStatistics(AST $ast) {
+		$ast->visitScope($this->scope);
+		parent::collectStatistics($ast);
 		$ast->visitScope($this->scope->parent());
-
-		return $new;
 	}
 
 	public function toString($noBraces = true, $forceOut = false) {

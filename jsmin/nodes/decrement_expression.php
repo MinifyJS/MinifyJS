@@ -16,6 +16,10 @@ class DecrementExpression extends UnaryExpression {
 		}
 	}
 
+	public function collectStatistics(AST $ast) {
+		$this->left->collectStatistics($ast, true);
+	}
+
 	public function type() {
 		return $this->left->type();
 	}

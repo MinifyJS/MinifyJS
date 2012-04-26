@@ -14,7 +14,9 @@ abstract class Node {
 		throw new Exception('Not implemented');
 	}
 
-	abstract public function collectStatistics(AST $ast);
+	public function collectStatistics(AST $ast) {
+		throw new Exception('Not implemented');
+	}
 
 	public function __construct() {
 		$this->id = self::$seq++;

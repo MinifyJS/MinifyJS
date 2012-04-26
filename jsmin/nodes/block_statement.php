@@ -17,16 +17,16 @@ class BlockStatement extends Node {
 			$revisit
 		));
 
+		if ($count === 0) {
+			return new VoidExpression(new Number(0));
+		}
+
 		if ($count === 1) {
 			if ($revisit) {
 				return $nodes[0]->visit($ast);
 			}
 
 			return $nodes[0];
-		}
-
-		if ($count === 0) {
-			return new VoidExpression(new Number(0));
 		}
 
 		// small optimization, a,b,c;return d; -> return a,b,c,d;
@@ -79,29 +79,45 @@ class BlockStatement extends Node {
 		$list = array();
 		$nodes = array();
 
+		$returnSeen = false;
+
 		foreach($original as $n) {
 			$n = $n->visit($ast);
 
-			if ($n instanceof Expression) {
-				foreach($n->removeUseless()->nodes() as $x) {
-					$x = $x->removeUseless();
-					if (!$x->isVoid()) {
-						$list[] = $x;
-					}
-				}
-			} else {
-				if ($list) {
-					$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
-					$list = array();
-				}
-
-				// okay… let's get smart!
-				if ($tune = $n->breaking()) {
-					foreach($tune as $x) {
-						$nodes[] = $x;
+			if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
+				if ($n instanceof Expression) {
+					foreach($n->removeUseless()->nodes() as $x) {
+						$x = $x->removeUseless();
+						if (!$x->isVoid()) {
+							$list[] = $x;
+						}
 					}
 				} else {
-					$nodes[] = $n;
+					if ($list) {
+						$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
+						$list = array();
+					}
+
+					// okay… let's get smart!
+					if ($tune = $n->breaking()) {
+						foreach($tune as $x) {
+							if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
+								if ($x instanceof ReturnNode || $x instanceof BreakNode) {
+									$returnSeen = true;
+								}
+
+								$nodes[] = $x;
+							}
+						}
+					} else {
+						if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
+							if ($n instanceof ReturnNode || $n instanceof BreakNode) {
+								$returnSeen = true;
+							}
+
+							$nodes[] = $n;
+						}
+					}
 				}
 			}
 		}
@@ -177,7 +193,7 @@ class BlockStatement extends Node {
 			} else {
 				$finished = false;
 				if ($n instanceof ForNode) {
-					if ($vars) {
+					if ($vars && $n->initializer()) {
 						if ($n->initializer()->isVoid()) {
 							$n->initializer(new VarDeclarationsNode($vars));
 							$finished = true;
@@ -218,9 +234,9 @@ class BlockStatement extends Node {
 		}
 	}
 
-	public function toString($forceNoBraces = null, $forceOut = false) {
+	public function toString($forceNoBraces = null, $forceOut = true) {
 		if (count($this->nodes) === 1 && $this->nodes[0] instanceof BlockStatement) {
-			return $this->nodes[0]->toString($forceNoBraces);
+			return $this->nodes[0]->toString($forceNoBraces, $forceOut);
 		} elseif (!$this->nodes) {
 			if ($forceOut) {
 				return ";\0";
@@ -279,9 +295,11 @@ class BlockStatement extends Node {
 				$x = '(' . $x . ')';
 			}
 
-			if ($n instanceof Expression || $n instanceof VarNode || $n instanceof ReturnNode
-					|| $n instanceof BreakNode || $n instanceof ContinueNode || $n instanceof ThrowNode
-					|| $n instanceof DebuggerNode) {
+			$focus = $n instanceof LabelNode ? $n->stmt() : $n;
+
+			if ($focus instanceof Expression || $focus instanceof VarNode || $focus instanceof ReturnNode
+					|| $focus instanceof BreakNode || $focus instanceof ContinueNode || $focus instanceof ThrowNode
+					|| $focus instanceof DebuggerNode) {
 				$x .= ';';
 			}
 

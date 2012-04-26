@@ -20,9 +20,13 @@ class IndexExpression extends Expression {
 		return $this;
 	}
 
-	public function collectStatistics(AST $ast) {
-		$this->left->collectStatistics($ast);
+	public function collectStatistics(AST $ast, $write = false) {
+		$this->left->collectStatistics($ast, $write);
 		$this->right->collectStatistics($ast);
+	}
+
+	public function isLocal() {
+		return $this->left->isLocal();
 	}
 
 	public function toString() {

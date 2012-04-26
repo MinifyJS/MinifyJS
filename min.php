@@ -36,6 +36,9 @@ $options = array(
 
 	'-nc' => array('no-copyright' => true),
 	'--no-copyright' => array('no-copyright' => true),
+
+	'-sd' => array('strip-debug' => true),
+	'--strip-debug' => array('strip-debug' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {

@@ -8,15 +8,19 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function visit(AST $ast) {
-		if (!$this->write) {
-			// check for some common variables
-		}
-
 		if (!$this->write && (!$this->left->declared() || !AST::$options['mangle'])) {
 			switch ($this->left->toString()) {
 			case 'undefined':
 				return new VoidExpression(new Number(0));
 				break;
+			}
+		}
+
+		if (!$this->write) {
+			// check for some common variables
+			if ($ast->hasStats() && $init = $this->left->initializer()) {
+				$this->left->used(false);
+				return $init;
 			}
 		}
 
@@ -27,8 +31,24 @@ class IdentifierExpression extends ConstantExpression {
 		$this->left->used(true);
 	}
 
-	public function keep() {
-		return $this->left->keep() || $this->used();
+	public function declared() {
+		return $this->left->declared();
+	}
+
+	public function reassigned($bool = null) {
+		return $this->left->reassigned($bool);
+	}
+
+	public function initializer(Expression $e = null) {
+		return $this->left->initializer($e);
+	}
+
+	public function isLocal() {
+		return $this->declared();
+	}
+
+	public function keep($min = 0) {
+		return $this->left->keep($min);
 	}
 
 	public function write() {

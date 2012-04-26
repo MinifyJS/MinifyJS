@@ -82,6 +82,10 @@ abstract class Expression extends Node {
 		return null;
 	}
 
+	public function isLocal() {
+		return false;
+	}
+
 	public function actualType() {
 		return $this->type();
 	}

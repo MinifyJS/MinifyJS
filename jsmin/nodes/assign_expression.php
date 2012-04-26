@@ -33,7 +33,7 @@ class AssignExpression extends Expression {
 	}
 
 	public function collectStatistics(AST $ast) {
-		$this->left->collectStatistics($ast);
+		$this->left->collectStatistics($ast, true);
 		$this->right->collectStatistics($ast);
 	}
 

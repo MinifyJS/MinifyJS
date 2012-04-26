@@ -25,7 +25,7 @@ class ForInNode extends Node {
 	}
 
 	public function collectStatistics(AST $ast) {
-		$this->iterator->collectStatistics($ast);
+		$this->iterator->collectStatistics($ast, true);
 		$this->object->collectStatistics($ast);
 		$this->body->collectStatistics($ast);
 	}

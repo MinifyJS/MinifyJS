@@ -13,7 +13,7 @@ class DeleteExpression extends Expression {
 	}
 
 	public function collectStatistics(AST $ast) {
-		$this->left->collectStatistics($ast);
+		$this->left->collectStatistics($ast, true);
 	}
 
 	public function value() {

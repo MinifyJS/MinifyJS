@@ -9,6 +9,9 @@ class Identifier {
 	protected $small;
 	protected $mustDeclare = false;
 
+	protected $reassigned = false;
+	protected $initializer;
+
 	protected $usage = 0;
 
 	protected $linkedTo;
@@ -26,12 +29,33 @@ class Identifier {
 		return $this->mustDeclare;
 	}
 
+	public function reassigned($bool = null) {
+		if ($bool) {
+			$this->reassigned = true;
+			$this->initializer = null;
+		}
+
+		return $this->reassigned;
+	}
+
+	public function initializer(Expression $e = null) {
+		if ($e && !$this->reassigned()) {
+			$this->initializer = $e;
+		}
+
+		return $this->initializer;
+	}
+
+	public function isLocal() {
+		return $this->scope->parent() !== null;
+	}
+
 	public function name() {
 		return $this->name;
 	}
 
-	public function keep() {
-		return $this->used() || !$this->scope->parent();
+	public function keep($min = 0) {
+		return $this->used() > $min || !$this->scope->parent();
 	}
 
 	public function scope() {
