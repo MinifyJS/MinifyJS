@@ -26,7 +26,7 @@ class AST {
 		'timer' => false,
 		'beautify' => false,
 		'no-copyright' => false,
-		'strip-debug' => true,
+		'strip-debug' => false,
 	);
 
 	protected $binaryClasses = array(

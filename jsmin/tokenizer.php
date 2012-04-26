@@ -349,7 +349,7 @@ class JSTokenizer {
 		}
 
 		if ($input[0] === "\n" && $this->scanNewlines) {
-			$tt = TOKEN_NEWLINES;
+			$tt = TOKEN_NEWLINE;
 			$match = array("\n");
 		} elseif ($input === false) {
 			$tt = TOKEN_END;

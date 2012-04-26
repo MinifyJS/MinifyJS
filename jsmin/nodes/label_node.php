@@ -8,6 +8,10 @@ class LabelNode extends Node {
 		$this->stmt = $stmt;
 	}
 
+	public function stmt() {
+		return $this->stmt;
+	}
+
 	public function visit(AST $ast) {
 		$this->stmt = $this->stmt->visit($ast);
 
@@ -18,7 +22,7 @@ class LabelNode extends Node {
 		if (!$this->label->used()) {
 			return $this->stmt->toString();
 		}
-		
+
 		return $this->label->toString() . ':' . $this->stmt->toString();
 	}
 

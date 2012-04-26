@@ -27,6 +27,14 @@ class IdentifierExpression extends ConstantExpression {
 		$this->left->used(true);
 	}
 
+	public function declared() {
+		return $this->left->declared();
+	}
+
+	public function isLocal() {
+		return $this->declared();
+	}
+
 	public function keep() {
 		return $this->left->keep() || $this->used();
 	}

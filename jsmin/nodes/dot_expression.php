@@ -27,6 +27,10 @@ class DotExpression extends Expression {
 		$this->left->collectStatistics($ast);
 	}
 
+	public function isLocal() {
+		return $this->left->isLocal();
+	}
+
 	public function toString() {
 		$left = $this->group($this, $this->left);
 

@@ -26,6 +26,10 @@ class Identifier {
 		return $this->mustDeclare;
 	}
 
+	public function isLocal() {
+		return $this->scope->parent() !== null;
+	}
+
 	public function name() {
 		return $this->name;
 	}

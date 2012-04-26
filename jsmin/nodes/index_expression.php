@@ -25,6 +25,10 @@ class IndexExpression extends Expression {
 		$this->right->collectStatistics($ast);
 	}
 
+	public function isLocal() {
+		return $this->left->isLocal();
+	}
+
 	public function toString() {
 		return $this->group($this, $this->left) . '[' . $this->right . ']';
 	}
