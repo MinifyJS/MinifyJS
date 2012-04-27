@@ -42,7 +42,7 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
-		if ($this->name && !$this->name->keep(1)) {
+		if ($this->name && !$this->name->keep(1) && $this->functionForm !== EXPRESSED_FORM) {
 			return '';
 		}
 
