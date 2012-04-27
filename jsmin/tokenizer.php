@@ -297,8 +297,12 @@ class JSTokenizer {
 				break;
 			}
 
-			$re = $this->scanNewlines ? '/^[\t\v\f \h\xA0\p{Zs}]+/u' : '/^[\t\v\f\s \xA0\p{Zs}\n]+/u';
-			if (preg_match($re, $input, $match)) {
+			$re = '[\t\v\f\s \xA0\p{Zs}]';
+			if ($this->scanNewlines) {
+				$re = '(?:(?!\n)' . $re . ')';
+			}
+
+			if (preg_match('/^' . $re . '+/u', $input, $match)) {
 				$spaces = $match[0];
 				$spacelen = strlen($spaces);
 				$this->cursor += $spacelen;
