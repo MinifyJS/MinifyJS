@@ -34,3 +34,9 @@ A *lot*. A few things:
 * Constant if statements are replaced by either the then or else (depending on the condition)
 * Same with while, for statements and alike.
 * Unused variables and named functions are removed
+
+Why?
+----
+The initial payload sent by a website is often on a clean cache. This basically means that people will have to download
+all content you send for your page. By minifying as much as you can, the page will be at the client faster. MinifyJS attempts
+to create not only smaller, but also faster JavaScript.
