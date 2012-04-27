@@ -11,4 +11,8 @@ class This extends ConstantExpression {
 	public function isConstant() {
 		return false;
 	}
+
+	public function mayInline() {
+		return false;
+	}
 }

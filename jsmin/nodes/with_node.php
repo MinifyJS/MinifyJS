@@ -12,6 +12,10 @@ class WithNode extends Node {
 		$this->object = $this->object->visit($ast);
 		$this->body = $this->body->visit($ast);
 
+		if ($this->body->isRedundant()) {
+			return new VoidExpression(new Number(0));
+		}
+
 		return $this;
 	}
 

@@ -280,6 +280,10 @@ class BlockStatement extends Node {
 
 			$x = $n->toString(false);
 
+			if (strlen($x) === '') {
+				continue;
+			}
+
 			/*
 			 * ECMA-262, 12.4 Expression Statement
 			 * 	ExpressionStatement :

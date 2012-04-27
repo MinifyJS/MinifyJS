@@ -273,7 +273,7 @@ class JSTokenizer {
 		}
 	}
 
-	public function get($chunksize = 500) {
+	public function get($chunksize = 1000) {
 		while($this->lookahead) {
 			--$this->lookahead;
 			$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -287,9 +287,9 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
-			while (($c = $this->getChar()) === ' ' || $c === "\t") {
-				++$this->cursor;
-			}
+			//while (($c = $this->getChar()) === ' ' || $c === "\t") {
+			//	++$this->cursor;
+			//}
 
 			$input = $this->getInput($chunksize);
 

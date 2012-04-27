@@ -38,7 +38,10 @@ $options = array(
 	'--no-copyright' => array('no-copyright' => true),
 
 	'-sd' => array('strip-debug' => true),
-	'--strip-debug' => array('strip-debug' => true)
+	'--strip-debug' => array('strip-debug' => true),
+
+	'-ni' => array('no-inlining' => true),
+	'--no-inlining' => array('no-inlining' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {

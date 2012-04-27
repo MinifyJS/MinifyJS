@@ -30,11 +30,11 @@ class VarNode extends Node {
 		return $this->name;
 	}
 
-	public function collectStatistics(AST $ast) {
-		$this->name->collectStatistics($ast);
+	public function collectStatistics(AST $ast, $write = false) {
+		$this->name->collectStatistics($ast, $write);
 
 		if ($this->initializer) {
-			if ($this->initializer instanceof ConstantExpression) {
+			if ($this->initializer instanceof ConstantExpression && $this->initializer->mayInline()) {
 				$this->name->initializer($this->initializer);
 			}
 
