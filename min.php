@@ -22,9 +22,6 @@ $options = array(
 	'-us' => array('unsafe' => true, 'mangle' => true),
 	'--unsafe' => array('unsafe' => true, 'mangle' => true),
 
-	'-sc' => array('strip-console' => true),
-	'--strip-console' => array('strip-console' => true),
-
 	'-nm' => array('mangle' => false),
 	'--no-mangle' => array('mangle' => false),
 
