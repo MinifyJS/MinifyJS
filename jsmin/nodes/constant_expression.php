@@ -31,4 +31,8 @@ class ConstantExpression extends Expression {
 	public function hasSideEffects() {
 		return false;
 	}
+
+	public function mayInline() {
+		return true;
+	}
 }

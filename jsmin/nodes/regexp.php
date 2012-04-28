@@ -11,5 +11,9 @@ class RegExp extends ConstantExpression {
 	public function actualType() {
 		return 'regexp';
 	}
+
+	public function mayInline() {
+		return false;
+	}
 }
 

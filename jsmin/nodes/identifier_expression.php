@@ -8,6 +8,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function visit(AST $ast) {
+		// check for some common variables
 		if (!$this->write && (!$this->left->declared() || !AST::$options['mangle'])) {
 			switch ($this->left->toString()) {
 			case 'undefined':
@@ -16,19 +17,36 @@ class IdentifierExpression extends ConstantExpression {
 			}
 		}
 
-		if (!$this->write) {
-			// check for some common variables
+		if (!$this->write && !AST::$options['no-inlining']) {
 			if ($ast->hasStats() && $init = $this->left->initializer()) {
-				$this->left->used(false);
-				return $init;
+				/*
+				 * We'll have to verify that inlining will cost less than keeping the variable
+				 *
+				 * Do:
+				 * var a=5;alert(a);
+				 * alert(5);
+				 *
+				 * Do not do:
+				 * var a=2500;alert(a,a,a,a,a);
+				 * alert(2500,2500,2500,2500,2500);
+				 */
+
+				if ((($this->left->used() - 1) * strlen($init->toString())) < (($this->left->used() * 2) + 4)) {
+					$this->left->used(false);
+					return $init;
+				}
 			}
 		}
 
 		return $this;
 	}
 
-	public function collectStatistics(AST $ast) {
+	public function collectStatistics(AST $ast, $reassigned = false) {
 		$this->left->used(true);
+
+		if ($reassigned) {
+			$this->reassigned(true);
+		}
 	}
 
 	public function declared() {

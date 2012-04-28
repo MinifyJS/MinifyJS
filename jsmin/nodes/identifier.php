@@ -55,7 +55,7 @@ class Identifier {
 	}
 
 	public function keep($min = 0) {
-		return $this->used() > $min || !$this->scope->parent();
+		return $this->used() > $min || $this->reassigned() || !$this->scope->parent();
 	}
 
 	public function scope() {

@@ -27,14 +27,7 @@ class AST {
 		'beautify' => false,
 		'no-copyright' => false,
 		'strip-debug' => false,
-	);
-
-	protected $binaryClasses = array(
-		OP_PLUS => 'Plus',
-		OP_MINUS => 'Minus',
-		OP_MUL => 'Mul',
-		OP_AND => 'And',
-		OP_DIV => 'Div'
+		'no-inlining' => false
 	);
 
 	public static function load($class) {

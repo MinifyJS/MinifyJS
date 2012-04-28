@@ -42,6 +42,10 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
+		if ($this->name && !$this->name->keep(1) && $this->functionForm !== EXPRESSED_FORM) {
+			return '';
+		}
+
 		$space = AST::$options['beautify'] ? ' ' : '';
 
 		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : $space)

@@ -22,9 +22,6 @@ $options = array(
 	'-us' => array('unsafe' => true, 'mangle' => true),
 	'--unsafe' => array('unsafe' => true, 'mangle' => true),
 
-	'-sc' => array('strip-console' => true),
-	'--strip-console' => array('strip-console' => true),
-
 	'-nm' => array('mangle' => false),
 	'--no-mangle' => array('mangle' => false),
 
@@ -38,7 +35,10 @@ $options = array(
 	'--no-copyright' => array('no-copyright' => true),
 
 	'-sd' => array('strip-debug' => true),
-	'--strip-debug' => array('strip-debug' => true)
+	'--strip-debug' => array('strip-debug' => true),
+
+	'-ni' => array('no-inlining' => true),
+	'--no-inlining' => array('no-inlining' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
