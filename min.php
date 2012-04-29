@@ -1,4 +1,4 @@
-#!/usr/bin/env php -q
+#!/usr/bin/env php
 <?php
 ini_set('memory_limit', '1G');
 date_default_timezone_set('Europe/Amsterdam');
