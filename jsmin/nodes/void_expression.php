@@ -25,12 +25,20 @@ class VoidExpression extends Expression {
 		}
 	}
 
+	public function mayInline() {
+		return $this->isConstant();
+	}
+
 	public function toString() {
 		return 'void' . Stream::legalStart($this->group($this, $this->left, false));
 	}
 
 	public function isConstant() {
 		return $this->left->isConstant();
+	}
+
+	public function gone() {
+		$this->left->gone();
 	}
 
 	public function type() {

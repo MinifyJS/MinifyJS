@@ -120,6 +120,13 @@ class CallExpression extends Expression {
 		return false;
 	}
 
+	public function gone() {
+		$this->left->gone();
+		foreach($this->right as $n) {
+			$n->gone();
+		}
+	}
+
 	public function isConstant() {
 		return false;
 	}

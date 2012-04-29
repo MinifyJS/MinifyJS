@@ -15,6 +15,14 @@ class FunctionNode extends Node {
 	}
 
 	public function visit(AST $ast) {
+		if ($ast->hasStats() && $this->name) {
+			if ($this->functionForm !== EXPRESSED_FORM && !$this->name->keep(1)) {
+				$this->gone();
+
+				return new Nil();
+			}
+		}
+
 		if ($this->name) {
 			$this->name = $this->name->visit($ast);
 		}
@@ -42,10 +50,6 @@ class FunctionNode extends Node {
 	}
 
 	public function toString() {
-		if ($this->name && !$this->name->keep(1) && $this->functionForm !== EXPRESSED_FORM) {
-			return '';
-		}
-
 		$space = AST::$options['beautify'] ? ' ' : '';
 
 		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : $space)
@@ -61,6 +65,13 @@ class FunctionNode extends Node {
 		}
 
 		return null;
+	}
+
+	public function gone() {
+		$this->body->gone();
+		if ($this->name) {
+			$this->name->used(false);
+		}
 	}
 
 	public function debug() {

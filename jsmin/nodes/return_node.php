@@ -26,6 +26,12 @@ class ReturnNode extends Node {
 		return $this->value;
 	}
 
+	public function gone() {
+		if ($this->value) {
+			$this->value->gone();
+		}
+	}
+
 	public function last() {
 		return $this;
 	}

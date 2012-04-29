@@ -58,6 +58,12 @@ class HookExpression extends Expression {
 
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->middle->gone();
+		$this->right->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->left->collectStatistics($ast);
 		$this->middle->collectStatistics($ast);

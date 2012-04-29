@@ -69,6 +69,12 @@ class IfNode extends Node {
 			}
 		} elseif (!$this->else && $this->then instanceof Expression) {
 			$result = new AndExpression($this->condition, $this->then);
+		} elseif (!$this->else && (null !== $cond = $this->condition->asBoolean())) {
+			if ($cond) {
+				return $this->then;
+			}
+
+			return new Nil();
 		}
 
 		return $result ? $result->visit($ast) : $this;
@@ -93,6 +99,17 @@ class IfNode extends Node {
 		}
 
 		return $this;
+	}
+
+	public function gone() {
+		$this->condition->gone();
+		if ($this->then) {
+			$this->then->gone();
+		}
+
+		if ($this->else) {
+			$this->else->gone();
+		}
 	}
 
 	public function toString() {

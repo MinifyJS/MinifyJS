@@ -20,6 +20,10 @@ class ConstantExpression extends Expression {
 		return true;
 	}
 
+	public function gone() {
+
+	}
+
 	public function first() {
 		return $this;
 	}

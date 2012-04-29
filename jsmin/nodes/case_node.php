@@ -16,6 +16,11 @@ class CaseNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->label->gone();
+		$this->stmt->gone();
+	}
+
 	public function toString() {
 		if (AST::$options['beautify']) {
 			return 'case ' . $this->label->toString() . ':'

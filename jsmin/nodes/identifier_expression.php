@@ -18,7 +18,7 @@ class IdentifierExpression extends ConstantExpression {
 		}
 
 		if (!$this->write && !AST::$options['no-inlining']) {
-			if ($ast->hasStats() && $init = $this->left->initializer()) {
+			if ($ast->hasStats() && ($init = $this->left->initializer())) {
 				/*
 				 * We'll have to verify that inlining will cost less than keeping the variable
 				 *
@@ -75,6 +75,10 @@ class IdentifierExpression extends ConstantExpression {
 
 	public function used($bool = null) {
 		return max($this->left->used($bool), $this->write ? 1 : 0);
+	}
+
+	public function gone() {
+		$this->used(false);
 	}
 
 	public function value() {

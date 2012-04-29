@@ -49,6 +49,13 @@ class AssignExpression extends Expression {
 		}
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->right->gone();
+
+		$this->left->unassign();
+	}
+
 	public function value() {
 		if ($this->type === '=') {
 			return $this->right->value();

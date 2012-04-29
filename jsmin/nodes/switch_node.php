@@ -24,6 +24,14 @@ class SwitchNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->discriminant->gone();
+
+		foreach($this->cases as $c) {
+			$c->gone();
+		}
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->discriminant->collectStatistics($ast);
 

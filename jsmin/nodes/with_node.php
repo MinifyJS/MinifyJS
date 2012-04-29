@@ -19,6 +19,11 @@ class WithNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->object->gone();
+		$this->body->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$ast->visitScope()->usesWith();
 

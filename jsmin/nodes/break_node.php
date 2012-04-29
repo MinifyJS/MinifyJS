@@ -22,6 +22,12 @@ class BreakNode extends Node {
 		return 'break' . ($this->label ? Stream::legalStart($this->label->toString()) : '');
 	}
 
+	public function gone() {
+		if ($this->label) {
+			$this->label->used(false);
+		}
+	}
+
 	public function isBreaking() {
 		return true;
 	}

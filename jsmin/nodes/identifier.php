@@ -9,7 +9,7 @@ class Identifier {
 	protected $small;
 	protected $mustDeclare = false;
 
-	protected $reassigned = false;
+	protected $reassigned = 0;
 	protected $initializer;
 
 	protected $usage = 0;
@@ -31,19 +31,22 @@ class Identifier {
 
 	public function reassigned($bool = null) {
 		if ($bool) {
-			$this->reassigned = true;
-			$this->initializer = null;
+			++$this->reassigned;
+		} elseif ($bool === false) {
+			--$this->reassigned;
 		}
 
-		return $this->reassigned;
+		return $this->reassigned > 0;
 	}
 
 	public function initializer(Expression $e = null) {
-		if ($e && !$this->reassigned()) {
+		if ($e) {
 			$this->initializer = $e;
 		}
 
-		return $this->initializer;
+		if (!$this->reassigned()) {
+			return $this->initializer;
+		}
 	}
 
 	public function isLocal() {
@@ -65,7 +68,7 @@ class Identifier {
 	public function used($bool = null) {
 		if ($bool === true) {
 			$this->usage++;
-		} elseif ($bool === false) {
+		} elseif ($bool === false && $this->usage > 0) {
 			$this->usage--;
 		}
 

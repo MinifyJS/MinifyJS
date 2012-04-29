@@ -24,6 +24,14 @@ class ForInNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->iterator->gone();
+		$this->iterator->unassign();
+
+		$this->object->gone();
+		$this->body->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->iterator->collectStatistics($ast, true);
 		$this->object->collectStatistics($ast);

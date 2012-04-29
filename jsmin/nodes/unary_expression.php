@@ -16,6 +16,10 @@ class UnaryExpression extends Expression {
 		$this->left->collectStatistics($ast);
 	}
 
+	public function gone() {
+		$this->left->gone();
+	}
+
 	public function isConstant() {
 		return $this->left->isConstant();
 	}

@@ -10,8 +10,10 @@ class OrExpression extends BinaryExpression {
 		$else = $this->left->asBoolean();
 
 		if ($else === true) {
+			$this->right->gone();
 			return $this->left;
 		} elseif ($else === false) {
+			$this->left->gone();
 			return $this->right;
 		}
 

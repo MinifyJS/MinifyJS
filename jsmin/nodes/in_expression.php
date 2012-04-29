@@ -19,6 +19,11 @@ class InExpression extends Expression {
 		$this->right->collectStatistics($ast);
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->right->gone();
+	}
+
 	public function toString() {
 		return Stream::legalEnd($this->group($this, $this->left))
 			. 'in'

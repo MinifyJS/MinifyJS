@@ -83,7 +83,7 @@ class Scope {
 
 		if ($this->parent || $this->labelScope) {
 			foreach($this->declared as $ident) {
-				if (($ident->declared() && $ident->scope() === $this && $ident->keep()) || $this->labelScope) {
+				if (($ident->declared() && $ident->scope() === $this && $ident->keep(1)) || $this->labelScope) {
 					for (;;) {
 						$name = $this->base54($this->nameIndex++);
 
@@ -120,7 +120,7 @@ class Scope {
 
 	protected function has($name) {
 		for ($s = $this; $s; $s = $s->parent) {
-			if (isset($s->declared[$name]) && $s->declared[$name]->scope() === $s) {
+			if (isset($s->declared[$name]) && $s->declared[$name]->scope() === $s && $s->declared[$name]->keep(1)) {
 				return $s;
 			}
 		}
