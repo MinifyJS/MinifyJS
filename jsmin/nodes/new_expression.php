@@ -43,6 +43,13 @@ class NewExpression extends Expression {
 		}
 	}
 
+	public function gone() {
+		$this->left->gone();
+		foreach($this->right as $n) {
+			$n->gone();
+		}
+	}
+
 	public function toString() {
 		return 'new' . Stream::legalStart($this->group($this, $this->left)) . ($this->right ?  '(' . implode(',', $this->right) . ')' : '');
 	}

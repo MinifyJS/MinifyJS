@@ -98,6 +98,24 @@ abstract class Expression extends Node {
 		return $this;
 	}
 
+	public function mayInline() {
+		return false;
+	}
+
+	public function unassign() {
+		$left = $this;
+		while ($left) {
+			if ($left instanceof IdentifierExpression) {
+				$left->reassigned(false);
+				break;
+			}
+
+			if ($left === ($left = $left->left())) {
+				break;
+			}
+		}
+	}
+
 	protected function group(Expression $base, Expression $hook, $left = true) {
 		$l = $base->precedence();
 		$r = $hook->precedence();

@@ -10,11 +10,13 @@ class AndExpression extends BinaryExpression {
 		$else = $this->left->asBoolean();
 
 		if ($else === true) {
+			$this->left->gone();
 			return $this->right;
 		} elseif ($else === false) {
+			$this->right->gone();
 			return $this->left;
 		}
-		
+
 		return $this;
 	}
 

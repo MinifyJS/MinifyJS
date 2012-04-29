@@ -28,6 +28,11 @@ class DeleteExpression extends Expression {
 		return false;
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->left->unassign();
+	}
+
 	public function type() {
 		return 'boolean';
 	}

@@ -26,6 +26,10 @@ class Property extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->value->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->value->collectStatistics($ast);
 	}

@@ -26,6 +26,12 @@ class ContinueNode extends Node {
 		return 'continue' . ($this->label ? Stream::legalStart($this->label->toString()) : '');
 	}
 
+	public function gone() {
+		if ($this->label) {
+			$this->label->used(false);
+		}
+	}
+
 	public function optimizeBreak() {
 		return new VoidExpression(new Number(0));
 	}

@@ -19,6 +19,8 @@ class CommaExpression extends Expression {
 
 					if (!$n->isVoid()) {
 						$nodes[] = $n;
+					} else {
+						$n->gone();
 					}
 				}
 			}
@@ -38,6 +40,12 @@ class CommaExpression extends Expression {
 	public function first() {
 		if ($this->nodes) {
 			return $this->nodes[0]->first();
+		}
+	}
+
+	public function gone() {
+		foreach($this->nodes as $n) {
+			$n->gone();
 		}
 	}
 

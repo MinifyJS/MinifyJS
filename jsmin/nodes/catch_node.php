@@ -14,6 +14,12 @@ class CatchNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->variable->used(false);
+		$this->variable->reassigned(false);
+		$this->body->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->variable->used(true);
 		// not actually reassigned, but don't take the risk

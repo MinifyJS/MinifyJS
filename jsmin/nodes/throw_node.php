@@ -14,6 +14,10 @@ class ThrowNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->exception->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->exception->collectStatistics($ast);
 	}
