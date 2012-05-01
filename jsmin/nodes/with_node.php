@@ -13,6 +13,10 @@ class WithNode extends Node {
 		$this->body = $this->body->visit($ast);
 
 		if ($this->body->isRedundant()) {
+			if ($ast->hasStats()) {
+				$ast->visitScope()->usesWith(-1);
+			}
+
 			return new VoidExpression(new Number(0));
 		}
 

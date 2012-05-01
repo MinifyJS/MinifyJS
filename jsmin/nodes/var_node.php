@@ -34,8 +34,7 @@ class VarNode extends Node {
 		$this->name->collectStatistics($ast, $write);
 
 		if ($this->initializer) {
-			if ($this->name->get()->scope()->parent() && $this->initializer instanceof ConstantExpression
-					&& $this->initializer->mayInline()) {
+			if ($this->name->get()->scope()->parent() && $this->initializer->mayInline()) {
 				$this->name->initializer($this->initializer);
 			}
 

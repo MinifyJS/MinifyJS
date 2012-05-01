@@ -20,6 +20,10 @@ class Nil extends ConstantExpression {
 		return false;
 	}
 
+	public function asString() {
+		return 'null';
+	}
+
 	public function negate() {
 		return new Boolean(true);
 	}
