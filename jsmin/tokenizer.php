@@ -297,9 +297,12 @@ class JSTokenizer {
 		// strip whitespace and comments
 		for(;;) {
 			while (ctype_space($c = $this->getChar())) {
-				if ($this->scanNewlines && $c === "\n") {
+				if ($c === "\n") {
+					if ($this->scanNewlines) {
+						break 2;
+					}
 
-					break 2;
+					++$this->lineno;
 				}
 
 				++$this->cursor;
