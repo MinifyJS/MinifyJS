@@ -28,6 +28,11 @@ abstract class BinaryExpression extends Expression {
 		return null;
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->right->gone();
+	}
+
 	public function precedence() {
 		return 9;
 	}

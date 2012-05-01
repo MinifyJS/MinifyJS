@@ -27,6 +27,11 @@ class WhileNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->condition->gone();
+		$this->body->gone();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->condition->collectStatistics($ast);
 		$this->body->collectStatistics($ast);

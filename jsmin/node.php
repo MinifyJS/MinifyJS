@@ -11,11 +11,11 @@ abstract class Node {
 	protected $debug = true;
 
 	public function visit(AST $ast) {
-		throw new Exception('Not implemented');
+		throw new Exception('Not implemented in ' . get_class($this));
 	}
 
 	public function collectStatistics(AST $ast) {
-		throw new Exception('Not implemented');
+		throw new Exception('Not implemented in ' . get_class($this));
 	}
 
 	public function __construct() {
@@ -104,6 +104,11 @@ abstract class Node {
 
 	public function breaking() {
 		return null;
+	}
+
+	// this node has disappeared. Notify all subnodes
+	public function gone() {
+		throw new Exception('Not implemented in ' . get_class($this));
 	}
 
 	public function nodes() {

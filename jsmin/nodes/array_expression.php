@@ -20,6 +20,12 @@ class ArrayExpression extends Expression {
 		}
 	}
 
+	public function gone() {
+		foreach($this->nodes as $n) {
+			$n->gone();
+		}
+	}
+
 	public function toString() {
 		return '[' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $this->nodes) . ']';
 	}

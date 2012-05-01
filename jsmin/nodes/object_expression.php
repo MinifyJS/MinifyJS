@@ -42,6 +42,12 @@ class ObjectExpression extends Expression {
 		return 'object';
 	}
 
+	public function gone() {
+		foreach($this->nodes as $n) {
+			$n->gone();
+		}
+	}
+
 	public function precedence() {
 		return 0;
 	}

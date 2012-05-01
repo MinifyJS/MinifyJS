@@ -26,6 +26,10 @@ class TypeofExpression extends Expression {
 		return $this->left->type();
 	}
 
+	public function gone() {
+		$this->left->gone();
+	}
+
 	public function toString() {
 		return 'typeof' . Stream::legalStart($this->group($this, $this->left, false));
 	}

@@ -82,7 +82,14 @@ class BlockStatement extends Node {
 		$returnSeen = false;
 
 		foreach($original as $n) {
+			// removed functions always need revisiting
+			$wasFunction = $n instanceof FunctionNode;
+
 			$n = $n->visit($ast);
+
+			if ($wasFunction && !($n instanceof FunctionNode)) {
+				$revisit = true;
+			}
 
 			if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
 				if ($n instanceof Expression) {
@@ -107,6 +114,9 @@ class BlockStatement extends Node {
 								}
 
 								$nodes[] = $x;
+							} else {
+								$x->gone();
+								$revisit = true;
 							}
 						}
 					} else {
@@ -116,9 +126,14 @@ class BlockStatement extends Node {
 							}
 
 							$nodes[] = $n;
+						} else {
+							$n->gone();
+							$revisit = true;
 						}
 					}
 				}
+			} else {
+				$n->gone();
 			}
 		}
 
@@ -388,6 +403,12 @@ class BlockStatement extends Node {
 		}
 
 		return $this;
+	}
+
+	public function gone() {
+		foreach($this->nodes as $n) {
+			$n->gone();
+		}
 	}
 
 	public function debug() {

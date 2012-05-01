@@ -23,6 +23,10 @@ class DotExpression extends Expression {
 		return $this;
 	}
 
+	public function gone() {
+		$this->left->gone();
+	}
+
 	public function collectStatistics(AST $ast, $write = false) {
 		$this->left->collectStatistics($ast, $write);
 	}

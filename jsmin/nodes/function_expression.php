@@ -19,6 +19,10 @@ class FunctionExpression extends Expression {
 		return $this->middle->toString();
 	}
 
+	public function gone() {
+		$this->middle->gone();
+	}
+
 	public function type() {
 		return 'function';
 	}
@@ -29,6 +33,10 @@ class FunctionExpression extends Expression {
 
 	public function onlyReturns() {
 		return $this->middle->onlyReturns();
+	}
+
+	public function removeUseless() {
+		return new VoidExpression(new Number(0));
 	}
 
 	public function debug () {

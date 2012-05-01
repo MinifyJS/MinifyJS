@@ -23,6 +23,18 @@ class TryNode extends Node {
 		return $this;
 	}
 
+	public function gone() {
+		$this->body->gone();
+
+		if ($this->catch) {
+			$this->catch->gone();
+		}
+
+		if ($this->finally) {
+			$this->finally->gone();
+		}
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->body->collectStatistics($ast);
 		if ($this->catch) {

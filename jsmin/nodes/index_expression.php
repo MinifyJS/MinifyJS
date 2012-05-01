@@ -13,11 +13,17 @@ class IndexExpression extends Expression {
 
 		if (null !== $test = $this->right->asString()) {
 			if (Identifier::isValid($test)) {
-				return new DotExpression($this->left, new Identifier(null, $test));
+				$result = new DotExpression($this->left, new Identifier(null, $test));
+				return $result->visit($ast);
 			}
 		}
 
 		return $this;
+	}
+
+	public function gone() {
+		$this->left->gone();
+		$this->right->gone();
 	}
 
 	public function collectStatistics(AST $ast, $write = false) {
