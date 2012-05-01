@@ -9,6 +9,27 @@ if (!defined('MIN_BASE')) {
 
 !defined('DEFINED_TYPE') && define('UNDEFINED_TYPE', 'undefined');
 
+if (function_exists('xhprof_enable')) {
+    xhprof_enable(XHPROF_FLAGS_MEMORY, array('ignored_functions' =>  array(
+        'call_user_func',
+        'call_user_func_array'
+    )));
+
+    register_shutdown_function(function () {
+        $data = xhprof_disable();
+
+        global $xhprof_content;
+
+        require_once 'xhprof/utils/xhprof_lib.php';
+        require_once 'xhprof/utils/xhprof_runs.php';
+
+        if (empty($GLOBALS['wasError'])) {
+            $runs = new XHProfRuns_Default();
+            $runs->save_run($data, 'MinifyJS');
+        }
+    });
+}
+
 require MIN_BASE . 'parser.php';
 
 $parser = new JSParser();
@@ -38,7 +59,10 @@ $options = array(
 	'--strip-debug' => array('strip-debug' => true),
 
 	'-ni' => array('no-inlining' => true),
-	'--no-inlining' => array('no-inlining' => true)
+	'--no-inlining' => array('no-inlining' => true),
+
+	'-uws' => array('unicode-ws' => true),
+	'--unicode-whitespace' => array('unicode-ws' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
@@ -61,7 +85,7 @@ $timers = array();
 
 try {
 	$t = microtime(true);
-	$tree = $parser->parse($s, $f, 0);
+	$tree = $parser->parse($s, $f, 0, AST::$options['unicode-ws']);
 	$timers['parse'] = microtime(true) - $t;
 
 	$t = microtime(true);

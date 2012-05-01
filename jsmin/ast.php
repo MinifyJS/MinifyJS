@@ -62,7 +62,7 @@ class AST {
 		$this->tree->collectStatistics($this);
 		$this->secondVisit = true;
 		$this->tree = $this->tree->visit($this);
-		$this->tree = $this->tree->visit($this);
+		//$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimize();
