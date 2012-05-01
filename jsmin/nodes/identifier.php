@@ -88,7 +88,15 @@ class Identifier {
 	}
 
 	public function toString() {
-		return $this->small ? $this->small : $this->name;
+		return $this->escape($this->small ? $this->small : $this->name);
+	}
+
+	public function escape($name) {
+		if (self::isValid($name)) {
+			return $name;
+		}
+
+		return '\\u' . substr('0000' . dechex(ord($name[0])), -4) . substr($name, 1);
 	}
 
 	public static function isValid($str) {

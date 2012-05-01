@@ -18,7 +18,7 @@ class Scope {
 		'finally' => 1, 'for' => 1, 'function' => 1, 'final' => 1, 'float' => 1,
 		'goto' => 1,
 		'if' => 1, 'in' => 1, 'instanceof' => 1, 'implements' => 1, 'import' => 1, 'int' => 1, 'interface' => 1,
-		'long' => 1,
+		'let' => 1, 'long' => 1,
 		'new' => 1, 'native' => 1,
 		'package' => 1, 'private' => 1, 'protected' => 1, 'public' => 1,
 		'return' => 1,
@@ -26,6 +26,7 @@ class Scope {
 		'this' => 1, 'throw' => 1, 'try' => 1, 'typeof' => 1, 'throws' => 1, 'transient' => 1,
 		'var' => 1, 'void' => 1, 'volatile' => 1,
 		'while' => 1, 'with' => 1,
+		'yield' => 1,
 
 		// not reserved per se, but we'll still avoid them
 		'arguments' => 1, 'eval' => 1, 'true' => 1, 'false' => 1, 'Infinity' => 1, 'NaN' => 1, 'null' => 1, 'undefined' => 1
