@@ -27,7 +27,8 @@ class AST {
 		'beautify' => false,
 		'no-copyright' => false,
 		'strip-debug' => false,
-		'no-inlining' => false
+		'no-inlining' => false,
+		'unicode-ws' => false
 	);
 
 	public static function load($class) {
@@ -61,7 +62,7 @@ class AST {
 		$this->tree->collectStatistics($this);
 		$this->secondVisit = true;
 		$this->tree = $this->tree->visit($this);
-		//$this->tree = $this->tree->visit($this);
+		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimize();

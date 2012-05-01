@@ -195,8 +195,9 @@ class JSTokenizer {
 	private $assignOps = array('|', '^', '&', '<<', '>>', '>>>', '+', '-', '*', '/', '%');
 	private $opRegExp;
 
-	public function __construct() {
+	public function __construct($unicodeWS = false) {
 		$this->opRegExp = '#\A(' . implode('|', array_map('preg_quote', array_keys($this->opTypeNames))) . ')#';
+		$this->unicodeWhitespace = $unicodeWS;
 	}
 
 	public function init($source, $filename = '', $lineno = 1) {
@@ -207,6 +208,7 @@ class JSTokenizer {
 		$this->lineno = $lineno;
 		$this->licenses = array();
 
+		$this->preCursor = 0;
 		$this->cursor = 0;
 		$this->tokens = array();
 		$this->tokenIndex = 0;
@@ -216,6 +218,13 @@ class JSTokenizer {
 	}
 
 	public function getInput($chunksize) {
+		if (mt_rand(0, 20) === 5) {
+			$this->source = substr($this->source, $this->cursor);
+			$this->preCursor += $this->cursor;
+			$this->length -= $this->cursor;
+			$this->cursor = 0;
+		}
+
 		if ($chunksize) {
 			return substr($this->source, $this->cursor, $chunksize);
 		}
@@ -224,7 +233,7 @@ class JSTokenizer {
 	}
 
 	public function getChar() {
-		return $this->cursor < $this->length ? $this->source[$this->cursor] : null;
+		return $this->cursor !== $this->length ? $this->source[$this->cursor] : null;
 	}
 
 	public function isDone() {
@@ -287,32 +296,39 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
-			//while (($c = $this->getChar()) === ' ' || $c === "\t") {
-			//	++$this->cursor;
-			//}
+			while (ctype_space($c = $this->getChar())) {
+				if ($this->scanNewlines && $c === "\n") {
 
-			$input = $this->getInput($chunksize);
-
-			if ($input === false) {
-				break;
-			}
-
-			$re = '[\t\v\f\s \xA0\p{Zs}]';
-			if ($this->scanNewlines) {
-				$re = '(?:(?!\n)' . $re . ')';
-			}
-
-			if (preg_match('/^' . $re . '+/u', $input, $match)) {
-				$spaces = $match[0];
-				$spacelen = strlen($spaces);
-				$this->cursor += $spacelen;
-
-				if (!$this->scanNewlines) {
-					$this->lineno += substr_count($spaces, "\n");
+					break 2;
 				}
 
-				if ($spacelen === strlen($input)) {
-					continue; // complete chunk contained whitespace
+				++$this->cursor;
+			}
+
+			if ($this->unicodeWhitespace) {
+				$input = $this->getInput($chunksize);
+
+				if ($input === false) {
+					break;
+				}
+
+				$re = '[\t\v\f\s \xA0\p{Zs}]';
+				if ($this->scanNewlines) {
+					$re = '(?:(?!\n)' . $re . ')';
+				}
+
+				if (preg_match('/^' . $re . '+/u', $input, $match)) {
+					$spaces = $match[0];
+					$spacelen = strlen($spaces);
+					$this->cursor += $spacelen;
+
+					if (!$this->scanNewlines) {
+						$this->lineno += substr_count($spaces, "\n");
+					}
+
+					if ($spacelen === strlen($input)) {
+						continue; // complete chunk contained whitespace
+					}
 				}
 			}
 
@@ -354,6 +370,7 @@ class JSTokenizer {
 		}
 
 		if (ctype_space($input[0])) {
+			throw new Exception('Bug');
 		}
 
 		if ($input[0] === "\n" && $this->scanNewlines) {
@@ -484,7 +501,7 @@ class JSTokenizer {
 					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
 					} else {
-						throw $this->newSyntaxError('Illegal token (' . ord($input[0] . ')'));
+						throw $this->newSyntaxError('Illegal token (0x' . dechex(ord($input[0])) . ')');
 					}
 			}
 		}
@@ -551,7 +568,7 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor . ' (' . str_replace("\n", '*\n*', substr($this->source, $this->cursor - 5, 25)) . ')');
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . ($this->cursor + $this->preCursor));
 	}
 }
 

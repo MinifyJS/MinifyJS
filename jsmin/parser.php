@@ -123,8 +123,8 @@ class JSParser {
 
 	public function __construct() { }
 
-	public function parse($s, $f, $l) {
-		$this->t = new JSTokenizer();
+	public function parse($s, $f, $l, $unicodeWS) {
+		$this->t = new JSTokenizer($unicodeWS);
 
 		$s = str_replace(array("\r\n", "\n\r", "\r"), "\n", $s);
 		$this->t->init($s, $f, $l);
