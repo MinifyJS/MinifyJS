@@ -33,6 +33,10 @@ class VarNode extends Node {
 		return $this->name->write();
 	}
 
+	public function unassign() {
+		$this->name->reassigned(false);
+	}
+
 	public function name() {
 		return $this->name;
 	}
