@@ -7,11 +7,12 @@ class ArrayExpression extends Expression {
 	}
 
 	public function visit(AST $ast) {
+		$nodes = array();
 		foreach($this->nodes as $i => $e) {
-			$this->nodes[$i] = $e->visit($ast);
+			$nodes[] = $e->visit($ast);
 		}
 
-		return $this;
+		return new ArrayExpression($nodes);
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -27,7 +28,13 @@ class ArrayExpression extends Expression {
 	}
 
 	public function toString() {
-		return '[' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $this->nodes) . ']';
+		$options = array();
+		foreach($this->nodes as $n) {
+			$v = $n->toString();
+			$options[] = $n instanceof CommaExpression ? '(' . $v . ')' : $v;
+		}
+
+		return '[' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $options) . ']';
 	}
 
 	public function type() {
