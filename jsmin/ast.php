@@ -51,18 +51,18 @@ class AST {
 
 		$this->tree = $this->generate($root);
 		$this->leave();
+
+		$this->secondVisit = false;
 	}
 
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 
-		$this->secondVisit = false;
 		$this->tree = $this->tree->visit($this);
 		$this->tree->collectStatistics($this);
 		$this->secondVisit = true;
 		$this->tree = $this->tree->visit($this);
-		//$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimize();
@@ -87,6 +87,11 @@ class AST {
 	}
 
 	public function toString() {
+		// we still need stats…
+		if (!$this->secondVisit) {
+			$this->tree->collectStatistics($this);
+		}
+
 		// strip out final semicolons
 		return str_replace("\0", '', $this->tree->asBlock()->toString(true));
 	}
