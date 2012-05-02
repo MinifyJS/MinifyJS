@@ -85,6 +85,10 @@ class IdentifierExpression extends ConstantExpression {
 		return $this->left->name();
 	}
 
+	public function mayInline() {
+		return false;
+	}
+
 	public function __toString() {
 		return $this->left->toString();
 	}
