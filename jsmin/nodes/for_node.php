@@ -67,6 +67,22 @@ class ForNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function gone() {
+		if ($this->initializer) {
+			$this->initializer->gone();
+		}
+
+		if ($this->condition) {
+			$this->condition->gone();
+		}
+
+		if ($this->update) {
+			$this->update->gone();
+		}
+
+		$this->body->gone();
+	}
+
 	public function last() {
 		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}

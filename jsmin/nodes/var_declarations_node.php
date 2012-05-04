@@ -76,6 +76,12 @@ class VarDeclarationsNode extends Node {
 		return $o ? 'var ' . join(',', $o) : '';
 	}
 
+	public function gone() {
+		foreach($this->nodes as $n) {
+			$n->gone();
+		}
+	}
+
 	public function nodes() {
 		return $this->nodes;
 	}
