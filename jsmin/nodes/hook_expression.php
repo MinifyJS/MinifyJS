@@ -38,7 +38,7 @@ class HookExpression extends Expression {
 		}
 
 		if ($this->middle instanceof IndexExpression && $this->right instanceof IndexExpression
-				&& $this->middle->left()->toString() === $this->middle->left()->toString()) {
+				&& $this->middle->left()->toString() === $this->right->left()->toString()) {
 			$result = new IndexExpression(
 				$this->middle->left(),
 				new HookExpression($this->left, $this->middle->right(), $this->right->right())
