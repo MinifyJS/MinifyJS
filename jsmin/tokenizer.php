@@ -372,13 +372,11 @@ class JSTokenizer {
 			//}
 		}
 
-		if (ctype_space($input[0])) {
-			throw new Exception('Bug');
-		}
-
 		if ($input[0] === "\n" && $this->scanNewlines) {
 			$tt = TOKEN_NEWLINE;
 			$match = array("\n");
+		} elseif (ctype_space($input[0])) {
+			throw new Exception('Bug');
 		} elseif ($input === false) {
 			$tt = TOKEN_END;
 			$match = array('');
