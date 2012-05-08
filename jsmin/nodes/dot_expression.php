@@ -35,6 +35,10 @@ class DotExpression extends Expression {
 		return $this->left->isLocal();
 	}
 
+	public function mayInline() {
+		return $this->left->mayInline();
+	}
+
 	public function toString() {
 		$left = $this->group($this, $this->left);
 
