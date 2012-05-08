@@ -113,7 +113,7 @@ class CommaExpression extends Expression {
 		$that = clone $this;
 
 		if ($that->nodes) {
-			$that->nodes[count($that->nodes) - 1] = $that->represents->negate();
+			$that->nodes[count($that->nodes) - 1] = $that->represents()->negate();
 		}
 
 		return AST::bestOption(array(
