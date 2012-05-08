@@ -31,7 +31,10 @@ class IdentifierExpression extends ConstantExpression {
 				 * alert(2500,2500,2500,2500,2500);
 				 */
 
-				if ((($this->left->used() - 1) * strlen($init->toString())) < (($this->left->used() * 2) + 4)) {
+				$valueLength = strlen($init->toString());
+				$usage = $this->left->used();
+
+				if ((($usage - 1) * $valueLength) < (($usage * 2) + 4 + $valueLength)) {
 					$this->left->used(false);
 					return $init;
 				}
@@ -86,7 +89,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function mayInline() {
-		return false;
+		return $this->isLocal() && !$this->initializer();
 	}
 
 	public function __toString() {
