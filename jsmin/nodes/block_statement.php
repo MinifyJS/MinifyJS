@@ -78,6 +78,7 @@ class BlockStatement extends Node {
 	protected function transformToComma(AST $ast, array $original, &$revisit) {
 		$list = array();
 		$nodes = array();
+		$vars = array();
 
 		$returnSeen = false;
 
@@ -96,7 +97,15 @@ class BlockStatement extends Node {
 					foreach($n->removeUseless()->nodes() as $x) {
 						$x = $x->removeUseless();
 						if (!$x->isVoid()) {
-							$list[] = $x;
+							if ($x instanceof AssignExpression && $x->assignType() === '='
+									&& $x->left() instanceof IdentifierExpression && $x->right()->mayInline()
+									&& isset($vars[$x->left()->value()])) {
+								$vars[$x->left()->value()]->initializer($x->right());
+								$x->left()->gone();
+							} else {
+								$vars = array();
+								$list[] = $x;
+							}
 						}
 					}
 				} else {
@@ -106,28 +115,19 @@ class BlockStatement extends Node {
 					}
 
 					// okay… let's get smart!
-					if ($tune = $n->breaking()) {
-						foreach($tune as $x) {
-							if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
-								if ($x instanceof ReturnNode || $x instanceof BreakNode) {
-									$returnSeen = true;
-								}
-
-								$nodes[] = $x;
-							} else {
-								$x->gone();
-								$revisit = true;
-							}
-						}
-					} else {
-						if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
-							if ($n instanceof ReturnNode || $n instanceof BreakNode) {
+					foreach(($n->breaking() ?: array($n)) as $x) {
+						if (!$returnSeen || $x instanceof VarNode || $x instanceof FunctionNode) {
+							if ($x instanceof ReturnNode || $x instanceof BreakNode) {
 								$returnSeen = true;
 							}
 
-							$nodes[] = $n;
+							if ($x instanceof VarNode && (!$x->initializer() || $x->initializer()->isVoid())) {
+								$vars[$x->name()->value()] = $x;
+							}
+
+							$nodes[] = $x;
 						} else {
-							$n->gone();
+							$x->gone();
 							$revisit = true;
 						}
 					}
