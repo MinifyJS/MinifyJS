@@ -12,6 +12,10 @@ class RegExp extends ConstantExpression {
 		return 'regexp';
 	}
 
+	public function removeUseless() {
+		return new VoidExpression(new Number(0));
+	}
+
 	public function mayInline() {
 		return false;
 	}

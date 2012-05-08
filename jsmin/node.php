@@ -102,6 +102,10 @@ abstract class Node {
 		return $cmp instanceof static;
 	}
 
+	public function declarations() {
+		return array();
+	}
+
 	public function breaking() {
 		return null;
 	}

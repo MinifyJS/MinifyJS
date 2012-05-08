@@ -411,6 +411,16 @@ class BlockStatement extends Node {
 		}
 	}
 
+	public function declarations() {
+		$decls = array();
+
+		foreach($this->nodes as $n) {
+			foreach($n->declarations() as $x) {
+				$decls[] = $x;
+			}
+		}
+	}
+
 	public function debug() {
 		$out = array();
 		foreach($this->nodes as $n) {

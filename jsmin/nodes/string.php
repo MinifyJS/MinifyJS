@@ -32,6 +32,10 @@ class String extends ConstantExpression {
 		return !!strlen($this->left);
 	}
 
+	public function removeUseless() {
+		return new VoidExpression(new Number(0));
+	}
+
 	protected function quote($c) {
 	    $escape = '~\\\\|[' . $c . '\x00-\x1f\x7f-\x{ffff}]~u';
 

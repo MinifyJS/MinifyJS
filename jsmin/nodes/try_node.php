@@ -46,8 +46,11 @@ class TryNode extends Node {
 	}
 
 	public function toString() {
-		return 'try{' . $this->body->asBlock()->toString(true) . '}'
+		return 'try{' . Stream::trimSemicolon($this->body->asBlock()->toString(true)) . '}'
 			. ($this->catch ? $this->catch->toString() : '')
-			. ($this->finally ? 'finally{' . $this->finally->asBlock()->toString(true) . '}' : '');
+
+			. ($this->finally ? 'finally{'
+				. Stream::trimSemicolon($this->finally->asBlock()->toString(true))
+			. '}' : '');
 	}
 }

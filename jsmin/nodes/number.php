@@ -20,6 +20,26 @@ class Number extends ConstantExpression {
 		return $this;
 	}
 
+	public function type() {
+		return 'number';
+	}
+
+	public function asBoolean() {
+		return (string)$this->left != '0';
+	}
+
+	public function asNumber() {
+		return $this->value();
+	}
+
+	public function asString() {
+		return $this->value();
+	}
+
+	public function removeUseless() {
+		return new VoidExpression(new Number(0));
+	}
+
 	public function toString() {
 		$t = rtrim(preg_replace('~(\.[^0\n]*(?:0+[^0\n]+)*)0+$~', '$1', number_format($this->left, 10, '.', '')), '.');
 
@@ -42,26 +62,5 @@ class Number extends ConstantExpression {
 		}
 
 		return AST::bestOption($a);
-	}
-
-
-	public function type() {
-		return 'number';
-	}
-
-	public function asBoolean() {
-		return (string)$this->left != '0';
-	}
-
-	public function asNumber() {
-		return $this->value();
-	}
-
-	public function asString() {
-		return $this->value();
-	}
-
-	public function removeUseless() {
-		return new VoidExpression(new Number(0));
 	}
 }

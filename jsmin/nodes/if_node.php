@@ -93,6 +93,7 @@ class IfNode extends Node {
 		$this->then = $this->then->optimizeBreak();
 		if ($this->else) {
 			$this->else = $this->else->optimizeBreak();
+
 			if ($this->else->isVoid()) {
 				$this->else = null;
 			}
@@ -103,6 +104,7 @@ class IfNode extends Node {
 
 	public function gone() {
 		$this->condition->gone();
+
 		if ($this->then) {
 			$this->then->gone();
 		}
@@ -120,6 +122,7 @@ class IfNode extends Node {
 		}
 
 		$o = 'if(' . $this->condition->toString() . ')' . $this->then->asBlock()->toString($noBlock, true);
+
 		if ($this->else) {
 			$e = Stream::legalStart($this->else->asBlock()->toString());
 			$o .= 'else' . ($e === ';' ? '{}' : $e);

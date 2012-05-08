@@ -48,6 +48,10 @@ class VarNode extends Node {
 		}
 	}
 
+	public function declarations() {
+		return array($this);
+	}
+
 	public function collectStatistics(AST $ast, $write = false) {
 		$this->name->collectStatistics($ast, $write);
 

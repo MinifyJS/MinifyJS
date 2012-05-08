@@ -27,7 +27,9 @@ class InstanceofExpression extends Expression {
 			return $left . ' instanceof ' . $right;
 		}
 
-		return Stream::legalEnd($this->group($this, $this->left)) . 'instanceof' . Stream::legalStart($this->group($this, $this->right, false));
+		return Stream::legalEnd($this->group($this, $this->left))
+			. 'instanceof'
+			. Stream::legalStart($this->group($this, $this->right, false));
 	}
 
 	public function type() {
