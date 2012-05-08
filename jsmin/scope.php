@@ -9,27 +9,29 @@ class Scope {
 		'$','_','0','1','2','3','4','5','6','7','8','9'
 	);
 
-	public static $reserved = array(
+	protected static $keywords = array(
 		'abstract' => 1,
 		'boolean' => 1, 'byte' => 1,
 		'break' => 1, 'case' => 1, 'catch' => 1, 'continue' => 1, 'char' => 1, 'class' => 1, 'const' => 1,
 		'default' => 1, 'delete' => 1, 'do' => 1, 'debugger' => 1, 'double' => 1,
 		'else' => 1, 'enum' => 1, 'export' => 1, 'extends' => 1,
-		'finally' => 1, 'for' => 1, 'function' => 1, 'final' => 1, 'float' => 1,
+		'finally' => 1, 'for' => 1, 'function' => 1, 'final' => 1, 'float' => 1, 'false' => 1,
 		'goto' => 1,
 		'if' => 1, 'in' => 1, 'instanceof' => 1, 'implements' => 1, 'import' => 1, 'int' => 1, 'interface' => 1,
 		'let' => 1, 'long' => 1,
-		'new' => 1, 'native' => 1,
+		'new' => 1, 'native' => 1, 'null' => 1,
 		'package' => 1, 'private' => 1, 'protected' => 1, 'public' => 1,
 		'return' => 1,
 		'switch' => 1, 'short' => 1, 'static' => 1, 'super' => 1, 'synchronized' => 1,
-		'this' => 1, 'throw' => 1, 'try' => 1, 'typeof' => 1, 'throws' => 1, 'transient' => 1,
+		'this' => 1, 'throw' => 1, 'try' => 1, 'typeof' => 1, 'throws' => 1, 'transient' => 1, 'true' => 1,
 		'var' => 1, 'void' => 1, 'volatile' => 1,
 		'while' => 1, 'with' => 1,
-		'yield' => 1,
+		'yield' => 1
+	);
 
+	protected static $reserved = array(
 		// not reserved per se, but we'll still avoid them
-		'arguments' => 1, 'eval' => 1, 'true' => 1, 'false' => 1, 'Infinity' => 1, 'NaN' => 1, 'null' => 1, 'undefined' => 1
+		'arguments' => 1, 'eval' => 1, 'Infinity' => 1, 'NaN' => 1, 'undefined' => 1
 	);
 
 	protected $program;
@@ -144,7 +146,11 @@ class Scope {
 	}
 
 	public static function reserved($name) {
-		return isset(self::$reserved[$name]);
+		return isset(self::$reserved[$name]) || isset(self::$keywords[$name]);
+	}
+
+	public static function keyword($name) {
+		return isset(self::$keywords[$name]);
 	}
 
 	public function find($name, $declare = false) {

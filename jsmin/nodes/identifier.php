@@ -101,6 +101,6 @@ class Identifier {
 
 	public static function isValid($str) {
 		return preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*\z~i', $str)
-			&& !Scope::reserved($str);
+			&& !Scope::keyword($str);
 	}
 }
