@@ -17,6 +17,21 @@ class OrExpression extends BinaryExpression {
 			return $this->right;
 		}
 
+		// this will be inferred from the expression
+		if ($this->actualType() === 'boolean') {
+			/*
+			 * This method will allow deep boolean expressions to be shorter:
+		  	 * !!a || !!b || !!c
+	  	  	 * !(!a && !b && !c)
+	  	  	 * !!(a || b || c)
+			 */
+			return AST::bestOption(array(
+				$this,
+				new NotExpression($this->negate()),
+				new NotExpression(new NotExpression($this->negate()->negate()))
+			));
+		}
+
 		return $this;
 	}
 

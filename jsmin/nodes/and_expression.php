@@ -17,6 +17,15 @@ class AndExpression extends BinaryExpression {
 			return $this->left;
 		}
 
+		// this will be inferred from the expression
+		if ($this->actualType() === 'boolean') {
+			return AST::bestOption(array(
+				$this,
+				new NotExpression($this->negate()),
+				new NotExpression(new NotExpression($this->negate()->negate()))
+			));
+		}
+
 		return $this;
 	}
 

@@ -51,6 +51,11 @@ class NotExpression extends UnaryExpression {
 		return null;
 	}
 
+	public function mayInline() {
+		return $this->left->mayInline();
+	}
+
+
 	public function negate() {
 		return $this->left;
 	}

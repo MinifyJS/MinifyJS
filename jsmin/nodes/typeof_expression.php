@@ -46,6 +46,10 @@ class TypeofExpression extends Expression {
 		return 14;
 	}
 
+	public function mayInline() {
+		return $this->left->mayInline();
+	}
+
 	public function removeUseless() {
 		return $this->left->removeUseless();
 	}

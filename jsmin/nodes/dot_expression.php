@@ -36,6 +36,10 @@ class DotExpression extends Expression {
 	}
 
 	public function mayInline() {
+		if (!AST::$options['unsafe']) {
+			return false;
+		}
+
 		return $this->left->mayInline();
 	}
 
