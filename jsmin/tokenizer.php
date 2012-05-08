@@ -299,6 +299,7 @@ class JSTokenizer {
 			while (ctype_space($c = $this->getChar())) {
 				if ($c === "\n") {
 					if ($this->scanNewlines) {
+						$input = "\n";
 						break 2;
 					}
 

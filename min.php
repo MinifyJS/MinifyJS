@@ -85,7 +85,7 @@ $timers = array();
 
 try {
 	$t = microtime(true);
-	$tree = $parser->parse($s, $f, 0, AST::$options['unicode-ws']);
+	$tree = $parser->parse($s, $f, 1, AST::$options['unicode-ws']);
 	$timers['parse'] = microtime(true) - $t;
 
 	$t = microtime(true);
