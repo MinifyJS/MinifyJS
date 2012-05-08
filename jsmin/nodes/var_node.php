@@ -37,6 +37,18 @@ class VarNode extends Node {
 		$this->name->reassigned(false);
 	}
 
+	public function initializer(Expression $x = null) {
+		if ($x !== null) {
+			if ($this->initializer && !$this->initializer->isVoid()) {
+				throw new Exception('Bug: already has initializer');
+			}
+
+			$this->initializer = $x;
+		}
+
+		return $this->initializer;
+	}
+
 	public function name() {
 		return $this->name;
 	}
