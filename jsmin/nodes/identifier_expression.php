@@ -89,7 +89,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function mayInline() {
-		return $this->isLocal() && !$this->initializer();
+		return $this->isLocal() && !$this->initializer() && !$this->reassigned();
 	}
 
 	public function __toString() {
