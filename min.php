@@ -79,7 +79,7 @@ if (!isset($f) || !is_file($f)) {
 	throw new Exception('Unknown file');
 }
 
-$s = file_get_contents($f);
+$s = trim(file_get_contents($f));
 
 $timers = array();
 
@@ -99,6 +99,11 @@ try {
 	$t = microtime(true);
 	$tree = $ast->toString();
 	$timers['tostring'] = microtime(true) - $t;
+
+	$timers['profit'] = array(
+		'old' => strlen($s),
+		'new' => strlen($tree)
+	);
 
 	if (AST::$options['timer']) {
 		print_r($timers);
