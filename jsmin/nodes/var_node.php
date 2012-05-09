@@ -39,7 +39,7 @@ class VarNode extends Node {
 
 	public function initializer(Expression $x = null) {
 		if ($x !== null) {
-			if ($this->initializer && !$this->initializer->isVoid()) {
+			if (!$this->initializer->isVoid()) {
 				throw new Exception('Bug: already has initializer');
 			}
 
@@ -67,7 +67,7 @@ class VarNode extends Node {
 	public function collectStatistics(AST $ast, $write = false) {
 		$this->name->collectStatistics($ast, $write);
 
-		if ($this->initializer) {
+		if (!$this->initializer->isVoid()) {
 			if ($this->name->get()->scope()->parent() && $this->initializer->mayInline()) {
 				$this->name->initializer($this->initializer);
 			}
