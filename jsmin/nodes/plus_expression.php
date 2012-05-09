@@ -43,6 +43,10 @@ class PlusExpression extends BinaryExpression {
 		return $this->group($this, $this->left) . '+' . $r;
 	}
 
+	public function isConstant() {
+		return $this->left()->isConstant() && $this->right()->isConstant();
+	}
+
 	public function type() {
 		if ($this->left()->type() === 'string' || $this->right->type() === 'string') {
 			return 'string';

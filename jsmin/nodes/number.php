@@ -47,20 +47,20 @@ class Number extends ConstantExpression {
 			return $t;
 		}
 
-		$a = array(preg_replace('~^0+\.~', '.', $t));
+		$options = array(preg_replace('~^0\.~', '.', $t));
 		if (floor($t) == $t) {
 			$sign = $t >= 0 ? '' : '-';
 
-			$a[] = $sign . '0x' . base_convert($t, 10, 16);
-			$a[] = $sign . '0' . base_convert($t, 10, 8);
+			$options[] = $sign . '0x' . base_convert($t, 10, 16);
+			$options[] = $sign . '0' . base_convert($t, 10, 8);
 
 			if (preg_match('~^(.*?)(0{3,})$~', $t, $m)) {
-				$a[] = $m[1] . 'e' . strlen($m[2]);
+				$options[] = $m[1] . 'e' . strlen($m[2]);
 			}
-		} elseif (preg_match('~^0*\.(0+)(.*)~', $t, $m)) {
-			$a[] = $m[2] . 'e-' . (strlen($m[1]) + strlen($m[2]));
+		} elseif (preg_match('~^0\.(0+)(.*)$~', $t, $m)) {
+			$options[] = $m[2] . 'e-' . (strlen($m[1]) + strlen($m[2]));
 		}
 
-		return AST::bestOption($a);
+		return AST::bestOption($options);
 	}
 }

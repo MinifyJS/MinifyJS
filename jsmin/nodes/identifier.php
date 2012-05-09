@@ -7,6 +7,7 @@ class Identifier {
 	protected $scope;
 	protected $name;
 	protected $small;
+
 	protected $mustDeclare = false;
 
 	protected $reassigned = 0;
@@ -16,9 +17,13 @@ class Identifier {
 
 	protected $linkedTo;
 
+	protected $toString;
+
 	public function __construct(Scope $scope = null, $name) {
 		$this->scope = $scope;
 		$this->name = $name;
+
+		$this->toString = $this->escape($this->name);
 	}
 
 	public function mustDeclare() {
@@ -82,13 +87,17 @@ class Identifier {
 			} else {
 				$this->small = $new;
 			}
+
+			$this->toString = $this->escape($this->small ?: $this->name);
 		}
 
 		return $this->small;
 	}
 
 	public function toString() {
-		return $this->escape($this->small ? $this->small : $this->name);
+		return $this->toString;
+
+		//return $this->escape($this->small ? $this->small : $this->name);
 	}
 
 	public function escape($name) {

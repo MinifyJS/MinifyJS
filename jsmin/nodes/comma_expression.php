@@ -15,6 +15,10 @@ class CommaExpression extends Expression {
 				foreach($node->nodes() as $n) {
 					if ($i !== $last) {
 						$n = $n->removeUseless();
+
+						if ($n->isConstant()) {
+							continue;
+						}
 					}
 
 					if (!$n->isVoid()) {

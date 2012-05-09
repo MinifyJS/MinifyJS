@@ -16,7 +16,9 @@ class DoWhileNode extends WhileNode {
 	}
 
 	public function toString() {
-		return 'do' . Stream::legalStart($this->body->asBlock()->toString(false, true)) . 'while(' . $this->condition->toString() . ')' . ";\0";
+		return 'do'
+			. Stream::legalStart($this->body->asBlock()->toString(false, true))
+		. 'while(' . $this->condition->toString() . ')' . ";\0";
 	}
 
 	public function last() {
