@@ -435,15 +435,18 @@ class AST {
 			return $options;
 		}
 
-		if (($count = count($options)) === 1) {
-			return $options[0];
+		$minLength = null;
+		$min = null;
+
+		foreach($options as $option) {
+			$length = strlen($option);
+			if ($length < $minLength || $minLength === null) {
+				$minLength = $length;
+				$min = $option;
+			}
 		}
 
-		if ($count === 2) {
-			return strlen($options[0]) <= strlen($options[1]) ? $options[0] : $options[1];
-		}
-
-		return self::bestOption(array($options[0], self::bestOption(array_slice($options, 1))));
+		return $min;
 	}
 
 }
