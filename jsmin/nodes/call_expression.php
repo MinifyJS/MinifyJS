@@ -38,7 +38,6 @@ class CallExpression extends Expression {
 			case 'RegExp':
 
 				// temporarily off...
-				break;
 
 				// premature break
 				$flags = null;
@@ -54,7 +53,7 @@ class CallExpression extends Expression {
 						break;
 					}
 
-					$regexp = '/' . str_replace(array('\\', '/'), array('\\\\', '\/'), $this->right[0]->asString()) . '/' . $flags;
+					$regexp = '/' . $regexp . '/' . $flags;
 					break;
 				}
 
