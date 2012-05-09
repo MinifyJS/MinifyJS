@@ -11,8 +11,6 @@ class ForInNode extends Node {
 
 		$this->iterator->write();
 
-		$this->body->parent($this);
-
 		parent::__construct();
 	}
 
@@ -43,6 +41,10 @@ class ForInNode extends Node {
 	}
 
 	public function toString() {
-		return 'for(' . Stream::legalEnd($this->iterator->toString()) . 'in' . Stream::legalStart($this->object->toString()) . ')' . $this->body->asBlock()->toString(null, true);
+		return 'for('
+			. Stream::legalEnd($this->iterator->toString())
+			. 'in'
+			. Stream::legalStart($this->object->toString())
+		. ')' . $this->body->asBlock()->toString(null, true);
 	}
 }

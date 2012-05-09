@@ -7,9 +7,6 @@ class WhileNode extends Node {
 	public function __construct(Expression $cond, Node $body) {
 		$this->condition = $cond;
 		$this->body = $body;
-
-		$this->condition->parent($this);
-		$this->body->parent($this);
 	}
 
 	public function visit(AST $ast) {

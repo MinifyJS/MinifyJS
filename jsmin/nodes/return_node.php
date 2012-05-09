@@ -5,8 +5,6 @@ class ReturnNode extends Node {
 	public function __construct(Expression $value) {
 		$this->value = $value;
 
-		$this->value->parent($this);
-
 		parent::__construct();
 	}
 

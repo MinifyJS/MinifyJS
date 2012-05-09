@@ -18,22 +18,6 @@ abstract class Expression extends Node {
 
 	public function __construct() {
 		parent::__construct();
-
-		if ($this->left instanceof Node) {
-			$this->left->parent($this);
-		}
-
-		if ($this->middle instanceof Node) {
-			$this->middle->parent($this);
-		}
-
-		if ($this->right instanceof Node) {
-			$this->right->parent($this);
-		} elseif (is_array($this->right)) {
-			foreach($this->right as $p) {
-				$p->parent($this);
-			}
-		}
 	}
 
 	abstract public function precedence();

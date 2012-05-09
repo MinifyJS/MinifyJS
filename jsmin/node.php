@@ -41,19 +41,6 @@ abstract class Node {
 		return (string)$this->toString();
 	}
 
-	public function parent(Node $p = null) {
-		if ($p) {
-			return null;
-		}
-
-		if (!$this->parent) {
-			throw new RuntimeException('No parent known.');
-			return $this;
-		}
-
-		return $this->parent;
-	}
-
 	public function optimizeBreak() {
 		return $this;
 	}
