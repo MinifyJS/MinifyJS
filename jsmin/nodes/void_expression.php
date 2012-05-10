@@ -19,6 +19,10 @@ class VoidExpression extends Expression {
 		return $this->left->isConstant();
 	}
 
+	public function isVoid() {
+		return $this->isEmpty();
+	}
+
 	public function asBoolean() {
 		if ($this->isConstant()) {
 			return false;

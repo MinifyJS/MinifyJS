@@ -82,6 +82,10 @@ abstract class Expression extends Node {
 		return $this;
 	}
 
+	public function property($key) {
+		return null;
+	}
+
 	public function mayInline() {
 		return false;
 	}
@@ -101,17 +105,22 @@ abstract class Expression extends Node {
 	}
 
 	protected function group(Expression $base, Expression $hook, $left = true) {
-		$l = $base->precedence();
-		$r = $hook->precedence();
+		$inner = $hook->toString();
 
-		if (!$r) {
-			return (string)$hook;
+		if ($hook instanceof ConstantExpression || !$r = $hook->precedence()) {
+			return $inner;
 		}
 
-		if (($left && $l > $r) || (!$left && $l >= $r)) {
-			return '(' . $hook . ')';
+		$l = $base->precedence();
+
+		if (!$left) {
+			++$l;
+		}
+
+		if ($l > $r) {
+			return '(' . $inner . ')';
 		} else {
-			return (string)$hook;
+			return $inner;
 		}
 	}
 

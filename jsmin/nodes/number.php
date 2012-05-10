@@ -1,11 +1,13 @@
 <?php
 class Number extends ConstantExpression {
+	protected $output;
+
 	public function __construct($value) {
 		if (!is_numeric($value)) {
 			throw new Exception($value . ' is not numeric');
 		}
 
-		parent::__construct(eval('return ' . $value . ';'));
+		parent::__construct(is_int($value) || is_float($value) ? $value : eval('return ' . $value . ';'));
 	}
 
 	public function value() {
@@ -41,13 +43,17 @@ class Number extends ConstantExpression {
 	}
 
 	public function toString() {
+		if ($this->output !== null) {
+			return $this->output;
+		}
+
 		$t = rtrim(preg_replace('~(\.[^0\n]*(?:0+[^0\n]+)*)0+$~', '$1', number_format($this->left, 10, '.', '')), '.');
 
 		if (AST::$options['beautify']) {
 			return $t;
 		}
 
-		$options = array(preg_replace('~^0\.~', '.', $t));
+		$options = array(str_replace('0.', '.', $t));
 		if (floor($t) == $t) {
 			$sign = $t >= 0 ? '' : '-';
 
@@ -57,10 +63,10 @@ class Number extends ConstantExpression {
 			if (preg_match('~^(.*?)(0{3,})$~', $t, $m)) {
 				$options[] = $m[1] . 'e' . strlen($m[2]);
 			}
-		} elseif (preg_match('~^0\.(0+)(.*)$~', $t, $m)) {
+		} elseif (preg_match('~^0\.(0+)(\d+)$~', $t, $m)) {
 			$options[] = $m[2] . 'e-' . (strlen($m[1]) + strlen($m[2]));
 		}
 
-		return AST::bestOption($options);
+		return $this->output = AST::bestOption($options);
 	}
 }

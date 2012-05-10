@@ -9,27 +9,6 @@ if (!defined('MIN_BASE')) {
 
 !defined('DEFINED_TYPE') && define('UNDEFINED_TYPE', 'undefined');
 
-if (function_exists('xhprof_enable')) {
-    xhprof_enable(XHPROF_FLAGS_MEMORY, array('ignored_functions' =>  array(
-        'call_user_func',
-        'call_user_func_array'
-    )));
-
-    register_shutdown_function(function () {
-        $data = xhprof_disable();
-
-        global $xhprof_content;
-
-        require_once 'xhprof/utils/xhprof_lib.php';
-        require_once 'xhprof/utils/xhprof_runs.php';
-
-        if (empty($GLOBALS['wasError'])) {
-            $runs = new XHProfRuns_Default();
-            $runs->save_run($data, 'MinifyJS');
-        }
-    });
-}
-
 require MIN_BASE . 'parser.php';
 
 $parser = new JSParser();
@@ -91,6 +70,29 @@ try {
 	$t = microtime(true);
 	$ast = new AST($tree);
 	$timers['ast'] = microtime(true) - $t;
+
+if (function_exists('xhprof_enable')) {
+    xhprof_enable(XHPROF_FLAGS_MEMORY, array('ignored_functions' =>  array(
+        'call_user_func',
+        'call_user_func_array'
+    )));
+
+    register_shutdown_function(function () {
+        $data = xhprof_disable();
+
+        global $xhprof_content;
+
+        require_once 'xhprof/utils/xhprof_lib.php';
+        require_once 'xhprof/utils/xhprof_runs.php';
+
+        if (empty($GLOBALS['wasError'])) {
+            $runs = new XHProfRuns_Default();
+            $runs->save_run($data, 'MinifyJS');
+        }
+    });
+}
+
+
 
 	$t = microtime(true);
 	$ast->squeeze();

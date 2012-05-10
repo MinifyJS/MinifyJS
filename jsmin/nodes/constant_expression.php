@@ -29,7 +29,7 @@ class ConstantExpression extends Expression {
 	}
 
 	public function precedence() {
-		return 0;
+		return null;
 	}
 
 	public function hasSideEffects() {

@@ -62,6 +62,8 @@ abstract class Node {
 	}
 
 	public function isVoid() {
+		return false;
+
 		return $this instanceof VoidExpression && $this->isEmpty();
 	}
 

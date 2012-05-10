@@ -538,7 +538,7 @@ class JSTokenizer {
 	}
 
 	private function decomposeUnicode($original) {
-		return preg_replace_callback('~\\\\(?|u([a-fA-F0-9]{4})|x([a-fA-F0-9]{2}))~', function ($m) {
+		return preg_replace_callback('~\\\\u([a-fA-F0-9]{4})~', function ($m) {
 			$cp = (int)base_convert($m[1], 16, 10);
 
 	        if($cp < 0x80) {
