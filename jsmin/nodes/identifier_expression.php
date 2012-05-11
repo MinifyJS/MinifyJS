@@ -35,7 +35,6 @@ class IdentifierExpression extends ConstantExpression {
 				$usage = $this->left->used();
 
 				if ((($usage - 1) * $valueLength) < (($usage * 2) + 4 + $valueLength)) {
-					echo 1 . "\n";
 					$this->left->used(false);
 					return $init;
 				}
