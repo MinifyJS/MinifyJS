@@ -67,9 +67,11 @@ class VarDeclarationsNode extends Node {
 	public function toString() {
 		$o = array();
 		foreach($this->nodes as $d) {
-			$a = $d->toString();
-			if ($a !== '') {
-				$o[] = substr($a, 4);
+			if ($d instanceof VarNode) {
+				$a = $d->toString();
+				if ($a !== '') {
+					$o[] = substr($a, 4);
+				}
 			}
 		}
 

@@ -76,10 +76,10 @@ class VarNode extends Node {
 		}
 	}
 
-	public function toString() {
+	public function toString($force = false) {
 		$init = $this->initializer;
 
-		if (!$this->name->keep(1) && (!$init || $init->isRedundant())) {
+		if (!$force && !$this->name->keep(1) && (!$init || $init->isRedundant())) {
 			return '';
 		}
 
