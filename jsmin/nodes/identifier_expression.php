@@ -18,7 +18,7 @@ class IdentifierExpression extends ConstantExpression {
 		}
 
 		if (!$this->write && !AST::$options['no-inlining']) {
-			if ($ast->hasStats() && ($init = $this->left->initializer())) {
+			if ($ast->hasStats() && ($init = $this->left->initializer()) && $init->mayInline()) {
 				/*
 				 * We'll have to verify that inlining will cost less than keeping the variable
 				 *
@@ -35,6 +35,7 @@ class IdentifierExpression extends ConstantExpression {
 				$usage = $this->left->used();
 
 				if ((($usage - 1) * $valueLength) < (($usage * 2) + 4 + $valueLength)) {
+					echo 1 . "\n";
 					$this->left->used(false);
 					return $init;
 				}
@@ -82,6 +83,7 @@ class IdentifierExpression extends ConstantExpression {
 
 	public function gone() {
 		$this->used(false);
+		$this->reassigned(false);
 	}
 
 	public function value() {
