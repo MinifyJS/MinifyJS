@@ -24,8 +24,9 @@ class CallExpression extends Expression {
 		}
 
 		if (AST::$options['unsafe']) {
-			if ($this->left->right()->name() === 'match' && $this->left->left()->type() === 'string' &&
-					$argc === 1 && $this->right[0]->actualType() === 'regexp' && !$this->right[0]->hasFlag('g')) {
+			if ($this->left instanceof DotExpression && $this->left->right()->name() === 'match'
+					&& $this->left->left()->type() === 'string' && $argc === 1
+					&& $this->right[0]->actualType() === 'regexp' && !$this->right[0]->hasFlag('g')) {
 				$result = new CallExpression(
 					new DotExpression($this->right[0], new Identifier(null, 'exec')),
 					array($this->left->left())

@@ -19,6 +19,8 @@ class ComparisonExpression extends BinaryExpression {
 	}
 
 	public function negate() {
+		$options = array(parent::negate());
+
 		if (AST::$options['unsafe']) {
 			$map = array(
 				OP_LE => OP_GT,
@@ -28,10 +30,10 @@ class ComparisonExpression extends BinaryExpression {
 			);
 
 			if (isset($map[$this->type])) {
-				return new ComparisonExpression($map[$this->type], $this->left, $this->right);
+				$options[] = new ComparisonExpression($map[$this->type], $this->left, $this->right);
 			}
 		}
 
-		return parent::negate();
+		return AST::bestOption($options);
 	}
 }

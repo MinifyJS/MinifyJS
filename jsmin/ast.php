@@ -52,6 +52,7 @@ class AST {
 		$this->rootLabelScope = $this->labelScope;
 
 		if (AST::$options['toplevel']) {
+			// sneaky trick for mangling toplevel, just pretend we're already in a scope
 			$this->enter();
 		}
 
