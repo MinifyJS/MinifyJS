@@ -78,6 +78,10 @@ abstract class Expression extends Node {
 		return new NotExpression($this);
 	}
 
+	public function looseBoolean() {
+		return $this;
+	}
+
 	public function represents() {
 		return $this;
 	}

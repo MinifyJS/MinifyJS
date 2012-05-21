@@ -1,8 +1,13 @@
 <?php
 class DotExpression extends Expression {
+	protected $rightString;
+
 	public function __construct(Expression $left, Identifier $right) {
 		$this->left = $left;
 		$this->right = $right;
+
+		$this->rightString = $right->toString();
+
 		parent::__construct();
 	}
 
@@ -51,7 +56,7 @@ class DotExpression extends Expression {
 			$left .= '.';
 		}
 
-		return $left . '.' . $this->right->toString();
+		return $left . '.' . $this->rightString;
 	}
 
 	public function isRedundant() {

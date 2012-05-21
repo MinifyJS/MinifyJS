@@ -27,7 +27,36 @@ class ScriptNode extends BlockStatement {
 			$nodes[] = $n;
 		}
 
-		return new ScriptNode($nodes, $this->scope, $this->strict);
+		$revisit = false;
+		$result = $this->reverseIfElse($nodes, $revisit);
+
+		if ($revisit) {
+			return $result->visit($ast);
+		}
+
+		return $result;
+	}
+
+	protected function reverseIfElse(array $nodes, &$revisit) {
+		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
+		$add = $base = new ScriptNode(array(), $this->scope, $this->strict);
+		$last = count($nodes) - 1;
+
+		foreach($nodes as $i => $node) {
+			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
+				// got one!
+				$old = $add;
+				$add = new BlockStatement(array());
+
+				$old->add(new IfNode($node->condition()->negate(), $add));
+
+				$revisit = true;
+			} else {
+				$add->add($node);
+			}
+		}
+
+		return $base;
 	}
 
 	public function collectStatistics(AST $ast) {

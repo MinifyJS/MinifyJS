@@ -20,6 +20,10 @@ class Boolean extends ConstantExpression {
 		return $this->left;
 	}
 
+	public function looseBoolean() {
+		return new Number($this->asNumber());
+	}
+
 	public function asNumber() {
 		return $this->left ? 1 : 0;
 	}

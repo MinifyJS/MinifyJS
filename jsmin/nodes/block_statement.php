@@ -21,6 +21,23 @@ class BlockStatement extends Node {
 			return new VoidExpression(new Number(0));
 		}
 
+		if ($count >= 2) {
+			$expr = $nodes[$count - 2];
+			$return = $nodes[$count - 1];
+
+			if ($expr instanceof Expression && $return instanceof ReturnNode && !$return->value()->isVoid()) {
+				array_splice($nodes, -2, 2, array(
+					new ReturnNode(new CommaExpression(array_merge(
+						$expr->nodes(),
+						$return->value()->nodes()
+					)))
+				));
+
+				--$count;
+				$revisit = true;
+			}
+		}
+
 		if ($count === 1) {
 			if ($revisit) {
 				return $nodes[0]->visit($ast);
@@ -29,46 +46,13 @@ class BlockStatement extends Node {
 			return $nodes[0];
 		}
 
-		// small optimization, a,b,c;return d; -> return a,b,c,d;
-		if ($count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode && ($nodes[1]->value() && !$nodes[1]->value()->isVoid())) {
-			// double comma operators gets fixed at CommaExpression::visit( )
-			$result = new ReturnNode(new CommaExpression(array_merge(
-				$nodes[0]->nodes(),
-				$nodes[1]->value()->nodes()
-			)));
-
-			$revisit = true;
-		} else {
-			$result = $this->reverseIfElse($nodes, $revisit);
-		}
+		$result = new BlockStatement($nodes);
 
 		if ($revisit) {
 			return $result->visit($ast);
 		}
 
 		return $result;
-	}
-
-	protected function reverseIfElse(array $nodes, &$revisit) {
-		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
-		$add = $base = new BlockStatement(array());
-		$last = count($nodes) - 1;
-
-		foreach($nodes as $i => $node) {
-			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
-				// got one!
-				$old = $add;
-				$add = new BlockStatement(array());
-
-				$old->add(new IfNode($node->condition()->negate(), $add));
-
-				$revisit = true;
-			} else {
-				$add->add($node);
-			}
-		}
-
-		return $base;
 	}
 
 	public function add(Node $n) {
@@ -139,7 +123,6 @@ class BlockStatement extends Node {
 
 		if ($list) {
 			$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
-			$list = array();
 		}
 
 		return $nodes;
@@ -271,13 +254,7 @@ class BlockStatement extends Node {
 				$a = $n->toString();
 
 				if ($a !== '') {
-					$a = substr($a, 4);
-
-					//if (AST::$options['beautify']) {
-					///	$a = ltrim(preg_replace('~^~m', '    ', $a));
-					//}
-
-					$varCache[] = $a;
+					$varCache[] = substr($a, 4);
 				}
 
 				continue;
@@ -295,7 +272,7 @@ class BlockStatement extends Node {
 
 			$x = $n->toString(false);
 
-			if (strlen($x) === '') {
+			if (!strlen($x)) {
 				continue;
 			}
 

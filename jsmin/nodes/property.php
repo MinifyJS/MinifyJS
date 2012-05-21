@@ -3,6 +3,8 @@ class Property extends Node {
 	protected $key;
 	protected $value;
 
+	protected $keyString;
+
 	public function __construct($key, Expression $value) {
 		if (!$key instanceof Identifier && !$key instanceof ConstantExpression) {
 			throw new InvalidArgumentException('Key must be constant expression');
@@ -11,6 +13,8 @@ class Property extends Node {
 		$this->key = $key;
 		$this->value = $value;
 
+		$this->keyString = $key->toString();
+
 		parent::__construct();
 	}
 
@@ -18,6 +22,7 @@ class Property extends Node {
 		if ($this->key instanceof String) {
 			if (Identifier::isValid($test = $this->key->asString())) {
 				$this->key = new Identifier(null, $test);
+				$this->keyString = $this->key->toString();
 			}
 		}
 
@@ -35,6 +40,6 @@ class Property extends Node {
 	}
 
 	public function toString() {
-		return $this->key->toString() . ':' . (AST::$options['beautify'] ? ' ' : '') . $this->value->toString();
+		return $this->keyString . ':' . (AST::$options['beautify'] ? ' ' : '') . $this->value->toString();
 	}
 }

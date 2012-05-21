@@ -14,7 +14,7 @@ class IfNode extends Node {
 	}
 
 	public function visit(AST $ast) {
-		$this->condition = $this->condition->visit($ast);
+		$this->condition = $this->condition->visit($ast)->looseBoolean();
 		$this->then = $this->then->visit($ast);
 
 		if ($this->else) {

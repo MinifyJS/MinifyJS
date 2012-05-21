@@ -28,7 +28,9 @@ class AST {
 		'no-copyright' => false,
 		'strip-debug' => false,
 		'no-inlining' => false,
-		'unicode-ws' => false
+		'unicode-ws' => false,
+		'toplevel' => false,
+		'squeeze' => false
 	);
 
 	public static function load($class) {
@@ -49,6 +51,10 @@ class AST {
 		$this->rootScope = $this->enter();
 		$this->rootLabelScope = $this->labelScope;
 
+		if (AST::$options['toplevel']) {
+			$this->enter();
+		}
+
 		$this->tree = $this->generate($root);
 		$this->leave();
 
@@ -58,6 +64,7 @@ class AST {
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
+		//self::$options['squeeze'] = true;
 
 		$this->tree = $this->tree->visit($this);
 		$this->tree->collectStatistics($this);
@@ -70,6 +77,7 @@ class AST {
 		}
 
 		self::$options['beautify'] = $oldBeautify;
+		self::$options['squeeze'] = false;
 
 		self::$finalize = true;
 	}

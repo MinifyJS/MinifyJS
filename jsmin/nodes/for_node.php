@@ -27,7 +27,7 @@ class ForNode extends Node {
 		}
 
 		if ($this->condition) {
-			$this->condition = $this->condition->visit($ast);
+			$this->condition = $this->condition->visit($ast)->looseBoolean();
 		}
 
 		if ($this->update) {

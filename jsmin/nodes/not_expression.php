@@ -55,6 +55,17 @@ class NotExpression extends UnaryExpression {
 		return $this->left->mayInline();
 	}
 
+	public function looseBoolean() {
+		if ($this->left instanceof NotExpression) {
+			return $this->left->left()->looseBoolean();
+		}
+
+		if (null !== $left = $this->asNumber()) {
+			return new Number($left);
+		}
+
+		return parent::looseBoolean();
+	}
 
 	public function negate() {
 		return $this->left;

@@ -95,6 +95,10 @@ class Identifier {
 	}
 
 	public function toString() {
+		if (AST::$options['squeeze']) {
+			return 'ab';
+		}
+
 		return $this->toString;
 
 		//return $this->escape($this->small ? $this->small : $this->name);

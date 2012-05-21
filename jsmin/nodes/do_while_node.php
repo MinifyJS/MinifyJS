@@ -12,6 +12,8 @@ class DoWhileNode extends WhileNode {
 			return new ForNode(null, null, null, $this->body);
 		}
 
+		$this->condition = $this->condition->looseBoolean();
+
 		return $this;
 	}
 

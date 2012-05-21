@@ -23,6 +23,18 @@ class CallExpression extends Expression {
 			}
 		}
 
+		if (AST::$options['unsafe']) {
+			if ($this->left->right()->name() === 'match' && $this->left->left()->type() === 'string' &&
+					$argc === 1 && $this->right[0]->actualType() === 'regexp' && !$this->right[0]->hasFlag('g')) {
+				$result = new CallExpression(
+					new DotExpression($this->right[0], new Identifier(null, 'exec')),
+					array($this->left->left())
+				);
+
+				return $result->visit($ast);
+			}
+		}
+
 		if (AST::$options['strip-debug'] && $this->left instanceof DotExpression && $this->left->left()->value() === 'console') {
 			if (!$this->left->left()->isLocal()) {
 				$nodes = $this->right;
@@ -36,10 +48,6 @@ class CallExpression extends Expression {
 		if ($this->left instanceof IdentifierExpression && !$this->left->isLocal()) {
 			switch ($this->left->value()) {
 			case 'RegExp':
-
-				// temporarily off...
-
-				// premature break
 				$flags = null;
 				$regexp = null;
 
@@ -58,7 +66,9 @@ class CallExpression extends Expression {
 				}
 
 				if ($regexp !== null) {
-					$result = new RegExp($regexp);
+					try {
+						$result = new RegExp($regexp);
+					} catch(Exception $e) {}
 				}
 				break;
 			case 'Array':
@@ -72,13 +82,15 @@ class CallExpression extends Expression {
 				} else {
 					$result = new CommaExpression(array_merge(
 						array_slice($this->right, 0, -1),
-						new NotExpression(new NotExpression(end($this->right)))
+						array(new NotExpression(new NotExpression(end($this->right))))
 					));
 				}
 
 				break;
 			case 'String':
-				$result = new PlusExpression($this->left, new String('', false));
+				if (AST::$options['unsafe']) {
+					$result = new PlusExpression($this->left, new String('', false));
+				}
 				break;
 			case 'Object':
 				if (!$this->right) {

@@ -9,7 +9,7 @@ class ConstantExpression extends Expression {
 	public function collectStatistics(AST $ast) {}
 
 	public function toString() {
-		return $this->left ? $this->left->toString() : null;
+		return $this->left->toString();
 	}
 
 	public function visit(AST $ast) {

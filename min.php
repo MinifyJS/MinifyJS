@@ -41,7 +41,10 @@ $options = array(
 	'--no-inlining' => array('no-inlining' => true),
 
 	'-uws' => array('unicode-ws' => true),
-	'--unicode-whitespace' => array('unicode-ws' => true)
+	'--unicode-whitespace' => array('unicode-ws' => true),
+
+	'-tl' => array('toplevel' => true),
+	'--toplevel' => array('toplevel' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {

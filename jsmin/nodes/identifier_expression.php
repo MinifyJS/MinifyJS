@@ -7,6 +7,10 @@ class IdentifierExpression extends ConstantExpression {
 		$this->write = $write;
 	}
 
+	public function toString() {
+		return $this->left->toString();
+	}
+
 	public function visit(AST $ast) {
 		// check for some common variables
 		if (!$this->write && (!$this->left->declared() || !AST::$options['mangle'])) {
@@ -94,7 +98,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function __toString() {
-		return $this->left->toString();
+		return $this->toString();
 	}
 
 	public function get() {

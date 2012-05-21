@@ -1,7 +1,26 @@
 <?php
 class RegExp extends ConstantExpression {
+	protected $flags = '';
+
+	public function __construct($left) {
+		parent::__construct($left);
+
+		$tmp = explode('/', $left);
+		$this->flags = end($tmp);
+	}
+
 	public function toString() {
 		return $this->left;
+	}
+
+	public function hasFlag($flag) {
+		foreach(str_split($flag) as $flag) {
+			if (false === strpos($this->flags, $flag)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public function visit(AST $ast) {
@@ -20,4 +39,3 @@ class RegExp extends ConstantExpression {
 		return false;
 	}
 }
-
