@@ -16,8 +16,6 @@ class HookExpression extends Expression {
 		$condition = $this->left->asBoolean();
 
 		if ($condition === true) {
-			echo $this . "\n\n";
-
 			$this->left->gone();
 			$this->right->gone();
 
