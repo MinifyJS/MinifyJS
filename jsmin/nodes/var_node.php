@@ -16,14 +16,20 @@ class VarNode extends Node {
 		$this->name = $this->name->visit($ast);
 		$this->initializer = $this->initializer->visit($ast);
 
-		if ($ast->hasStats() && !$this->name->keep(1)) {
-			$this->name->gone();
+		if ($ast->hasStats()) {
+			if (!$this->name->keep(1)) {
+				$this->name->gone();
 
-			if ($this->initializer) {
-				return $this->initializer;
+				if ($this->initializer) {
+					return $this->initializer;
+				}
+
+				return new VoidExpression(new Number(0));
+			} elseif ($this->initializer && !$this->initializer->isVoid()) {
+				if ($this->name->get()->scope()->parent()) {
+					$this->name->initializer($this->initializer);
+				}
 			}
-
-			return new VoidExpression(new Number(0));
 		}
 
 		return $this;
@@ -68,7 +74,7 @@ class VarNode extends Node {
 		$this->name->collectStatistics($ast, $write);
 
 		if (!$this->initializer->isVoid()) {
-			if ($this->name->get()->scope()->parent() && $this->initializer->mayInline()) {
+			if ($this->name->get()->scope()->parent()) {
 				$this->name->initializer($this->initializer);
 			}
 

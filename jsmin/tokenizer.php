@@ -406,7 +406,7 @@ class JSTokenizer {
 
 					break;
 				case '"':
-					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/', $input, $match)) {
+					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/s', $input, $match)) {
 						$tt = TOKEN_STRING;
 					} else {
 						if ($chunksize) {
@@ -417,7 +417,7 @@ class JSTokenizer {
 					}
 					break;
 				case "'":
-					if (preg_match("/\A'[^'\\\\\n]*(?:\\\\.[^'\\\\\n]*)*'/", $input, $match)) {
+					if (preg_match("/\A'[^'\\\\\n]*(?:\\\\.[^'\\\\\n]*)*'/s", $input, $match)) {
 						$tt = TOKEN_STRING;
 					} else {
 						if ($chunksize) {

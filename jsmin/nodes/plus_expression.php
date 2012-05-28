@@ -22,6 +22,10 @@ class PlusExpression extends BinaryExpression {
 			}
 		}
 
+		if ($that->left->type() === 'string' && $that->right->asString() === '') {
+			return $that->left;
+		}
+
 		if ((null !== $left = $that->left->asNumber()) && (null !== $right = $that->right->asNumber())) {
 			$result = new Number($left + $right);
 			return $result->visit($ast);

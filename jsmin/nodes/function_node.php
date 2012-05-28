@@ -19,7 +19,7 @@ class FunctionNode extends Node {
 			if ($this->functionForm !== EXPRESSED_FORM && !$this->name->keep(1)) {
 				$this->gone();
 
-				return new Nil();
+				return new VoidExpression(new Number(0));
 			}
 		}
 

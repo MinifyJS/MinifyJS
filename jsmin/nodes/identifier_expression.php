@@ -22,7 +22,7 @@ class IdentifierExpression extends ConstantExpression {
 		}
 
 		if (!$this->write && !AST::$options['no-inlining']) {
-			if ($ast->hasStats() && ($init = $this->left->initializer()) && $init->mayInline()) {
+			if ($ast->hasStats() && !$this->left->reassigned() && ($init = $this->left->initializer()) && $init->mayInline()) {
 				/*
 				 * We'll have to verify that inlining will cost less than keeping the variable
 				 *

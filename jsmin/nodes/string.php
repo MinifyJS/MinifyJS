@@ -74,12 +74,13 @@ class String extends ConstantExpression {
 		if (is_array($m)) {
 			if (isset($m[3])) {
 				switch($m[3]) {
-				case 't': return "\t";
-				case 'n': return "\n";
-				case 'r': return "\r";
-				case 'b': return "\x08";
-				case 'f': return "\x0C";
-				default:  return $m[3];
+				case 't':  return "\t";
+				case 'n':  return "\n";
+				case 'r':  return "\r";
+				case 'b':  return "\x08";
+				case 'f':  return "\x0C";
+				case "\n": return '';
+				default:   return $m[3];
 				}
 			}
 
@@ -110,7 +111,7 @@ class String extends ConstantExpression {
 
 		$c = $m[0];
 		if ($c === substr($m, -1)) {
-			return preg_replace_callback('~\\\\(?:(?|u([\da-f]{4})|x([\da-f]{2}))|(0)(?!\d)|(.))~i', array($this, 'unescape'), substr($m, 1, -1));
+			return preg_replace_callback('~\\\\(?:(?|u([\da-f]{4})|x([\da-f]{2}))|(0)(?!\d)|(.))~si', array($this, 'unescape'), substr($m, 1, -1));
 		} return $m;
 	}
 
