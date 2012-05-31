@@ -7,7 +7,7 @@ class Number extends ConstantExpression {
 			throw new Exception($value . ' is not numeric');
 		}
 
-		parent::__construct(is_int($value) || is_float($value) ? $value : eval('return ' . $value . ';'));
+		parent::__construct(preg_match('~^\d+(?:\.\d+)?$~', $value) ? preg_replace('~(?:\.0*|(\..*?)0+)$~', '$1', $value) : eval('return ' . $value . ';'));
 	}
 
 	public function value() {

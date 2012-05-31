@@ -22,12 +22,20 @@ class PlusExpression extends BinaryExpression {
 			}
 		}
 
-		if ((null !== $left = $that->left->asNumber()) && (null !== $right = $that->right->asNumber())) {
-			$result = new Number($left + $right);
-			return $result->visit($ast);
+		if (null !== $result = $this->asNumber()) {
+			return AST::bestOption(array(new Number($result), $that));
 		}
 
 		return $that;
+	}
+
+	public function asNumber() {
+		if ($this->left->type() === 'number' && $this->right->type() === 'number') {
+			if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+				$expr = new Number(bcadd($left, $right, 100));
+				return $expr->asNumber();
+			}
+		}
 	}
 
 	public function toString() {

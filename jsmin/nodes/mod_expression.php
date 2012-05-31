@@ -21,7 +21,8 @@ class ModExpression extends BinaryExpression {
 				return null;
 			}
 
-			return $left % $right;
+			$expr = new Number(bcmod($left, $right, 100));
+			return $expr->asNumber();
 		}
 	}
 

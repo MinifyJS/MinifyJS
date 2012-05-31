@@ -19,6 +19,10 @@ class ForInNode extends Node {
 		$this->object = $this->object->visit($ast);
 		$this->body = $this->body->visit($ast)->optimizeBreak();
 
+		if ($this->body->isVoid()) {
+			return $this->iterator;
+		}
+
 		return $this;
 	}
 

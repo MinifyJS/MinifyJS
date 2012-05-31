@@ -22,6 +22,14 @@ class EqualExpression extends ComparisonExpression {
 			return $result->visit($ast);
 		}
 
+		if ($this->left->asBoolean() === true) {
+			return $this->right;
+		}
+
+		if ($this->right->asBoolean() === true) {
+			return $this->left;
+		}
+
 		return $that;
 	}
 

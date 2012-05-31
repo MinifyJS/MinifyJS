@@ -429,7 +429,7 @@ class JSTokenizer {
 					break;
 				case '/':
 					if ($this->scanOperand) {
-						if (!preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[gim]*%', $input, $match)) {
+						if (!preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[a-z]*%', $input, $match)) {
 							throw $this->newSyntaxError('Unterminated regex literal');
 						}
 

@@ -3,16 +3,13 @@
  *
  */
 class Scope {
-	static private $all2 = array(
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'$','_','0','1','2','3','4','5','6','7','8','9'
-	);
-
+	/**
+	 * List based on occurence of characters in jQuery, Prototype and Mootools (all keywords and dot-identifiers)
+	 */
 	static private $all = array(
-		'e','t','n','i','o','l','r','f','a','c','s','d','u','w','h','y','v','p','b','k','g','h','j','m','q','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'$','_','0','1','2','3','4','5','6','7','8','9'
+		'e','t','n','r','i','s','o','u','a','f','l','c','h','p','d','v','m','g','y','b','w','E','S','x','T','N',
+		'C','k','L','A','O','M','_','D','P','H','B','j','F','I','q','R','U','z','W','X','V','$','J','K','Q','G',
+		'Y','Z','0','5','1','6','3','7','2','9','8','4'
 	);
 
 	protected static $keywords = array(
@@ -191,32 +188,16 @@ class Scope {
 		return isset($n->declared[$name]);
 	}
 
-	public function gen($origName, $declare = true, Identifier $linkedTo = null) {
-		if ($origName instanceof Identifier) {
-			if ($origName->linkedTo()) {
-				return $this->gen($origName->linkedTo());
-			}
+	public function gen($origName, $declare = true) {
+		$n = new Identifier($this, $origName);
 
-			if ($this->nameIndex === null) {
-				$this->nameIndex = $this->parent ? $this->parent->nameIndex + 1 : 0;
-			}
-
-			do {
-				$name = $this->base54($this->nameIndex++);
-			} while(isset(self::$reserved[$name]) || $this->declared($name));
-
-			return $name;
-		} else {
-			$n = new Identifier($this, $origName, $linkedTo);
-
-			if ($declare) {
-				$n->mustDeclare();
-			}
-
-			$this->declared[$origName] = $n;
-
-			return $n;
+		if ($declare) {
+			$n->mustDeclare();
 		}
+
+		$this->declared[$origName] = $n;
+
+		return $n;
 	}
 
 	protected function base54($i) {

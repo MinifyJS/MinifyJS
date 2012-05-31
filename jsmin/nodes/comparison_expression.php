@@ -1,5 +1,8 @@
 <?php
 class ComparisonExpression extends BinaryExpression {
+	const STRICT = true;
+	const NOT_STRICT = false;
+
 	public function visit(AST $ast) {
 		parent::visit($ast);
 
