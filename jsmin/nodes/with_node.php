@@ -17,7 +17,7 @@ class WithNode extends Node {
 				$ast->visitScope()->usesWith(-1);
 			}
 
-			return new VoidExpression(new Number(0));
+			return new CommaExpression(array($this->object, new VoidExpression(new Number(0))));
 		}
 
 		return $this;

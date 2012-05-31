@@ -41,8 +41,9 @@ class CallExpression extends Expression {
 				$nodes = $this->right;
 				$nodes[] = new VoidExpression(new Number(0));
 
-			$result = new CommaExpression($nodes);
-			return $result->visit($ast);
+				$result = new CommaExpression($nodes);
+				return $result->visit($ast);
+			}
 		}
 
 		if ($this->left instanceof IdentifierExpression && !$this->left->isLocal()) {
