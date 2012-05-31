@@ -12,13 +12,13 @@ class NotEqualExpression extends ComparisonExpression {
 
 		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
 			if ($left !== null) {
-				$that->strict = false;
+				$that->strict = ComparisonExpression::NOT_STRICT;
 				$that->type = OP_NE;
 			}
 		}
 
 		if ($this->right->asString() === 'undefined' && $this->left instanceof TypeofExpression && $this->left->left()->isLocal()) {
-			$result = new NotEqualExpression($this->left->left(), new VoidExpression(new Number(0)), true);
+			$result = new NotEqualExpression($this->left->left(), new VoidExpression(new Number(0)), ComparisonExpression::STRICT);
 			return $result->visit($ast);
 		}
 

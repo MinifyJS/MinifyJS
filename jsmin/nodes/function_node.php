@@ -54,7 +54,7 @@ class FunctionNode extends Node {
 
 		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : $space)
 			. '(' . implode(',' . $space, $this->params) . ')' . $space
-			. '{' . $this->body->asBlock()->toString(true) . '}';
+			. '{' . $this->body->asBlock()->toString(true, false) . '}';
 	}
 
 	public function onlyReturns() {

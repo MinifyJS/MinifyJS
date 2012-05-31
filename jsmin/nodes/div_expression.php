@@ -20,8 +20,9 @@ class DivExpression extends BinaryExpression {
 			if ($right == 0) {
 				return null;
 			}
-			
-			return $left / $right;
+
+			$expr = new Number(bcdiv($left, $right, 100));
+			return $expr->asNumber();
 		}
 	}
 

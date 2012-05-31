@@ -30,7 +30,7 @@ class CatchNode extends Node {
 
 	public function toString() {
 		return 'catch(' . $this->variable->toString() . '){'
-			. Stream::trimSemicolon($this->body->asBlock()->toString(true))
+			. Stream::trimSemicolon($this->body->asBlock()->toString(true, false))
 		. '}';
 	}
 }

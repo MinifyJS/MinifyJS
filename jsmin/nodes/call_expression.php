@@ -52,6 +52,13 @@ class CallExpression extends Expression {
 				$flags = null;
 				$regexp = null;
 
+				if ($argc && $this->right[0]->actualType() === 'regexp') {
+					if ($argc === 1 || ($argc === 2 && $this->right[1]->isVoid())) {
+						// it was already visited
+						return $this->right[0];
+					}
+				}
+
 				switch ($argc) {
 				case 2:
 					if (null === $flags = $this->right[1]->asString()) {

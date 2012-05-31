@@ -16,7 +16,8 @@ class MulExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			return $left * $right;
+			$expr = new Number(bcmul($left, $right, 100));
+			return $expr->asNumber();
 		}
 	}
 

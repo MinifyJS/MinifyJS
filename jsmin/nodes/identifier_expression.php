@@ -38,7 +38,7 @@ class IdentifierExpression extends ConstantExpression {
 				$valueLength = strlen($init->toString());
 				$usage = $this->left->used();
 
-				if ((($usage - 1) * $valueLength) < (($usage * 2) + 4 + $valueLength)) {
+				if ((($usage - 1) * $valueLength) < (($usage * 1) + 4 + $valueLength)) {
 					$this->left->used(false);
 					return $init;
 				}
@@ -46,6 +46,12 @@ class IdentifierExpression extends ConstantExpression {
 		}
 
 		return $this;
+	}
+
+	public function asString() {
+		if (($init = $this->left->initializer()) && $init->mayInline()) {
+			return $init->toString();
+		}
 	}
 
 	public function collectStatistics(AST $ast, $reassigned = false) {
