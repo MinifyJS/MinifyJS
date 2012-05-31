@@ -16,8 +16,14 @@ class HookExpression extends Expression {
 		$condition = $this->left->asBoolean();
 
 		if ($condition === true) {
+			$this->left->gone();
+			$this->right->gone();
+
 			return $this->middle;
 		} elseif ($condition === false) {
+			$this->left->gone();
+			$this->middle->gone();
+
 			return $this->right;
 		}
 

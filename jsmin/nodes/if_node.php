@@ -74,7 +74,7 @@ class IfNode extends Node {
 				return $this->then;
 			}
 
-			return new Nil();
+			return new VoidExpression(new Number(0));
 		}
 
 		return $result ? $result->visit($ast) : $this;

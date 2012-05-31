@@ -22,7 +22,11 @@ class PlusExpression extends BinaryExpression {
 			}
 		}
 
-		if (null !== $result = $this->asNumber()) {
+		if ($that->left->type() === 'string' && $that->right->asString() === '') {
+			return $that->left;
+		}
+
+		if (null !== $result = $that->asNumber()) {
 			return AST::bestOption(array(new Number($result), $that));
 		}
 
