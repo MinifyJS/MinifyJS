@@ -23,17 +23,15 @@ class CallExpression extends Expression {
 			}
 		}
 
-		if (AST::$options['unsafe']) {
-			if ($this->left instanceof DotExpression && $this->left->right()->name() === 'match'
-					&& $this->left->left()->type() === 'string' && $argc === 1
-					&& $this->right[0]->actualType() === 'regexp' && !$this->right[0]->hasFlag('g')) {
-				$result = new CallExpression(
-					new DotExpression($this->right[0], new Identifier(null, 'exec')),
-					array($this->left->left())
-				);
+		if ($this->left instanceof DotExpression && $this->left->right()->name() === 'match'
+				&& $this->left->left()->type() === 'string' && $argc === 1
+				&& $this->right[0]->actualType() === 'regexp' && !$this->right[0]->hasFlag('g')) {
+			$result = new CallExpression(
+				new DotExpression($this->right[0], new Identifier(null, 'exec')),
+				array($this->left->left())
+			);
 
-				return $result->visit($ast);
-			}
+			return $result->visit($ast);
 		}
 
 		if (AST::$options['strip-debug'] && $this->left instanceof DotExpression && $this->left->left()->value() === 'console') {
@@ -69,7 +67,7 @@ class CallExpression extends Expression {
 						break;
 					}
 
-					$regexp = '/' . $regexp . '/' . $flags;
+					$regexp = '/' . str_replace('/', '\/', $regexp) . '/' . $flags;
 					break;
 				}
 
@@ -82,7 +80,10 @@ class CallExpression extends Expression {
 			case 'Array':
 				if ($argc !== 1) {
 					$result = new ArrayExpression($this->right);
+				} elseif ($this->right[0]->asNumber() === 0) {
+					$result = new ArrayExpression(array());
 				}
+
 				break;
 			case 'Boolean':
 				if ($argc === 0) {
@@ -96,9 +97,7 @@ class CallExpression extends Expression {
 
 				break;
 			case 'String':
-				if (AST::$options['unsafe']) {
-					$result = new PlusExpression($this->left, new String('', false));
-				}
+				$result = new PlusExpression($this->left, new String('', false));
 				break;
 			case 'Object':
 				if (!$this->right) {
@@ -112,10 +111,10 @@ class CallExpression extends Expression {
 			}
 		}
 
-		if (!$result && $this->left instanceof DotExpression && AST::$options['unsafe']) {
+		if (!$result && $this->left instanceof DotExpression) {
 			// check for array shortening..
 			if ($this->left->left()->actualType() === 'array' && $this->left->right()->name() === 'join') {
-				if (!$this->right || (count($this->right) === 1 && $this->right[0]->asString() === ',')) {
+				if (!$this->right || ($args === 1 && $this->right[0]->asString() === ',')) {
 					$result = new PlusExpression($this->left->left(), new String('', false));
 				}
 			}
