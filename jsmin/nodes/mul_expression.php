@@ -5,10 +5,12 @@ class MulExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
-
 		if (null !== $result = $this->asNumber()) {
 			return AST::bestOption(array(new Number($result), $this));
+		}
+
+		if ($this->left instanceof UnaryMinusExpression && $this->right instanceof UnaryMinusExpression) {
+			return new MulExpression($this->left->left(), $this->right->left());
 		}
 
 		return $this;
@@ -16,8 +18,7 @@ class MulExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			$expr = new Number(bcmul($left, $right, 100));
-			return $expr->asNumber();
+			return bcmul($left, $right, 100);
 		}
 	}
 

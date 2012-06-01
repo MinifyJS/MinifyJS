@@ -19,6 +19,10 @@ class Number extends ConstantExpression {
 			return new DivExpression(new Number(0), new Number(0));
 		}
 
+		if ($this->left < 0) {
+			return new UnaryMinusExpression(new Number(-$this->left));
+		}
+
 		return $this;
 	}
 

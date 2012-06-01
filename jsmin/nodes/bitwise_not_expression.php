@@ -1,7 +1,7 @@
 <?php
 class BitwiseNotExpression extends UnaryExpression {
 	public function toString() {
-		return '~' . $this->group($this, $this->left, false);
+		return $this->unary('~');
 	}
 
 	public function visit(AST $ast) {
@@ -17,7 +17,7 @@ class BitwiseNotExpression extends UnaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber())) {
-			return ~$left;
+			return ~(int)$left;
 		}
 	}
 

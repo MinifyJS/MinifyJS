@@ -17,6 +17,9 @@ class BitwiseShiftExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			$left = (int)$left;
+			$right = (int)$right;
+
 			switch ($this->type) {
 			case OP_LSH:
 				return $left << $right;

@@ -16,7 +16,7 @@ class BitwiseXorExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			return $left ^ $right;
+			return (int)$left ^ (int)$right;
 		}
 	}
 

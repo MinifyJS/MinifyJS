@@ -17,8 +17,7 @@ class MinusExpression extends BinaryExpression {
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
-			$expr = new Number(bcsub($left, $right, 100));
-			return $expr->asNumber();
+			return bcsub($left, $right, 100);
 		}
 	}
 
