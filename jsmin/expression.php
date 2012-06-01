@@ -146,6 +146,9 @@ abstract class Expression extends Node {
 	}
 
 	public function unary($op) {
-		return $op . $this->group($this, $this->left, false);
+		$left = $this->group($this, $this->left);
+		return $op
+			. (($op === '+' && $left[0] === '+' && $left[1] !== '+') || ($op === '-' && $left[0] === '-' && $left[1] !== '-') ? ' ' : '')
+			. $left;
 	}
 }
