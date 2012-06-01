@@ -296,7 +296,7 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
-			while (ctype_space($c = $this->getChar())) {
+			while (ctype_space($c = $this->getChar()) || (($o = ord($c)) > 0x7e && $o < 0xa1)) {
 				if ($c === "\n") {
 					if ($this->scanNewlines) {
 						$input = "\n";
@@ -316,7 +316,7 @@ class JSTokenizer {
 					break;
 				}
 
-				$re = '[\t\v\f\s \xA0\p{Zs}]';
+				$re = '[\t\v\f\s \p{Zs}]';
 				if ($this->scanNewlines) {
 					$re = '(?:(?!\n)' . $re . ')';
 				}
