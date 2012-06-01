@@ -23,6 +23,9 @@ class Property extends Node {
 			if (Identifier::isValid($test = $this->key->asString())) {
 				$this->key = new Identifier(null, $test);
 				$this->keyString = $this->key->toString();
+			} elseif (($testNum = new Number($test)) && $testNum->asString() === $test) {
+				$this->key = $testNum;
+				$this->keyString = $this->key->toString();
 			}
 		}
 
@@ -40,6 +43,10 @@ class Property extends Node {
 	}
 
 	public function toString() {
-		return $this->keyString . ':' . (AST::$options['beautify'] ? ' ' : '') . $this->value->toString();
+		$v = $this->value->toString();
+		if ($this->value instanceof CommaExpression) {
+			$v = '(' . $v . ')';
+		}
+		return $this->keyString . ':' . (AST::$options['beautify'] ? ' ' : '') . $v;
 	}
 }

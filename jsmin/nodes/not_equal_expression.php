@@ -17,8 +17,8 @@ class NotEqualExpression extends ComparisonExpression {
 			}
 		}
 
-		if ($this->right->asString() === 'undefined' && $this->left instanceof TypeofExpression && $this->left->left()->isLocal()) {
-			$result = new NotEqualExpression($this->left->left(), new VoidExpression(new Number(0)), ComparisonExpression::STRICT);
+		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression && $that->left->left()->isLocal()) {
+			$result = new NotEqualExpression($that->left->left(), new VoidExpression(new Number(0)), ComparisonExpression::STRICT);
 			return $result->visit($ast);
 		}
 

@@ -17,17 +17,22 @@ class EqualExpression extends ComparisonExpression {
 			}
 		}
 
-		if ($this->right->asString() === 'undefined' && $this->left instanceof TypeofExpression && $this->left->left()->isLocal()) {
-			$result = new EqualExpression($this->left->left(), new VoidExpression(new Number(0)), true);
+		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression && $that->left->left()->isLocal()) {
+			$result = new EqualExpression($that->left->left(), new VoidExpression(new Number(0)), true);
 			return $result->visit($ast);
 		}
 
-		if ($this->left->asBoolean() === true) {
-			return $this->right;
-		}
+		if ($that->left->type() === 'boolean' || $that->right->type() === 'boolean') {
+			$left = $that->left->asBoolean();
+			$right = $that->right->asBoolean();
 
-		if ($this->right->asBoolean() === true) {
-			return $this->left;
+			if ($left !== null && $right !== null) {
+				$that->left->gone();
+				$that->right->gone();
+
+				$result = new Boolean($left === $right);
+				return $result->visit($ast);
+			}
 		}
 
 		return $that;
