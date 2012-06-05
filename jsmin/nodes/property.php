@@ -23,7 +23,7 @@ class Property extends Node {
 			if (Identifier::isValid($test = $this->key->asString())) {
 				$this->key = new Identifier(null, $test);
 				$this->keyString = $this->key->toString();
-			} elseif (($testNum = new Number($test)) && $testNum->asString() === $test) {
+			} elseif (is_numeric($test) && ($testNum = new Number($test)) && $testNum->asString() === $test) {
 				$this->key = $testNum;
 				$this->keyString = $this->key->toString();
 			}
