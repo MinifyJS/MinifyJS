@@ -114,7 +114,7 @@ class CallExpression extends Expression {
 		if (!$result && $this->left instanceof DotExpression) {
 			// check for array shortening..
 			if ($this->left->left()->actualType() === 'array' && $this->left->right()->name() === 'join') {
-				if (!$this->right || ($args === 1 && $this->right[0]->asString() === ',')) {
+				if (!$this->right || ($argc === 1 && $this->right[0]->asString() === ',')) {
 					$result = new PlusExpression($this->left->left(), new String('', false));
 				}
 			}
