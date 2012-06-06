@@ -8,6 +8,11 @@ class NotExpression extends UnaryExpression {
 			return $result->visit($ast);
 		}
 
+		return AST::bestOption(array(
+			$this,
+			new NotExpression(new NotExpression($this->left->negate()))
+		));
+
 		return $this;
 	}
 
