@@ -53,13 +53,18 @@ class HookExpression extends Expression {
 			return $result->visit($ast);
 		}
 
-		if ((null !== $left = $this->middle->asBoolean()) && (null !== $right = $this->right->asBoolean())) {
+		if ($this->type() === 'boolean' && (null !== $left = $this->middle->asBoolean()) && (null !== $right = $this->right->asBoolean())) {
+			$result = null;
 			if ($right === true && $left === false) {
-				return $this->left->negate()->boolean();
+				$result = $this->left->negate()->boolean();
+			} elseif ($left === true && $right === false) {
+				$result = $this->left->boolean();
 			}
 
-			if ($left === true && $right === false) {
-				return $this->left->boolean();
+			if ($result) {
+				$this->middle->gone();
+				$this->right->gone();
+				return $result;
 			}
 		}
 
@@ -102,7 +107,7 @@ class HookExpression extends Expression {
 	}
 
 	public function type() {
-		if ($this->right->type() === $left = $this->middle->type() && $left !== null) {
+		if (($this->right->type() === ($left = $this->middle->type())) && $left !== null) {
 			return $left;
 		}
 
