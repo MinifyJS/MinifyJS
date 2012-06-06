@@ -223,6 +223,10 @@ class JSTokenizer {
 			$this->preCursor += $this->cursor;
 			$this->length -= $this->cursor;
 			$this->cursor = 0;
+
+			if (!$chunksize) {
+				return $this->source;
+			}
 		}
 
 		if ($chunksize) {
@@ -296,7 +300,7 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
-			while (ctype_space($c = $this->getChar()) || (($o = ord($c)) > 0x7e && $o < 0xa1)) {
+			while (ctype_space($c = $this->getChar())) {
 				if ($c === "\n") {
 					if ($this->scanNewlines) {
 						$input = "\n";
@@ -500,10 +504,12 @@ class JSTokenizer {
 				case "\n":
 					throw $this->newSyntaxError('Illegal newline token');
 				default:
-					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*~i', $input, $match)) {
+					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}\x{200c}\x{200d}]+)*~iu', $input, $match)) {
 						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
 					} else {
-						throw $this->newSyntaxError('Illegal token (0x' . dechex(ord($input[0])) . ')');
+						throw $this->newSyntaxError('Illegal token'
+							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $input) ? ': unicode-whitespace' : ' (0x' . dechex($input[0]) . ')')
+						);
 					}
 			}
 		}
@@ -570,7 +576,9 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . ($this->cursor + $this->preCursor));
+		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . ($this->cursor + $this->preCursor)
+		//	. PHP_EOL . ' (context: ' . str_replace("\n", '\n', substr($this->source, $this->cursor - 20, 20) . '|' . substr($this->source, $this->cursor, 20)) . ')'
+		);
 	}
 }
 
