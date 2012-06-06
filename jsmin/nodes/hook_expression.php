@@ -53,6 +53,16 @@ class HookExpression extends Expression {
 			return $result->visit($ast);
 		}
 
+		if ((null !== $left = $this->middle->asBoolean()) && (null !== $right = $this->right->asBoolean())) {
+			if ($right === true && $left === false) {
+				return $this->left->negate()->boolean();
+			}
+
+			if ($left === true && $right === false) {
+				return $this->left->boolean();
+			}
+		}
+
 		return AST::bestOption(array(
 			$this,
 			new HookExpression(
@@ -92,6 +102,10 @@ class HookExpression extends Expression {
 	}
 
 	public function type() {
+		if ($this->right->type() === $left = $this->middle->type() && $left !== null) {
+			return $left;
+		}
+
 		return null;
 	}
 

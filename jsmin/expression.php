@@ -82,6 +82,14 @@ abstract class Expression extends Node {
 		return $this;
 	}
 
+	public function boolean() {
+		if ($this->type() == 'boolean') {
+			return $this;
+		}
+
+		return new NotExpression(new NotExpression($this));
+	}
+
 	public function represents() {
 		return $this;
 	}

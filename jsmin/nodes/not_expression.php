@@ -10,7 +10,7 @@ class NotExpression extends UnaryExpression {
 
 		return AST::bestOption(array(
 			$this,
-			new NotExpression(new NotExpression($this->left->negate()))
+			$this->left->negate()->boolean()
 		));
 
 		return $this;
