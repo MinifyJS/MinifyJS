@@ -80,7 +80,7 @@ class CallExpression extends Expression {
 			case 'Array':
 				if ($argc !== 1) {
 					$result = new ArrayExpression($this->right);
-				} elseif ($this->right[0]->asNumber() === 0) {
+				} elseif ($this->right[0]->asNumber() == 0) {
 					$result = new ArrayExpression(array());
 				}
 
@@ -91,7 +91,7 @@ class CallExpression extends Expression {
 				} else {
 					$result = new CommaExpression(array_merge(
 						array_slice($this->right, 0, -1),
-						array(new NotExpression(new NotExpression(end($this->right))))
+						array(end($this->right)->boolean())
 					));
 				}
 
@@ -105,8 +105,11 @@ class CallExpression extends Expression {
 				}
 				break;
 			case 'isNaN':
-				if ($argc === 1 && $this->right[0] instanceof IdentifierExpression) {
-					return new NotEqualExpression($this->right[0], $this->right[0], true);
+				if ($argc === 1 && ($this->right[0] instanceof IdentifierExpression || $this->right[0]->isConstant())) {
+					return AST::bestOption(array(
+						$this,
+						new NotEqualExpression($this->right[0], $this->right[0], ComparisonExpression::NOT_STRICT)
+					));
 				}
 			}
 		}
@@ -131,7 +134,17 @@ class CallExpression extends Expression {
 	}
 
 	public function toString() {
-		return $this->group($this, $this->left) . '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $this->right) . ')';
+		$o = array();
+		foreach($this->right as $x) {
+			$n = $x->toString();
+			if ($x instanceof CommaExpression) {
+				$n = '(' . $n . ')';
+			}
+
+			$o[] = $n;
+		}
+
+		return $this->group($this, $this->left) . '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $o) . ')';
 	}
 
 	public function precedence() {
