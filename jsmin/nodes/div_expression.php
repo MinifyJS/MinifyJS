@@ -12,12 +12,27 @@ class DivExpression extends BinaryExpression {
 			return AST::bestOption(array(new Number($result), $this));
 		}
 
+		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+			if ($right == 0) {
+				$fixLeft = new Number($left == 0 ? 0 : 1);
+				if ($left < 0) {
+					$fixLeft = new UnaryMinusExpression($fixLeft);
+				}
+
+				return new DivExpression($fixLeft, new Number(0));
+			}
+		}
+
 		return $this;
 	}
 
 	public function asNumber() {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
 			if ($right == 0) {
+				if ($left == 0) {
+					return NAN;
+				}
+
 				return null;
 			}
 
