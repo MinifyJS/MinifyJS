@@ -109,7 +109,7 @@ class Identifier {
 			return $name;
 		}
 
-		return '\\u' . substr('0000' . dechex(ord($name[0])), -4) . substr($name, 1);
+		return substr($name, 0, -1) . '\\u' . substr('0000' . dechex(ord(substr($name, -1))), -4);
 	}
 
 	public static function isValid($str) {

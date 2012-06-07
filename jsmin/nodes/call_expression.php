@@ -88,11 +88,13 @@ class CallExpression extends Expression {
 			case 'Boolean':
 				if ($argc === 0) {
 					return new Boolean(false);
+				} elseif ($argc === 1) {
+					$result = $this->right[0]->boolean();
 				} else {
-					$result = new CommaExpression(array_merge(
-						array_slice($this->right, 0, -1),
-						array(end($this->right)->boolean())
-					));
+					$result = clone $this;
+					$result->right[0] = $result->right[0]->looseBoolean();
+
+					return $result;
 				}
 
 				break;
