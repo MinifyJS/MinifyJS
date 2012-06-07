@@ -93,7 +93,7 @@ class Scope {
 					for (;;) {
 						$name = $this->base54($this->nameIndex++);
 
-						if (isset(self::$reserved[$name])) {
+						if (isset(self::$reserved[$name]) || isset(self::$keywords[$name])) {
 							continue;
 						}
 
