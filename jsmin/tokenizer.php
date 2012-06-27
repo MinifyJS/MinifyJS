@@ -345,6 +345,10 @@ class JSTokenizer {
 				break;
 			}
 
+			if ($input[0] !== '/') {
+				break;
+			}
+
 			// don't want to support conditional comments just yet
 			//if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
 			if (!preg_match('~^/(?:\*[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
