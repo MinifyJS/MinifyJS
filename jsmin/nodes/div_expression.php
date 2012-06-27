@@ -37,6 +37,10 @@ class DivExpression extends BinaryExpression {
 				return null;
 			}
 
+			if (is_nan($left) || is_nan($right)) {
+				return NAN;
+			}
+
 			$expr = new Number(bcdiv($left, $right, 100));
 			return $expr->asNumber();
 		}
