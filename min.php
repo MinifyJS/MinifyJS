@@ -65,15 +65,6 @@ $s = trim(file_get_contents($f));
 
 $timers = array();
 
-try {
-	$t = microtime(true);
-	$tree = $parser->parse($s, $f, 1, AST::$options['unicode-ws']);
-	$timers['parse'] = microtime(true) - $t;
-
-	$t = microtime(true);
-	$ast = new AST($tree);
-	$timers['ast'] = microtime(true) - $t;
-
 if (function_exists('xhprof_enable')) {
     xhprof_enable(XHPROF_FLAGS_MEMORY, array('ignored_functions' =>  array(
         'call_user_func',
@@ -95,6 +86,14 @@ if (function_exists('xhprof_enable')) {
     });
 }
 
+try {
+	$t = microtime(true);
+	$tree = $parser->parse($s, $f, 1, AST::$options['unicode-ws']);
+	$timers['parse'] = microtime(true) - $t;
+
+	$t = microtime(true);
+	$ast = new AST($tree);
+	$timers['ast'] = microtime(true) - $t;
 
 
 	$t = microtime(true);
