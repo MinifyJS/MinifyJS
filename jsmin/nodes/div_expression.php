@@ -15,11 +15,12 @@ class DivExpression extends BinaryExpression {
 		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
 			if ($right == 0) {
 				$fixLeft = new Number($left == 0 ? 0 : 1);
-				if ($left < 0) {
-					$fixLeft = new UnaryMinusExpression($fixLeft);
+				$fixRight = new Number(0);
+				if ($left < 0 || $right === -0) {
+					$fixRight = new UnaryMinusExpression($fixRight);
 				}
 
-				return new DivExpression($fixLeft, new Number(0));
+				return new DivExpression($fixLeft, $fixRight);
 			}
 		}
 
