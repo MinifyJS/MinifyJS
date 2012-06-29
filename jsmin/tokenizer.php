@@ -341,11 +341,7 @@ class JSTokenizer {
 			}
 
 			$input = $this->getInput($chunksize);
-			if ($input === false) {
-				break;
-			}
-
-			if ($input[0] !== '/') {
+			if ($input === false || $input[0] !== '/') {
 				break;
 			}
 
