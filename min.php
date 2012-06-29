@@ -57,11 +57,18 @@ foreach (array_slice($_SERVER['argv'], 1) as $option) {
 	}
 }
 
-if (!isset($f) || !is_file($f)) {
-	throw new Exception('Unknown file');
-}
+if (!isset($f)) {
+	$s = '';
+	while (false !== ($line = fgets(STDIN))) {
+		$s .= $line;
+	}
 
-$s = trim(file_get_contents($f));
+	$f = '[stdin]';
+} elseif (!is_file($f)) {
+	throw new Exception('Unknown file');
+} else {
+	$s = trim(file_get_contents($f));
+}
 
 $timers = array();
 
