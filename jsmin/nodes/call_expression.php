@@ -146,7 +146,9 @@ class CallExpression extends Expression {
 			$o[] = $n;
 		}
 
-		return $this->group($this, $this->left) . '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $o) . ')';
+		// small exception here: when left is a NewExpression with args, no need for grouping
+		return ($this->left instanceof NewExpression && $this->left->right() ? $this->left->toString() : $this->group($this, $this->left))
+			. '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $o) . ')';
 	}
 
 	public function precedence() {
