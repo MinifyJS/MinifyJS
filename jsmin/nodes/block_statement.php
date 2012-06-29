@@ -70,7 +70,7 @@ class BlockStatement extends Node {
 			// removed functions always need revisiting
 			$wasFunction = $n instanceof FunctionNode;
 
-			$n = $n->visit($ast);
+			$n = $n->visit($ast)->optimize();
 
 			if ($wasFunction && !($n instanceof FunctionNode)) {
 				$revisit = true;

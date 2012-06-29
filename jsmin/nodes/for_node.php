@@ -23,7 +23,7 @@ class ForNode extends Node {
 
 	public function visit(AST $ast) {
 		if ($this->initializer) {
-			$this->initializer = $this->initializer->visit($ast);
+			$this->initializer = $this->initializer->visit($ast)->optimize();
 		}
 
 		if ($this->condition) {
@@ -31,7 +31,7 @@ class ForNode extends Node {
 		}
 
 		if ($this->update) {
-			$this->update = $this->update->visit($ast);
+			$this->update = $this->update->visit($ast)->optimize();
 		}
 
 		$this->body = $this->body->visit($ast)->optimizeBreak();

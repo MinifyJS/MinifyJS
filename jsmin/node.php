@@ -57,6 +57,10 @@ abstract class Node {
 		return false;
 	}
 
+	public function optimize() {
+		return $this;
+	}
+
 	public function last() {
 		return $this;
 	}

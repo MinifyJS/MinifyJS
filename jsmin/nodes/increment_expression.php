@@ -32,6 +32,10 @@ class IncrementExpression extends UnaryExpression {
 		return false;
 	}
 
+	public function optimize() {
+		return new IncrementExpression($this->left, false);
+	}
+
 	public function removeUseless() {
 		return new IncrementExpression($this->left->removeUseless(), $this->postfix);
 	}

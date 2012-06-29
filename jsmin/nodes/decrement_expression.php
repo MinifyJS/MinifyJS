@@ -37,6 +37,10 @@ class DecrementExpression extends UnaryExpression {
 		return false;
 	}
 
+	public function optimize() {
+		return new DecrementExpression($this->left, false);
+	}
+
 	public function removeUseless() {
 		return new DecrementExpression($this->left->removeUseless(), $this->postfix);
 	}

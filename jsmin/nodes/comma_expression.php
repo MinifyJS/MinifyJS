@@ -41,6 +41,14 @@ class CommaExpression extends Expression {
 		return new CommaExpression($nodes);
 	}
 
+	public function optimize() {
+		$result = array();
+		foreach($this->nodes as $n) {
+			$result[] = $n->optimize();
+		}
+		return new CommaExpression($result);
+	}
+
 	public function first() {
 		if ($this->nodes) {
 			return $this->nodes[0]->first();
