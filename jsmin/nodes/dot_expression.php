@@ -21,7 +21,7 @@ class DotExpression extends Expression {
 			case 'POSITIVE_INFINITY':
 				return new DivExpression(new Number(1), new Number(0));
 			case 'NEGATIVE_INFINITY':
-				return new DivExpression(new UnaryMinusExpression(new Number(1)), new Number(0));
+				return new DivExpression(new Number(1), new UnaryMinusExpression(new Number(0)));
 			}
 		}
 

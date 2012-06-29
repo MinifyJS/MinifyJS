@@ -41,8 +41,7 @@ class DivExpression extends BinaryExpression {
 				return NAN;
 			}
 
-			$expr = new Number(bcdiv($left, $right, 100));
-			return $expr->asNumber();
+			return bcdiv($left, $right, 100);
 		}
 	}
 
