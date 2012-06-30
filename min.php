@@ -52,12 +52,14 @@ foreach (array_slice($_SERVER['argv'], 1) as $option) {
 		foreach($options[$option] as $what => $value) {
 			AST::$options[$what] = $value;
 		}
+	} elseif ($option[0] === '-') {
+		throw new Exception('Invalid option ' . $option);
 	} else {
 		$f = $option;
 	}
 }
 
-if (!isset($f)) {
+if (!isset($f) || $f === '-') {
 	$s = '';
 	while (false !== ($line = fgets(STDIN))) {
 		$s .= $line;
