@@ -31,6 +31,10 @@ class UnaryMinusExpression extends UnaryExpression {
 		return 'number';
 	}
 
+    public function mayInline() {
+        return $this->left->mayInline();
+    }
+
 	public function precedence() {
 		return 14;
 	}
