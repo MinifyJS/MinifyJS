@@ -76,7 +76,7 @@ class BlockStatement extends Node {
 				$revisit = true;
 			}
 
-			if (!$returnSeen || $n instanceof VarNode || $n instanceof FunctionNode) {
+			if ((!$returnSeen && !$n->isConstant()) || $n instanceof VarNode || $n instanceof FunctionNode) {
 				if ($n instanceof Expression) {
 					foreach($n->removeUseless()->nodes() as $x) {
 						$x = $x->removeUseless();
