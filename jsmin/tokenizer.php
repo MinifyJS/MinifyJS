@@ -206,7 +206,6 @@ class JSTokenizer {
 	public function init($source, $filename = '', $lineno = 1) {
 		$this->source = str_replace(array("\r\n", "\n\r", "\r"), "\n", $source);
 		$this->source .= "\n";
-		$this->length = mb_strlen($this->source, 'UTF-8');
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
 		$this->licenses = array();
@@ -221,7 +220,7 @@ class JSTokenizer {
 		preg_match_all('~[\s\S]~u', $this->source, $m);
 		$this->chars = $m[0];
 
-		$this->points = $this->toCodePoints($this->source);
+		$this->length = count($this->chars);
 	}
 
 	public function getInput($chunksize) {
@@ -234,12 +233,20 @@ class JSTokenizer {
 	}
 
 	public function getChar($offset = 0) {
-		return isset($this->chars[$this->cursor + $offset]) ? $this->chars[$this->cursor + $offset] : null;
+		return isset($this->chars[$this->cursor + $offset]) ? $this->chars[$this->cursor + $offset] : false;
+	}
+
+	protected function getCodePoint($offset = 0) {
+		if (false === ($c = $this->getChar($offset))) {
+			return false;
+		}
+
+		$points = $this->toCodePoints($c);
+		return $points[0];
 	}
 
 	protected function isWhitespace($offset = 0) {
-		$point = isset($this->points[$this->cursor + $offset]) ? $this->points[$this->cursor + $offset] : null;
-		if ($point === null) {
+		if (false === ($point = $this->getCodePoint($offset))) {
 			return false;
 		}
 
