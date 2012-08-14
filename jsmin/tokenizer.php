@@ -457,7 +457,7 @@ class JSTokenizer {
 		} else {
 			$i = 1;
 
-			switch ($this->getChar()) {
+			switch ($baseChar = $this->getChar()) {
 				case '0':
 					$c = $this->getChar(1);
 					if ($c === 'x' || $c === 'X') {
@@ -483,7 +483,7 @@ class JSTokenizer {
 					// FALL THROUGH
 				case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
-					$match = $this->getChar();
+					$match = $baseChar;
 					while (ctype_digit($c = $this->getChar($i))) {
 						$match .= $c;
 						++$i;
@@ -512,7 +512,7 @@ class JSTokenizer {
 					break;
 				case '"':
 				case "'":
-					$match = $char = $this->getChar();
+					$match = $char = $baseChar;
 					while (false !== ($c = $this->getChar($i))) {
 						$match .= $c;
 						++$i;
@@ -568,7 +568,7 @@ class JSTokenizer {
 				case '%':
 				case '=':
 				case '!':
-					$match = $this->getChar() . $this->getChar(1) . $this->getChar(2);
+					$match = $baseChar . $this->getChar(1) . $this->getChar(2);
 					while ($match) {
 						if (isset($this->opTypeNames[$match])) {
 							break;
@@ -626,7 +626,7 @@ class JSTokenizer {
 				case '(':
 				case ')':
 					// these are all single
-					$match = $this->getChar();
+					$match = $baseChar;
 					$tt = $match;
 					break;
 				case '@':
