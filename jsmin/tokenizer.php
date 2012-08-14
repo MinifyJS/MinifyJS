@@ -233,7 +233,7 @@ class JSTokenizer {
 	}
 
 	public function getChar($offset = 0) {
-		return isset($this->chars[$this->cursor + $offset]) ? $this->chars[$this->cursor + $offset] : false;
+		return $this->cursor + $offset < $this->length ? $this->chars[$this->cursor + $offset] : false;
 	}
 
 	protected function getCodePoint($offset = 0) {
