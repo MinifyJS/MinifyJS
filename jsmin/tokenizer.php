@@ -612,6 +612,7 @@ class JSTokenizer {
 							}
 						}
 						$tt = TOKEN_NUMBER;
+						break;
 					}
 				// FALL THROUGH
 				case ';':
