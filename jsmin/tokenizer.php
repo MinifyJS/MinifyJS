@@ -512,11 +512,12 @@ class JSTokenizer {
 					break;
 				case '"':
 				case "'":
-					$match = $char = $baseChar;
+					$match = $baseChar;
 					while (false !== ($c = $this->getChar($i))) {
 						$match .= $c;
 						++$i;
-						if ($c === $char) {
+
+						if ($c === $baseChar) {
 							$tt = TOKEN_STRING;
 							break 2;
 						} elseif ($c === '\\') {
@@ -671,7 +672,7 @@ class JSTokenizer {
 			$token->value = $match;
 		}
 
-		$this->cursor += strlen($match);
+		$this->cursor += mb_strlen($match, 'UTF-8');
 
 		$token->end = $this->cursor;
 		$token->lineno = $this->lineno;
