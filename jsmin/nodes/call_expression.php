@@ -19,7 +19,10 @@ class CallExpression extends Expression {
 
 		if (!$this->right && $this->left instanceof DotExpression) {
 			if ($this->left->right()->name() === 'toString' && !$argc) {
-				$result = new PlusExpression($this->left->left(), new String('', false));
+				$result = AST::bestOption(array(
+					new PlusExpression(new String('', false), $this->left->left()),
+					new PlusExpression($this->left->left(), new String('', false))
+				));
 			}
 		}
 
@@ -99,7 +102,15 @@ class CallExpression extends Expression {
 
 				break;
 			case 'String':
-				$result = new PlusExpression($this->left, new String('', false));
+				if ($argc === 0) {
+					$result = new String('', false);
+				} elseif ($argc === 1) {
+					$result = AST::bestOption(array(
+						new PlusExpression(new String('', false), $this->right[0]),
+						new PlusExpression($this->right[0], new String('', false))
+					));
+				}
+
 				break;
 			case 'Object':
 				if (!$this->right) {

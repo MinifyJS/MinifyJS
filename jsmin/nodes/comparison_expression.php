@@ -9,6 +9,10 @@ class ComparisonExpression extends BinaryExpression {
 		return $this;
 	}
 
+	public function isConstant() {
+		return $this->left->isConstant() && $this->right->isConstant();
+	}
+
 	public function toString() {
 		return $this->binary($this->type);
 	}

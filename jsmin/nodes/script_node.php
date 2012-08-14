@@ -23,8 +23,12 @@ class ScriptNode extends BlockStatement {
 			}
 		}
 
-		foreach($after as $n) {
+		foreach(array_slice($after, 0, -1) as $n) {
 			$nodes[] = $n;
+		}
+
+		if (($last = end($after)) && (!($last instanceof ReturnNode) || !$last->value()->isVoid())) {
+			$nodes[] = $last;
 		}
 
 		$revisit = false;
@@ -39,6 +43,7 @@ class ScriptNode extends BlockStatement {
 
 	protected function reverseIfElse(array $nodes, &$revisit) {
 		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
+		// ^ note that this optimisation is only valid in ScriptStatements
 		$add = $base = new ScriptNode(array(), $this->scope, $this->strict);
 		$last = count($nodes) - 1;
 

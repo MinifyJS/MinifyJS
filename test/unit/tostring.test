@@ -1,0 +1,8 @@
+{
+  "name": "String( ) and .toString( )",
+  "options": []
+}
+=== INPUT
+alert('5'.toString(), String('5'), a.toString(), String(a), (+a).toString(), String(+a));
+=== EXPECT
+alert('5','5',''+a,''+a,+a+'',+a+'')
