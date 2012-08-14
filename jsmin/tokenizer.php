@@ -246,6 +246,10 @@ class JSTokenizer {
 	}
 
 	protected function isWhitespace($offset = 0) {
+		if (ctype_space($c = $this->getChar($offset))) {
+			return $c;
+		}
+		
 		if (false === ($point = $this->getCodePoint($offset))) {
 			return false;
 		}
@@ -256,7 +260,7 @@ class JSTokenizer {
 			|| $point == 0x2002 || $point == 0x2003 || $point == 0x2004 || $point == 0x2005
 			|| $point == 0x2006 || $point == 0x2007 || $point == 0x2008 || $point == 0x2009
 			|| $point == 0x200A || $point == 0x2028 || $point == 0x2029 || $point == 0x202F
-			|| $point == 0x205F || $point == 0x3000 ? $this->getChar() : false;
+			|| $point == 0x205F || $point == 0x3000 ? $c : false;
 	}
 	protected function isOctalDigit($peek = 0) {
 		$c = $this->getChar($peek);
