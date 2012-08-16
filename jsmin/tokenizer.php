@@ -523,6 +523,8 @@ class JSTokenizer {
 						} elseif ($c === '\\') {
 							$match .= $this->getChar($i);
 							++$i;
+						} elseif ($c === "\n") {
+							break;
 						}
 					}
 
@@ -541,6 +543,8 @@ class JSTokenizer {
 								if ($c === ']') {
 									$state = 0;
 								}
+							} elseif ($c === "\n") {
+								break;
 							} else {
 								if ($c === '/') {
 									while (ctype_alpha($c = $this->getChar($i))) {
@@ -756,9 +760,24 @@ class JSTokenizer {
 	}
 
 	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . $this->cursor
-		//	. PHP_EOL . ' (context: ' . str_replace("\n", '\n', substr($this->source, $this->cursor - 20, 20) . '|' . substr($this->source, $this->cursor, 20)) . ')'
-		);
+		return new Exception('Parse error: ' . $m
+			. " in file '" . $this->filename . "' on line "
+			. $this->lineno
+			. "\n\n" . $this->errorContext() . "\n");
+	}
+
+	protected function errorContext() {
+		$cursor = $this->currentToken()->start;
+		$lastNewline = max(mb_strrpos($this->source, "\n", $cursor - $this->length) + 1 ?: 0, $cursor - 20);
+		$nextNewline = min(mb_strpos($this->source, "\n", $cursor), $cursor + 20);
+
+		$piece = mb_substr($this->source, $lastNewline, $nextNewline - $lastNewline);
+		$fix = str_replace("\t", '    ', mb_substr($piece, 0, $cursor - $lastNewline));
+		$piece = str_replace("\t", '    ', $piece);
+
+		return $piece
+			. "\n"
+			. ($fix ? str_repeat('.', mb_strlen($fix)) : '') . '^';
 	}
 }
 
