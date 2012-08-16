@@ -44,7 +44,10 @@ $options = array(
 	'--unicode-whitespace' => array('unicode-ws' => true),
 
 	'-tl' => array('toplevel' => true),
-	'--toplevel' => array('toplevel' => true)
+	'--toplevel' => array('toplevel' => true),
+
+	'-p' => array('profile' => true),
+	'--profile' => array('profile' => true)
 );
 
 foreach (array_slice($_SERVER['argv'], 1) as $option) {
@@ -74,7 +77,7 @@ if (!isset($f) || $f === '-') {
 
 $timers = array();
 
-if (function_exists('xhprof_enable')) {
+if (AST::$options['profile'] && function_exists('xhprof_enable')) {
     xhprof_enable(XHPROF_FLAGS_MEMORY, array('ignored_functions' =>  array(
         'call_user_func',
         'call_user_func_array'

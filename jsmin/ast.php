@@ -30,7 +30,9 @@ class AST {
 		'no-inlining' => false,
 		'unicode-ws' => false,
 		'toplevel' => false,
-		'squeeze' => false
+		'squeeze' => false,
+		'profile' => false,
+		'ascii' => false
 	);
 
 	public static function load($class) {
