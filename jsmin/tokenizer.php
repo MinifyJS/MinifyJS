@@ -196,7 +196,6 @@ class JSTokenizer {
 
 	private $assignOps = array('|', '^', '&', '<<', '>>', '>>>', '+', '-', '*', '/', '%');
 	private $opRegExp;
-	public static $getInputCalled = 0;
 
 	public function __construct($unicodeWS = false) {
 		$this->opRegExp = '#\A(' . implode('|', array_map('preg_quote', array_keys($this->opTypeNames))) . ')#';
@@ -223,15 +222,6 @@ class JSTokenizer {
 		$this->length = count($this->chars);
 	}
 
-	public function getInput($chunksize) {
-		++self::$getInputCalled;
-		if ($chunksize) {
-			return mb_substr($this->source, $this->cursor, $chunksize, 'UTF-8');
-		}
-
-		return mb_substr($this->source, $this->cursor, $this->length, 'UTF-8');
-	}
-
 	public function getChar($offset = 0) {
 		return $this->cursor + $offset < $this->length ? $this->chars[$this->cursor + $offset] : false;
 	}
@@ -249,18 +239,19 @@ class JSTokenizer {
 		if (ctype_space($c = $this->getChar($offset))) {
 			return $c;
 		}
-		
-		if (false === ($point = $this->getCodePoint($offset))) {
+
+		if (!$points = $this->toCodePoints($c)) {
 			return false;
 		}
 
-		return $point == 0x0009 || $point == 0x000A || $point == 0x000B || $point == 0x000C
-			|| $point == 0x000D || $point == 0x0020 || $point == 0x0085 || $point == 0x00A0
-			|| $point == 0x1680 || $point == 0x180E || $point == 0x2000 || $point == 0x2001
-			|| $point == 0x2002 || $point == 0x2003 || $point == 0x2004 || $point == 0x2005
-			|| $point == 0x2006 || $point == 0x2007 || $point == 0x2008 || $point == 0x2009
-			|| $point == 0x200A || $point == 0x2028 || $point == 0x2029 || $point == 0x202F
-			|| $point == 0x205F || $point == 0x3000 ? $c : false;
+		$point = $points[0];
+
+		return $point == 0x0085 || $point == 0x00A0
+			|| $point == 0x1680 || $point == 0x180E
+			|| ($point >= 0x2000 && $point <= 0x200A)
+			|| $point == 0x2028 || $point == 0x2029
+			|| $point == 0x202F || $point == 0x205F
+			|| $point == 0x3000 ? $c : false;
 	}
 	protected function isOctalDigit($peek = 0) {
 		$c = $this->getChar($peek);
@@ -385,7 +376,7 @@ class JSTokenizer {
 
 					while (false !== ($c = $this->getChar())) {
 						if ($c === false) {
-							throw $this->newSyntaxError('Unterminated comment');
+							throw $this->newSyntaxError('Unterminated comment', true);
 						} elseif ($c === "\n") {
 							++$this->cursor;
 							++$this->lineno;
@@ -528,7 +519,7 @@ class JSTokenizer {
 						}
 					}
 
-					throw $this->newSyntaxError('Unterminated string literal');
+					throw $this->newSyntaxError('Unterminated string literal', true);
 				case '/':
 					if ($this->scanOperand) {
 						$match = '/';
@@ -559,7 +550,7 @@ class JSTokenizer {
 							}
 						}
 
-						throw $this->newSyntaxError('Unterminated regex literal');
+						throw $this->newSyntaxError('Unterminated regex literal', true);
 					}
 				// FALL THROUGH
 				case '|':
@@ -636,17 +627,17 @@ class JSTokenizer {
 					$tt = $match;
 					break;
 				case '@':
-					throw $this->newSyntaxError('Illegal @ token');
+					throw $this->newSyntaxError('Illegal @ token', true);
 				case "\n":
-					throw $this->newSyntaxError('Illegal newline token');
+					throw $this->newSyntaxError('Illegal newline token', true);
 				default:
 					if ($match = $this->matchIdentifier()) {
 						$tt = in_array($match, $this->keywords) ? $match : TOKEN_IDENTIFIER;
 					} else {
 						throw $this->newSyntaxError('Illegal token'
-							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $input) ?
-								': unicode-whitespace' : ' (0x' . dechex($input[0]) . ')'
-							)
+							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $this->getChar()) ?
+								': unicode-whitespace' : ' (0x' . dechex($this->getCodePoint()) . ')'
+							), true
 						);
 					}
 			}
@@ -759,15 +750,14 @@ class JSTokenizer {
 		$this->tokenIndex = ($this->tokenIndex - 1) & 3;
 	}
 
-	public function newSyntaxError($m) {
+	public function newSyntaxError($m, $currentOffset = false) {
 		return new Exception('Parse error: ' . $m
 			. " in file '" . $this->filename . "' on line "
 			. $this->lineno
-			. "\n\n" . $this->errorContext() . "\n");
+			. "\n\n" . $this->errorContext((!$currentOffset ? $this->currentToken()->start : null) ?: $this->cursor) . "\n");
 	}
 
-	protected function errorContext() {
-		$cursor = $this->currentToken()->start;
+	protected function errorContext($cursor) {
 		$lastNewline = max(mb_strrpos($this->source, "\n", $cursor - $this->length) + 1 ?: 0, $cursor - 20);
 		$nextNewline = min(mb_strpos($this->source, "\n", $cursor), $cursor + 20);
 
