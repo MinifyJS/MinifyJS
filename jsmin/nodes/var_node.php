@@ -82,7 +82,7 @@ class VarNode extends Node {
 		}
 	}
 
-	public function toString($force = false) {
+	public function toString($force = false, $noIn = false) {
 		$init = $this->initializer;
 
 		if (!$force && !$this->name->keep(1) && (!$init || $init->isRedundant())) {
@@ -91,6 +91,6 @@ class VarNode extends Node {
 
 		$space = AST::$options['beautify'] ? ' ' : '';
 
-		return 'var ' . $this->name . ($init && !$init->isVoid() ? ($space . '=' . $space . $init->toString()) : '');
+		return 'var ' . $this->name . ($init && !$init->isVoid() ? ($space . '=' . $space . $init->toString($noIn)) : '');
 	}
 }

@@ -89,9 +89,9 @@ class ForNode extends Node {
 
 	public function toString() {
 		return 'for('
-			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString() : '') . ';'
-			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()   : '') . ';'
-			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()      : '') . ')'
+			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : '') . ';'
+			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()       : '') . ';'
+			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()          : '') . ')'
 				. $this->body->asBlock()->toString(null, true);
 	}
 }

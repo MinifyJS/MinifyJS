@@ -64,11 +64,11 @@ class VarDeclarationsNode extends Node {
 		return true;
 	}
 
-	public function toString() {
+	public function toString($noIn = false) {
 		$o = array();
 		foreach($this->nodes as $d) {
 			if ($d instanceof VarNode) {
-				if ($a = substr($d->toString(), 4)) {
+				if ($a = substr($d->toString(false, $noIn), 4)) {
 					$o[] = $a;
 				}
 			}

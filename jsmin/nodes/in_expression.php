@@ -24,10 +24,12 @@ class InExpression extends Expression {
 		$this->right->gone();
 	}
 
-	public function toString() {
-		return Stream::legalEnd($this->group($this, $this->left))
+	public function toString($noIn = false) {
+		return ($noIn ? '(' : '')
+			. Stream::legalEnd($this->group($this, $this->left))
 			. 'in'
-			. Stream::legalStart($this->group($this, $this->right, false));
+			. Stream::legalStart($this->group($this, $this->right, false))
+			. ($noIn ? ')' : '');
 	}
 
 	public function type() {
