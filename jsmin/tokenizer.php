@@ -120,6 +120,8 @@ define('KEYWORD_YIELD', 'yield');
 class JSTokenizer {
 	private $cursor = 0;
 	private $source;
+	private $chars;
+	private $points;
 	private $length;
 
 	public $tokens = array();
@@ -203,41 +205,80 @@ class JSTokenizer {
 	public function init($source, $filename = '', $lineno = 1) {
 		$this->source = str_replace(array("\r\n", "\n\r", "\r"), "\n", $source);
 		$this->source .= "\n";
-		$this->length = strlen($this->source);
 		$this->filename = $filename ? $filename : '[inline]';
 		$this->lineno = $lineno;
 		$this->licenses = array();
 
-		$this->preCursor = 0;
 		$this->cursor = 0;
 		$this->tokens = array();
 		$this->tokenIndex = 0;
 		$this->lookahead = 0;
 		$this->scanNewlines = false;
 		$this->scanOperand = true;
+
+		preg_match_all('~[\s\S]~u', $this->source, $m);
+		$this->chars = $m[0];
+
+		$this->length = count($this->chars);
 	}
 
-	public function getInput($chunksize) {
-		if (mt_rand(0, 20) === 5) {
-			$this->source = substr($this->source, $this->cursor);
-			$this->preCursor += $this->cursor;
-			$this->length -= $this->cursor;
-			$this->cursor = 0;
+	public function getChar($offset = 0) {
+		return $this->cursor + $offset < $this->length ? $this->chars[$this->cursor + $offset] : false;
+	}
 
-			if (!$chunksize) {
-				return $this->source;
+	protected function getCodePoint($offset = 0) {
+		if (false === ($c = $this->getChar($offset))) {
+			return false;
+		}
+
+		$points = $this->toCodePoints($c);
+		return $points[0];
+	}
+
+	protected function isWhitespace($offset = 0) {
+		if (ctype_space($c = $this->getChar($offset))) {
+			return $c;
+		}
+
+		if (!$points = $this->toCodePoints($c)) {
+			return false;
+		}
+
+		$point = $points[0];
+
+		return $point == 0x0085 || $point == 0x00A0
+			|| $point == 0x1680 || $point == 0x180E
+			|| ($point >= 0x2000 && $point <= 0x200A)
+			|| $point == 0x2028 || $point == 0x2029
+			|| $point == 0x202F || $point == 0x205F
+			|| $point == 0x3000 ? $c : false;
+	}
+	protected function isOctalDigit($peek = 0) {
+		$c = $this->getChar($peek);
+		return $c === '0' || $c === '1' || $c === '2' || $c === '3'
+			|| $c === '4' || $c === '5' || $c === '6' || $c === '7' ? $c : false;
+	}
+	protected function matchIdentifier() {
+		$match = '';
+		$i = 0;
+		while (false !== ($c = $this->getChar($i))) {
+			if ($c === '_' || $c === '$' || ctype_alpha($c)) {
+				$match .= $c;
+			} elseif ($i && ctype_digit($c)) {
+				$match .= $c;
+			} else {
+				break;
 			}
+			++$i;
 		}
-
-		if ($chunksize) {
-			return substr($this->source, $this->cursor, $chunksize);
+		if ($match) {
+			return $match;
 		}
-
-		return substr($this->source, $this->cursor);
-	}
-
-	public function getChar() {
-		return $this->cursor !== $this->length ? $this->source[$this->cursor] : null;
+		return false;
+		$input = $this->getInput(150);
+		if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}\x{200c}\x{200d}]+)*~iu', $input, $match)) {
+			return $match[0];
+		}
 	}
 
 	public function isDone() {
@@ -250,7 +291,7 @@ class JSTokenizer {
 
 	public function mustMatch($tt) {
 		if ($this->get() !== $tt) {
-			throw $this->newSyntaxError('Unexpected token; token ' . $tt . ' expected');
+			throw $this->newSyntaxError('Unexpected token ' . $this->currentToken()->value . '; token ' . $tt . ' expected');
 		}
 
 		return $this->currentToken();
@@ -300,51 +341,72 @@ class JSTokenizer {
 		$lastComment = null;
 		// strip whitespace and comments
 		for(;;) {
-			while (ctype_space($c = $this->getChar())) {
+			while ($c = $this->isWhitespace()) {
 				if ($c === "\n") {
+					++$this->lineno;
 					if ($this->scanNewlines) {
 						$input = "\n";
 						break 2;
 					}
-
-					++$this->lineno;
 				}
 
 				++$this->cursor;
 			}
 
-			if ($this->unicodeWhitespace) {
-				$input = $this->getInput($chunksize);
-
-				if ($input === false) {
-					break;
-				}
-
-				$re = '[\t\v\f\s \p{Zs}]';
-				if ($this->scanNewlines) {
-					$re = '(?:(?!\n)' . $re . ')';
-				}
-
-				if (preg_match('/^' . $re . '+/u', $input, $match)) {
-					$spaces = $match[0];
-					$spacelen = strlen($spaces);
-					$this->cursor += $spacelen;
-
-					if (!$this->scanNewlines) {
-						$this->lineno += substr_count($spaces, "\n");
+			if ($this->getChar() === '/') {
+				switch ($this->getChar(1)) {
+				case '/':
+					$this->cursor += 2;
+					while ($this->getChar() !== "\n") {
+						++$this->cursor;
 					}
 
-					if ($spacelen === strlen($input)) {
-						continue; // complete chunk contained whitespace
-					}
-				}
-			}
+					++$this->lineno;
 
-			$input = $this->getInput($chunksize);
-			if ($input === false || $input[0] !== '/') {
+					if ($this->scanNewlines) {
+						$input = "\n";
+						break 2;
+					} else {
+						++$this->cursor;
+					}
+					continue 2;
+				case '*':
+					$this->cursor += 2;
+					$newlines = 0;
+
+					while (false !== ($c = $this->getChar())) {
+						if ($c === false) {
+							throw $this->newSyntaxError('Unterminated comment', true);
+						} elseif ($c === "\n") {
+							++$this->cursor;
+							++$this->lineno;
+							++$newlines;
+						} elseif ($c === '*') {
+							++$this->cursor;
+							if ($this->getChar() === '/') {
+								if ($this->scanNewlines && $newlines) {
+									$input = "\n";
+									break 3;
+								} else {
+									++$this->cursor;
+									break 2;
+								}
+							}
+						} else {
+							++$this->cursor;
+						}
+					}
 				break;
+				default:
+					break 2;
+				}
+
+				continue;
 			}
 
+			break;
+
+			if (false) {
 			// don't want to support conditional comments just yet
 			//if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
 			if (!preg_match('~^/(?:\*[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
@@ -375,28 +437,36 @@ class JSTokenizer {
 					break;
 				}
 			//}
+			}
 		}
-
-		if ($input[0] === "\n" && $this->scanNewlines) {
-			$tt = TOKEN_NEWLINE;
-			$match = array("\n");
-		} elseif (ctype_space($input[0])) {
-			throw new Exception('Bug');
-		} elseif ($input === false) {
+		if ($this->cursor >= $this->length) {
 			$tt = TOKEN_END;
-			$match = array('');
-		} elseif ($conditional_comment) {
-			$tt = TOKEN_CONDCOMMENT_START;
+			$match = '';
+		} elseif ($this->scanNewlines && isset($input) && $input === "\n") {
+			$tt = TOKEN_NEWLINE;
+			$match = "\n";
 		} else {
-			switch ($input[0]) {
+			$i = 1;
+
+			switch ($baseChar = $this->getChar()) {
 				case '0':
-					if ($input[1] === 'x' || $input[1] === 'X') {
-						preg_match('~\A0x[\da-f]+~i', $input, $match);
+					$c = $this->getChar(1);
+					if ($c === 'x' || $c === 'X') {
+						$match = '0' . $c;
+						while (ctype_xdigit($c = $this->getChar(1 + $i))) {
+							$match .= $c;
+							++$i;
+						}
+
 						$tt = TOKEN_NUMBER;
 						break;
-					}
+					} elseif ($c !== '.' && false !== ($c = $this->isOctalDigit(1))) {
+						$match = '0' . $c;
+						while (false !== ($c = $this->isOctalDigit(1 + $i))) {
+							$match .= $c;
+							++$i;
+						}
 
-					if ($input[1] !== '.' && preg_match('~\A0[0-7]+~', $input, $match)) {
 						$tt = TOKEN_NUMBER;
 						break;
 					}
@@ -404,41 +474,83 @@ class JSTokenizer {
 					// FALL THROUGH
 				case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
-					if (preg_match('~\A\d+\.?\d*(?:[eE][-+]?\d+)?~', $input, $match)) {
-						$tt = TOKEN_NUMBER;
+					$match = $baseChar;
+					while (ctype_digit($c = $this->getChar($i))) {
+						$match .= $c;
+						++$i;
 					}
-
+					if ($c === '.') {
+						$match .= '.';
+						++$i;
+					}
+					while (ctype_digit($c = $this->getChar($i))) {
+						$match .= $c;
+						++$i;
+					}
+					if ($c === 'e' || $c === 'E') {
+						$match .= 'e';
+						$c = $this->getChar(++$i);
+						if ($c === '+' || $c === '-') {
+							$match .= $c;
+							++$i;
+						}
+						while (ctype_digit($c = $this->getChar($i))) {
+							$match .= $c;
+							++$i;
+						}
+					}
+					$tt = TOKEN_NUMBER;
 					break;
 				case '"':
-					if (preg_match('/\A"[^"\\\\\n]*(?:\\\\.[^"\\\\\n]*)*"/s', $input, $match)) {
-						$tt = TOKEN_STRING;
-					} else {
-						if ($chunksize) {
-							return $this->get(null); // retry with a full chunk fetch
-						}
-
-						throw $this->newSyntaxError('Unterminated string literal');
-					}
-					break;
 				case "'":
-					if (preg_match("/\A'[^'\\\\\n]*(?:\\\\.[^'\\\\\n]*)*'/s", $input, $match)) {
-						$tt = TOKEN_STRING;
-					} else {
-						if ($chunksize) {
-							return $this->get(null); // retry with a full chunk fetch
-						}
+					$match = $baseChar;
+					while (false !== ($c = $this->getChar($i))) {
+						$match .= $c;
+						++$i;
 
-						throw $this->newSyntaxError('Unterminated string literal');
+						if ($c === $baseChar) {
+							$tt = TOKEN_STRING;
+							break 2;
+						} elseif ($c === '\\') {
+							$match .= $this->getChar($i);
+							++$i;
+						} elseif ($c === "\n") {
+							break;
+						}
 					}
-					break;
+
+					throw $this->newSyntaxError('Unterminated string literal', true);
 				case '/':
 					if ($this->scanOperand) {
-						if (!preg_match('%\A/(?:[^/\\\\]+|\\\\.)+/[a-z]*%', $input, $match)) {
-							throw $this->newSyntaxError('Unterminated regex literal');
+						$match = '/';
+						$state = 0;
+						while (false !== ($c = $this->getChar($i))) {
+							$match .= $c;
+							++$i;
+							if ($c === '\\') {
+								$match .= $this->getChar($i);
+								++$i;
+							} elseif ($state === 1) {
+								if ($c === ']') {
+									$state = 0;
+								}
+							} elseif ($c === "\n") {
+								break;
+							} else {
+								if ($c === '/') {
+									while (ctype_alpha($c = $this->getChar($i))) {
+										$match .= $c;
+										++$i;
+									}
+									$tt = TOKEN_REGEXP;
+									break 2;
+								} elseif ($c === '[') {
+									$state = 1;
+								}
+							}
 						}
 
-						$tt = TOKEN_REGEXP;
-						break;
+						throw $this->newSyntaxError('Unterminated regex literal', true);
 					}
 				// FALL THROUGH
 				case '|':
@@ -452,12 +564,17 @@ class JSTokenizer {
 				case '%':
 				case '=':
 				case '!':
-					// should always match
-					preg_match($this->opRegExp, $input, $match);
-					$op = $match[0];
-					if (in_array($op, $this->assignOps) && $input[strlen($op)] === '=') {
+					$match = $baseChar . $this->getChar(1) . $this->getChar(2);
+					while ($match) {
+						if (isset($this->opTypeNames[$match])) {
+							break;
+						}
+						$match = substr($match, 0, -1);
+					}
+					$op = $match;
+					if (in_array($op, $this->assignOps) && $this->getChar(strlen($op)) === '=') {
 						$tt = OP_ASSIGN;
-						$match[0] .= '=';
+						$match .= '=';
 					} else {
 						$tt = $op;
 						if ($this->scanOperand) {
@@ -472,7 +589,24 @@ class JSTokenizer {
 					}
 					break;
 				case '.':
-					if (preg_match('/\A\.\d+(?:[eE][-+]?\d+)?/', $input, $match)) {
+					$match = '.';
+					if (ctype_digit($c = $this->getChar(1))) {
+						while (ctype_digit($c = $this->getChar($i))) {
+							$match .= $c;
+							++$i;
+						}
+						if ($c === 'e' || $c === 'E') {
+							$match .= 'e';
+							$c = $this->getChar(++$i);
+							if ($c === '+' || $c === '-') {
+								$match .= $c;
+								++$i;
+							}
+							while (ctype_digit($c = $this->getChar($i))) {
+								$match .= $c;
+								++$i;
+							}
+						}
 						$tt = TOKEN_NUMBER;
 						break;
 					}
@@ -489,29 +623,27 @@ class JSTokenizer {
 				case '(':
 				case ')':
 					// these are all single
-					$match = array($input[0]);
-					$tt = $input[0];
+					$match = $baseChar;
+					$tt = $match;
 					break;
 				case '@':
-					// check end of conditional comment
-					if (substr($input, 0, 3) === '@*/') {
-						$match = array('@*/');
-						$tt = TOKEN_CONDCOMMENT_END;
-					} else {
-						throw $this->newSyntaxError('Illegal @ token');
-					}
-					break;
+					throw $this->newSyntaxError('Illegal @ token', true);
 				case "\n":
-					throw $this->newSyntaxError('Illegal newline token');
+					throw $this->newSyntaxError('Illegal newline token', true);
 				default:
-					if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}\x{200c}\x{200d}]+)*~iu', $input, $match)) {
-						$tt = in_array($match[0], $this->keywords) ? $match[0] : TOKEN_IDENTIFIER;
+					if ($match = $this->matchIdentifier()) {
+						$tt = in_array($match, $this->keywords) ? $match : TOKEN_IDENTIFIER;
 					} else {
 						throw $this->newSyntaxError('Illegal token'
-							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $input) ? ': unicode-whitespace' : ' (0x' . dechex($input[0]) . ')')
+							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $this->getChar()) ?
+								': unicode-whitespace' : ' (0x' . dechex($this->getCodePoint()) . ')'
+							), true
 						);
 					}
 			}
+		}
+		if (is_array($match)) {
+			$match = $match[0];
 		}
 
 		$this->tokenIndex = ($this->tokenIndex + 1) & 3;
@@ -530,12 +662,12 @@ class JSTokenizer {
 		$token->start = $this->cursor;
 
 		if ($tt === TOKEN_IDENTIFIER) {
-			$token->value = $this->decomposeUnicode($match[0]);
+			$token->value = $this->decomposeUnicode($match);
 		} else {
-			$token->value = $match[0];
+			$token->value = $match;
 		}
 
-		$this->cursor += strlen($match[0]);
+		$this->cursor += mb_strlen($match, 'UTF-8');
 
 		$token->end = $this->cursor;
 		$token->lineno = $this->lineno;
@@ -547,13 +679,13 @@ class JSTokenizer {
 		return preg_replace_callback('~\\\\u([a-fA-F0-9]{4})~', function ($m) {
 			$cp = (int)base_convert($m[1], 16, 10);
 
-	        if($cp < 0x80) {
-	        	$returnStr = chr($cp);
-	       	} elseif($cp < 0x800) {
-	       		$returnStr = chr(0xC0 | $cp >> 6)
-				   . chr(0x80 | ($cp & 0x3F));
+			if($cp < 0x80) {
+				$returnStr = chr($cp);
+			} elseif($cp < 0x800) {
+				$returnStr = chr(0xC0 | $cp >> 6)
+					. chr(0x80 | ($cp & 0x3F));
 			} elseif($cp < 0x10000) {
-	        	$returnStr = chr(0xE0 | $cp >> 12)
+				$returnStr = chr(0xE0 | $cp >> 12)
 					. chr(0x80 | ($cp >> 6 & 0x3F))
 					. chr(0x80 | $cp & 0x3F);
 			} else {
@@ -567,6 +699,49 @@ class JSTokenizer {
 		}, $original);
 	}
 
+	protected function toCodePoints($string) {
+		$unicodePoints = array();
+		$strlen = strlen($string);
+		$pos = 0;
+		$codePoint = 0;
+
+		while ($pos < $strlen){
+			$length = 0;
+			$char = ord($string[$pos++]);
+			if (!($char & 0x80)) {
+				$codePoint = $char;
+			} elseif (0xC0 === ($char & 0xE0)) {
+				$length = 1;
+				$codePoint = $char & 0x1F;
+			} elseif (0xE0 === ($char & 0xF0)) {
+				$length = 2;
+				$codePoint = $char & 0xF;
+			} elseif (0xF0 === ($char & 0xF8)) {
+				$length = 3;
+				$codePoint = $char & 0x7;
+			} else {
+				return null;
+			}
+
+			if ($pos + $length > $strlen) {
+				return null;
+			}
+
+			while ($length--) {
+				$char = ord($string[$pos++]);
+				if (($char & 0xC0) !== 0x80) {
+					continue 2;
+				}
+
+				$codePoint = $codePoint << 6 | $char & 0x3F;
+			}
+
+			$unicodePoints[] = $codePoint;
+		}
+
+		return $unicodePoints;
+	}
+
 	public function unget() {
 		if (++$this->lookahead === 4) {
 			throw $this->newSyntaxError('PANIC: too much lookahead!');
@@ -575,10 +750,24 @@ class JSTokenizer {
 		$this->tokenIndex = ($this->tokenIndex - 1) & 3;
 	}
 
-	public function newSyntaxError($m) {
-		return new Exception('Parse error: ' . $m . " in file '" . $this->filename . "' on line " . $this->lineno . ', cursor ' . ($this->cursor + $this->preCursor)
-		//	. PHP_EOL . ' (context: ' . str_replace("\n", '\n', substr($this->source, $this->cursor - 20, 20) . '|' . substr($this->source, $this->cursor, 20)) . ')'
-		);
+	public function newSyntaxError($m, $currentOffset = false) {
+		return new Exception('Parse error: ' . $m
+			. " in file '" . $this->filename . "' on line "
+			. $this->lineno
+			. "\n\n" . $this->errorContext((!$currentOffset ? $this->currentToken()->start : null) ?: $this->cursor) . "\n");
+	}
+
+	protected function errorContext($cursor) {
+		$lastNewline = max(mb_strrpos($this->source, "\n", $cursor - $this->length) + 1 ?: 0, $cursor - 20);
+		$nextNewline = min(mb_strpos($this->source, "\n", $cursor), $cursor + 20);
+
+		$piece = mb_substr($this->source, $lastNewline, $nextNewline - $lastNewline);
+		$fix = str_replace("\t", '    ', mb_substr($piece, 0, $cursor - $lastNewline));
+		$piece = str_replace("\t", '    ', $piece);
+
+		return $piece
+			. "\n"
+			. ($fix ? str_repeat('.', mb_strlen($fix)) : '') . '^';
 	}
 }
 
