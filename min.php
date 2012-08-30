@@ -15,6 +15,8 @@ $parser = new JSParser();
 
 require 'jsmin/ast.php';
 
+$defines = array();
+
 $options = array(
 	'-ncb' => array('crush-bool' => false),
 	'--no-crush-bool' => array('crush-bool' => false),
@@ -28,8 +30,8 @@ $options = array(
 	'-t' => array('timer' => true),
 	'--timer' => array('timer' => true),
 
-	'-b' => array('beautify' => true, 'crush-bool' => false),
-	'--beautify' => array('beautify' => true, 'crush-bool' => false),
+	'-b' => array('beautify' => true),
+	'--beautify' => array('beautify' => true),
 
 	'-nc' => array('no-copyright' => true),
 	'--no-copyright' => array('no-copyright' => true),
@@ -50,8 +52,17 @@ $options = array(
 	'--profile' => array('profile' => true)
 );
 
-foreach (array_slice($_SERVER['argv'], 1) as $option) {
-	if (isset($options[$option])) {
+for ($i = 1, $length = count($_SERVER['argv']); $i < $length; ++$i) {
+	$option = $_SERVER['argv'][$i];
+
+	if ($option === '--define' || $option == '-d') {
+		$name = $_SERVER['argv'][$i + 1];
+		$tree = $parser->parse($_SERVER['argv'][$i + 2], '[cmd]', 1, AST::$options['unicode-ws']);
+		$ast = new AST($tree);
+		$defines[$name] = $ast->tree()->rootElement();
+
+		$i += 2;
+	} elseif (isset($options[$option])) {
 		foreach($options[$option] as $what => $value) {
 			AST::$options[$what] = $value;
 		}
@@ -104,7 +115,7 @@ try {
 	$timers['parse'] = microtime(true) - $t;
 
 	$t = microtime(true);
-	$ast = new AST($tree);
+	$ast = new AST($tree, $defines);
 	$timers['ast'] = microtime(true) - $t;
 
 

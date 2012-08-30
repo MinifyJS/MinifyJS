@@ -64,6 +64,14 @@ class ScriptNode extends BlockStatement {
 		return $base;
 	}
 
+	public function rootElement() {
+		if (count($this->nodes) !== 1 || !($this->nodes[0] instanceof Expression)) {
+			throw new Exception('Invalid define');
+		}
+
+		return $this->nodes[0];
+	}
+
 	public function collectStatistics(AST $ast) {
 		$ast->visitScope($this->scope);
 		parent::collectStatistics($ast);

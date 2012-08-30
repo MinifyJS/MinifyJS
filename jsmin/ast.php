@@ -18,6 +18,8 @@ class AST {
 
 	protected $visitScope = null;
 
+	protected $consts = array();
+
 	public static $options = array(
 		'crush-bool' => true,
 		'mangle' => true,
@@ -49,13 +51,21 @@ class AST {
 		}
 	}
 
-	public function __construct(JSNode $root) {
+	public function __construct(JSNode $root, array $consts = array()) {
 		$this->rootScope = $this->enter();
 		$this->rootLabelScope = $this->labelScope;
 
 		if (AST::$options['toplevel']) {
 			// sneaky trick for mangling toplevel, just pretend we're already in a scope
 			$this->enter();
+		}
+
+		foreach($consts as $name => $const) {
+			if (!($const instanceof Node)) {
+				throw new Exception;
+			}
+
+			$this->consts[$name] = $const;
 		}
 
 		$this->tree = $this->generate($root);
@@ -251,7 +261,13 @@ class AST {
 			);
 		case TOKEN_IDENTIFIER:
 			if ($dotBase) {
-				return new IdentifierExpression($this->scope->find($n->value));
+				$expr = new IdentifierExpression($this->scope->find($n->value));
+
+				if (isset($this->consts[$n->value]) && !$expr->declared()) {
+					return $this->consts[$n->value];
+				}
+
+				return $expr;
 			} else {
 				return new Identifier(null, $n->value);
 			}
