@@ -9,7 +9,7 @@ class PlusExpression extends BinaryExpression {
 
 		if ($that->left->type() === 'string' || $that->right->type() === 'string') {
 			if ((null !== $left = $that->left->asString()) && (null !== $right = $that->right->asString())) {
-				return new String($left . $right, false);
+				return AST::bestOption($that, new String($left . $right, false));
 			}
 		}
 
