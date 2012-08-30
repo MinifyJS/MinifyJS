@@ -37,7 +37,7 @@ class String extends ConstantExpression {
 	}
 
 	protected function quote($c) {
-	    $escape = '~\\\\|[' . $c . '\x00-\x1f' . (AST::$options['ascii'] ? '\x7f-\x{ffff}' : '') . ']~u';
+	    $escape = '~\\\\|[' . $c . '\x00-\x1f' . (AST::$options['ascii'] ? '\x7f-\x{ffff}' : '') . '](?=([\s\S]|$))~u';
 
 		return $c . preg_replace_callback($escape, array($this, 'escapeHelper'), $this->value()) . $c;
 	}
@@ -57,6 +57,10 @@ class String extends ConstantExpression {
 	 	);
 
 	 	$c = $m[0];
+
+	 	if ($c === "\0" && ctype_digit($m[1]) && $m[1] >= 0 && $m[1] < 8) {
+	 		return '\u0000';
+	 	}
 
 	 	if (isset($meta[$c])) {
 	 		return $meta[$c];
