@@ -50,7 +50,7 @@ class IdentifierExpression extends ConstantExpression {
 
 	public function asString() {
 		if (($init = $this->left->initializer()) && $init->mayInline()) {
-			return $init->toString();
+			return $init->asString();
 		}
 	}
 
