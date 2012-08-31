@@ -5,18 +5,23 @@ class DivExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$that = parent::visit($ast);
 
 		// division can be messy (1/3 = 0.333…)
-		if (null !== $result = $this->asNumber()) {
-			return AST::bestOption(array(new Number($result), $this));
+		if (null !== $result = $that->asNumber()) {
+			$option = new Number($result);
+			return AST::bestOption(array($option->visit($ast), $that));
 		}
 
-		if ((null !== $left = $this->left->asNumber()) && (null !== $right = $this->right->asNumber())) {
+		if ($that->left->isInfinity() && $that->right->isInfinity()) {
+			return new DivExpression(new Number(0), new Number(0));
+		}
+
+		if ((null !== $left = $that->left->asNumber()) && (null !== $right = $that->right->asNumber())) {
 			if ($right == 0) {
 				// x/-0 is not easily detectable in php…
-				$leftNegative = $this->left instanceof UnaryMinusExpression;
-				$rightNegative = $this->right instanceof UnaryMinusExpression;
+				$leftNegative = $that->left instanceof UnaryMinusExpression;
+				$rightNegative = $that->right instanceof UnaryMinusExpression;
 
 				if ($left == 0 || !($leftNegative xor $rightNegative)) {
 					return new DivExpression(new Number($left == 0 ? 0 : 1), new Number(0));
@@ -26,7 +31,7 @@ class DivExpression extends BinaryExpression {
 			}
 		}
 
-		return $this;
+		return $that;
 	}
 
 	public function asNumber() {
@@ -53,6 +58,10 @@ class DivExpression extends BinaryExpression {
 
 	public function type() {
 		return 'number';
+	}
+
+	public function isInfinity() {
+		return $this->right->asNumber() === '0';
 	}
 
 	public function precedence() {

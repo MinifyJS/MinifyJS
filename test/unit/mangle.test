@@ -1,0 +1,13 @@
+{
+  "name": "Check mangling",
+  "options": []
+}
+=== INPUT
+(function() {
+    var x = function fun(a, fun, b) {
+        return fun;
+    };
+	x();
+}());
+=== EXPECT
+(function(){var e=function(e,t,n){return t};e()}())

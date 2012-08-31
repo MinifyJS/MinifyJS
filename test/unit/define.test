@@ -1,0 +1,12 @@
+{
+  "name": "Defines",
+  "options": ["define DEVMODE true", "define CHECK '(0&&1)'"]
+}
+=== INPUT
+if (DEVMODE) {
+	alert(CHECK ? 'yaya!' : 'yay');
+} else {
+	alert('nay');
+}
+=== EXPECT
+alert('yay')
