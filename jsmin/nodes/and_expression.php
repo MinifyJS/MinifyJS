@@ -45,8 +45,8 @@ class AndExpression extends BinaryExpression {
 
 	public function optimize() {
 		return AST::bestOption(array(
-			$that,
-			new OrExpression($left->negate(), $right)
+			$this,
+			new OrExpression($this->left->negate(), $this->right)
 		));
 	}
 
