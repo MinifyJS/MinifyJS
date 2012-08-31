@@ -70,7 +70,7 @@ class BlockStatement extends Node {
 			// removed functions always need revisiting
 			$wasFunction = $n instanceof FunctionNode;
 
-			$n = $n->visit($ast)->optimize();
+			$n = $n->visit($ast, $this)->optimize();
 
 			if ($wasFunction && !($n instanceof FunctionNode)) {
 				$revisit = true;
@@ -316,7 +316,7 @@ class BlockStatement extends Node {
 
 		$o = implode(AST::$options['beautify'] ? "\n" : '', $o);
 
-		if (AST::$options['beautify']) {
+		if (AST::$options['beautify'] && ($size > 1 || $forceNoBraces === false)) {
 			$o = "\n" . preg_replace('~^~m', '    ', $o) . "\n";
 
 			if ($forceNoBraces !== true) {

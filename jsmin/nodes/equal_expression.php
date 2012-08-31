@@ -17,9 +17,13 @@ class EqualExpression extends ComparisonExpression {
 			}
 		}
 
-		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression && $that->left->left()->isLocal()) {
-			$result = new EqualExpression($that->left->left(), new VoidExpression(new Number(0)), true);
-			return $result->visit($ast);
+		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression) {
+			if ($that->left->left()->isLocal()) {
+				$result = new EqualExpression($that->left->left(), new VoidExpression(new Number(0)), true);
+				return $result->visit($ast);
+			} elseif ((null !== $type = $that->left->left->type())) {
+				return new Boolean($type === 'undefined');
+			}
 		}
 
 		if ($that->left->type() === 'boolean' || $that->right->type() === 'boolean') {

@@ -22,6 +22,12 @@ class TypeofExpression extends Expression {
 		$this->left->collectStatistics($ast);
 	}
 
+	public function asString() {
+		if (null !== $type = $this->left->type()) {
+			return $type;
+		}
+	}
+
 	public function value() {
 		return $this->left->type();
 	}

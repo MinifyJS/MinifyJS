@@ -32,6 +32,13 @@ class OrExpression extends BinaryExpression {
 			));
 		}
 
+		if ($this->left->actualType() === 'boolean') {
+			return AST::bestOption(array(
+				$this,
+				new AndExpression($this->left->negate(), $this->right)
+			));
+		}
+
 		return $this;
 	}
 

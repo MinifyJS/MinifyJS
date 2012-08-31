@@ -5,11 +5,11 @@ class BitwiseAndExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$that = parent::visit($ast);
 
 		// division can be messy (1/3 = 0.333…)
-		if (null !== $result = $this->asNumber()) {
-			return AST::bestOption(array(new Number($result), $this));
+		if (null !== $result = $that->asNumber()) {
+			return AST::bestOption(array(new Number($result), $that));
 		}
 
 		return $this;

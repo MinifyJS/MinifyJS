@@ -5,7 +5,7 @@ class BitwiseXorExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+//		parent::visit($ast, $parent);
 
 		if (null !== $result = $this->asNumber()) {
 			return AST::bestOption(array(new Number($result), $this));

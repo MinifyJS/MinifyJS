@@ -5,24 +5,34 @@ class AndExpression extends BinaryExpression {
 	}
 
 	public function visit(AST $ast) {
-		parent::visit($ast);
+		$left = $this->left->visit($ast);
+		$right = $this->right()->visit($ast);
 
-		$else = $this->left->asBoolean();
+		$that = new AndExpression($left, $right);
+
+		$else = $left->asBoolean();
 
 		if ($else === true) {
-			$this->left->gone();
-			return $this->right;
+			$left->gone();
+			return $right;
 		} elseif ($else === false) {
-			$this->right->gone();
-			return $this->left;
+			$right->gone();
+			return $left;
 		}
 
 		// this will be inferred from the expression
-		if ($this->actualType() === 'boolean') {
+		if ($that->actualType() === 'boolean') {
 			return AST::bestOption(array(
-				$this,
-				new NotExpression($this->negate()),
-				new NotExpression(new NotExpression($this->negate()->negate()))
+				$that,
+				new NotExpression($that->negate()),
+				new NotExpression(new NotExpression($that->negate()->negate()))
+			));
+		}
+
+		if ($left->actualType() === 'boolean') {
+			return AST::bestOption(array(
+				$that,
+				new OrExpression($left->negate(), $right)
 			));
 		}
 
