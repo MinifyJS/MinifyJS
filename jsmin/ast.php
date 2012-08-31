@@ -141,7 +141,7 @@ class AST {
 		return $this->scope = $this->scope->parent();
 	}
 
-	protected function generate($n = null, $dotBase = true, $asArray = true, $inAssign = false) {
+	public function generate($n = null, $dotBase = true, $asArray = true, $inAssign = false) {
 		if ($n === null) {
 			return new VoidExpression(new Number(0));
 		}
@@ -375,12 +375,9 @@ class AST {
 				$this->generate($n->nodes[1])
 			);
 		case JS_OBJECT_INIT:
-			$list = array();
-			foreach($n->nodes as $x) {
-				$list[] = new Property($this->generate($x->nodes[0], false), $this->generate($x->nodes[1]));
-			}
-			return new ObjectExpression(array_map(function ($x) {
-				return new Property($this->generate($x->nodes[0], false), $this->generate($x->nodes[1]));
+			$base = $this;
+			return new ObjectExpression(array_map(function ($x) use($base) {
+				return new Property($base->generate($x->nodes[0], false), $base->generate($x->nodes[1]));
 			}, $n->nodes));
 		case KEYWORD_BREAK:
 			return new BreakNode($n->label ? $this->labelScope->find($n->label) : null);
