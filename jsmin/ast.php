@@ -358,6 +358,8 @@ class AST {
 			return new ArrayExpression($this->nodeList($n->nodes));
 		case KEYWORD_THIS:
 			return new This();
+		case TOKEN_UNDEFINED:
+			return new Undefined();
 		case KEYWORD_NEW:
 		case JS_NEW_WITH_ARGS:
 			return new NewExpression(
@@ -377,7 +379,9 @@ class AST {
 			foreach($n->nodes as $x) {
 				$list[] = new Property($this->generate($x->nodes[0], false), $this->generate($x->nodes[1]));
 			}
-			return new ObjectExpression($list);
+			return new ObjectExpression(array_map(function ($x) {
+				return new Property($this->generate($x->nodes[0], false), $this->generate($x->nodes[1]));
+			}, $n->nodes));
 		case KEYWORD_BREAK:
 			return new BreakNode($n->label ? $this->labelScope->find($n->label) : null);
 		case KEYWORD_CONTINUE:

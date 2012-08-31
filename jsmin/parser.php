@@ -42,6 +42,7 @@ define('TOKEN_IDENTIFIER', 'TOKEN_IDENTIFIER');
 define('TOKEN_STRING', 'TOKEN_STRING');
 define('TOKEN_REGEXP', 'TOKEN_REGEXP');
 define('TOKEN_NEWLINE', 'TOKEN_NEWLINE');
+define('TOKEN_UNDEFINED', 'TOKEN_UNDEFINED');
 define('TOKEN_CONDCOMMENT_START', 'TOKEN_CONDCOMMENT_START');
 define('TOKEN_CONDCOMMENT_END', 'TOKEN_CONDCOMMENT_END');
 
@@ -626,10 +627,8 @@ class JSParser {
 						break 2;
 					}
 
-					if ($operators) {
-						while ($this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
-							$this->reduce($operators, $operands);
-						}
+					while ($operators && $this->opPrecedence[end($operators)->type] > $this->opPrecedence[$tt]) {
+						$this->reduce($operators, $operands);
 					}
 
 					$n = new JSNode($this->t, $tt, array_pop($operands));
@@ -668,7 +667,12 @@ class JSParser {
 				if ($this->t->scanOperand) {
 					$n = new JSNode($this->t, JS_ARRAY_INIT);
 					while (($tt = $this->t->peek()) !== OP_RIGHT_BRACKET) {
-						$n->addNode($this->Expression($x, OP_COMMA));
+						if ($this->t->peek() === OP_COMMA) {
+							$n->addNode(new JSNode(TOKEN_UNDEFINED));
+						} else {
+							$n->addNode($this->Expression($x, OP_COMMA));
+						}
+
 						if (!$this->t->match(OP_COMMA)) {
 							break;
 						}
