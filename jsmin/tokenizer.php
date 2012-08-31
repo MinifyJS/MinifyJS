@@ -266,6 +266,23 @@ class JSTokenizer {
 				$match .= $c;
 			} elseif ($i && ctype_digit($c)) {
 				$match .= $c;
+			} elseif ($c === '\\') {
+				if ($this->getChar($i + 1) === 'u') {
+					$match .= '\u';
+					$i += 2;
+					for ($j = 0; $j < 4; ++$j) {
+						if (!ctype_xdigit($c = $this->getChar($i))) {
+							throw $this->newSyntaxError('expected hex digit', $this->cursor + $i);
+						}
+
+						$match .= $c;
+						++$i;
+					}
+
+					continue;
+				} else {
+					break;
+				}
 			} else {
 				break;
 			}
