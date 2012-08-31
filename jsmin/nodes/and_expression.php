@@ -29,13 +29,6 @@ class AndExpression extends BinaryExpression {
 			));
 		}
 
-		if ($left->actualType() === 'boolean') {
-			return AST::bestOption(array(
-				$that,
-				new OrExpression($left->negate(), $right)
-			));
-		}
-
 		return $this;
 	}
 
@@ -47,6 +40,13 @@ class AndExpression extends BinaryExpression {
 		return AST::bestOption(array(
 			new OrExpression($this->left->negate(), $this->right->negate()),
 			parent::negate()
+		));
+	}
+
+	public function optimize() {
+		return AST::bestOption(array(
+			$that,
+			new OrExpression($left->negate(), $right)
 		));
 	}
 

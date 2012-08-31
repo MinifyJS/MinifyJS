@@ -32,13 +32,6 @@ class OrExpression extends BinaryExpression {
 			));
 		}
 
-		if ($this->left->actualType() === 'boolean') {
-			return AST::bestOption(array(
-				$this,
-				new AndExpression($this->left->negate(), $this->right)
-			));
-		}
-
 		return $this;
 	}
 
@@ -59,6 +52,13 @@ class OrExpression extends BinaryExpression {
 		}
 
 		return null;
+	}
+
+	public function optimize() {
+		return AST::bestOption(array(
+			$this,
+			new AndExpression($this->left->negate(), $this->right)
+		));
 	}
 
 	public function precedence() {
