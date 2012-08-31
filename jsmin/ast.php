@@ -141,7 +141,7 @@ class AST {
 		return $this->scope = $this->scope->parent();
 	}
 
-	protected function generate($n = null, $dotBase = true, $asArray = true) {
+	protected function generate($n = null, $dotBase = true, $asArray = true, $inAssign = false) {
 		if ($n === null) {
 			return new VoidExpression(new Number(0));
 		}
@@ -149,6 +149,7 @@ class AST {
 		if (!($n instanceof JSNode)) {
 			return $n;
 		}
+
 
 		switch($n->type) {
 		case JS_SCRIPT:
@@ -239,7 +240,7 @@ class AST {
 			return $l;
 		case OP_DOT:
 			return new DotExpression(
-				$this->generate($n->nodes[0], $dotBase),
+				$this->generate($n->nodes[0], $dotBase, true, $inAssign),
 				$this->generate($n->nodes[1], false)
 			);
 		case KEYWORD_TYPEOF:
@@ -263,7 +264,7 @@ class AST {
 			if ($dotBase) {
 				$expr = new IdentifierExpression($this->scope->find($n->value));
 
-				if (isset($this->consts[$n->value]) && !$expr->declared()) {
+				if (!$inAssign && isset($this->consts[$n->value]) && !$expr->declared()) {
 					return $this->consts[$n->value];
 				}
 
@@ -352,7 +353,7 @@ class AST {
 		case KEYWORD_IN:
 			return new InExpression($this->generate($n->nodes[0]), $this->generate($n->nodes[1]));
 		case JS_INDEX:
-			return new IndexExpression($this->generate($n->nodes[0]), $this->generate($n->nodes[1]));
+			return new IndexExpression($this->generate($n->nodes[0], $dotBase, $asArray, $inAssign), $this->generate($n->nodes[1]));
 		case JS_ARRAY_INIT:
 			return new ArrayExpression($this->nodeList($n->nodes));
 		case KEYWORD_THIS:
@@ -368,7 +369,7 @@ class AST {
 			return new AssignExpression(
 				$n->value,
 
-				$this->generate($n->nodes[0]),
+				$this->generate($n->nodes[0], true, true, true),
 				$this->generate($n->nodes[1])
 			);
 		case JS_OBJECT_INIT:

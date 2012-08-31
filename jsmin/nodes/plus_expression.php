@@ -60,8 +60,13 @@ class PlusExpression extends BinaryExpression {
 	}
 
 	public function type() {
-		if ($this->left()->type() === 'string' || $this->right->type() === 'string') {
+		$l = $this->left->type();
+		$r = $this->right->type();
+
+		if ($l === 'string' || $r === 'string') {
 			return 'string';
+		} elseif ($l === 'number' && $r === $l) {
+			return 'number';
 		}
 	}
 
