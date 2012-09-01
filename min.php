@@ -132,6 +132,19 @@ try {
 		'new' => strlen($tree)
 	);
 
+	if (function_exists('gzencode')) {
+		$timers['profit'] = array(
+			'old' => array(
+				'normal' => $timers['profit']['old'],
+				'gzip' => strlen(gzencode($s, 9))
+			),
+			'new' => array(
+				'normal' => $timers['profit']['new'],
+				'gzip' => strlen(gzencode($tree, 9))
+			)
+		);
+	}
+
 	if (AST::$options['timer']) {
 		print_r($timers);
 	} else {
