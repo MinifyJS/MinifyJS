@@ -66,6 +66,16 @@ class FunctionNode extends Node {
 
 		return null;
 	}
+	
+	public function optimizeArguments() {
+		for ($i = count($this->params); $i--; ) {
+			if ($this->params[$i]->used() < 2) {
+				array_splice($this->params, $i);
+			} else {
+				break;
+			}
+		}
+	}
 
 	public function gone() {
 		$this->body->gone();

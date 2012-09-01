@@ -135,6 +135,10 @@ class CallExpression extends Expression {
 				}
 			}
 		}
+		
+		if ($ast->hasStats() && !$result && $this->left instanceof FunctionExpression) {
+			$this->left->optimizeArguments();
+		}
 
 		return $result ? $result->visit($ast) : $this;
 	}
