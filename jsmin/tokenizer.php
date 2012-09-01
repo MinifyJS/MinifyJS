@@ -775,7 +775,7 @@ class JSTokenizer {
 	}
 
 	protected function errorContext($cursor) {
-		$lastNewline = max(mb_strrpos($this->source, "\n", $cursor - $this->length) + 1 ?: 0, $cursor - 20);
+		$lastNewline = max(mb_strrpos($this->source, "\n", $cursor - $this->length) ?: -1, $cursor - 20) + 1;
 		$nextNewline = min(mb_strpos($this->source, "\n", $cursor), $cursor + 20);
 
 		$piece = mb_substr($this->source, $lastNewline, $nextNewline - $lastNewline);
