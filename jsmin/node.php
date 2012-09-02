@@ -75,10 +75,6 @@ abstract class Node {
 		return false;
 	}
 
-	public function validIdentifier($n) {
-		return !isset(Scope::$reserved[$n]) && preg_match('~\A[$_a-zA-Z]+[$_a-zA-Z0-9]*\z~', $n) === 1;
-	}
-
 	public function asBlock() {
 		if ($this instanceof BlockStatement) {
 			return $this;
