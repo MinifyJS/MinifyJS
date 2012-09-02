@@ -390,8 +390,11 @@ class JSTokenizer {
 				case '*':
 					$this->cursor += 2;
 					$newlines = 0;
+					$comment = '/*';
 
 					while (false !== ($c = $this->getChar())) {
+						$comment .= $c;
+
 						if ($c === false) {
 							throw $this->newSyntaxError('Unterminated comment', true);
 						} elseif ($c === "\n") {
@@ -401,6 +404,13 @@ class JSTokenizer {
 						} elseif ($c === '*') {
 							++$this->cursor;
 							if ($this->getChar() === '/') {
+								$comment .= '/';
+
+								if (substr($comment, 0, 3) === '/*!') {
+									// simple unindent for properly formatted license comments
+									$this->licenses[] = preg_replace('~^(?:\t+|(?: {4})+|(?:  )+)~m', '', $comment);
+								}
+
 								if ($this->scanNewlines && $newlines) {
 									$input = "\n";
 									break 3;
@@ -422,40 +432,8 @@ class JSTokenizer {
 			}
 
 			break;
-
-			if (false) {
-			// don't want to support conditional comments just yet
-			//if (!preg_match('~^/(?:\*(@(?:cc_on|if\s*\([^)]+\)|el(?:if\s*\([^)]+\)|se)|end))?[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
-			if (!preg_match('~^/(?:\*[^*]*\*+(?:[^/][^*]*\*+)*/|/[^\n]*\n)~', $input, $match)) {
-				if (!$chunksize) {
-					break;
-				}
-
-				$chunksize = null;
-				continue;
-			}
-
-			if (substr($match[0], 0, 3) === '/*!') {
-				// simple unindent for properly formatted license comments
-				$this->licenses[] = preg_replace('~^(?:\t+|(?: {4})+|(?:  )+)~m', '', $match[0]);
-			}
-
-			//if (!empty($match[1])) {
-			//	$match[0] = '/*' . $match[1];
-			//	$conditional_comment = true;
-			//	break;
-			//} else {
-				$this->cursor += strlen($match[0]);
-				$this->lineno += $c = substr_count($match[0], "\n");
-
-				if ($c > 0 && $this->scanNewlines) {
-					$input = "\n";
-					--$this->cursor;
-					break;
-				}
-			//}
-			}
 		}
+		
 		if ($this->cursor >= $this->length) {
 			$tt = TOKEN_END;
 			$match = '';
