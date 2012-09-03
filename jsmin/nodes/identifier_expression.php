@@ -49,7 +49,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function asString() {
-		if (($init = $this->left->initializer()) && $init->mayInline()) {
+		if (!$this->reassigned() && ($init = $this->left->initializer()) && $init->mayInline()) {
 			return $init->asString();
 		}
 	}
