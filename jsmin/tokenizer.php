@@ -268,7 +268,7 @@ class JSTokenizer {
 				$match .= $c;
 			} elseif ($c === '\\') {
 				if ($this->getChar($i + 1) === 'u') {
-					$match .= '\u';
+					$match .= '\\u';
 					$i += 2;
 					for ($j = 0; $j < 4; ++$j) {
 						if (!ctype_xdigit($c = $this->getChar($i))) {
@@ -283,18 +283,166 @@ class JSTokenizer {
 				} else {
 					break;
 				}
+			} elseif ($c[0] >= "\x80" && $this->isIdentifierPart($c, $i === 0)) {
+				$match .= $c;
 			} else {
 				break;
 			}
 			++$i;
 		}
+
 		if ($match) {
 			return $match;
 		}
+
 		return false;
-		$input = $this->getInput(150);
-		if (preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}\x{200c}\x{200d}]+)*~iu', $input, $match)) {
-			return $match[0];
+	}
+
+	protected function isIdentifierPart($c, $start = false) {
+		//echo $c . "\n";
+
+		if (!$points = $this->toCodePoints($c)) {
+			return false;
+		}
+
+		$cp = $points[0];
+
+		if ($cp === 0xaa || $cp === 0xb5 || $cp === 0xba || ($cp >= 0xc0 && $cp <= 0xd6) || ($cp >= 0xd8 && $cp <= 0xf6)
+				|| ($cp >= 0xf8 && $cp <= 0x02c1) || ($cp >= 0x02c6 && $cp <= 0x02d1) || ($cp >= 0x02e0 && $cp <= 0x02e4) || $cp === 0x02ec
+				|| $cp === 0x02ee || ($cp >= 0x0370 && $cp <= 0x0374) || $cp === 0x0376 || $cp === 0x0377 || ($cp >= 0x037a && $cp <= 0x037d)
+				|| $cp === 0x0386 || ($cp >= 0x0388 && $cp <= 0x038a) || $cp === 0x038c || ($cp >= 0x038e && $cp <= 0x03a1)
+				|| ($cp >= 0x03a3 && $cp <= 0x03f5) || ($cp >= 0x03f7 && $cp <= 0x0481) || ($cp >= 0x048a && $cp <= 0x0527)
+				|| ($cp >= 0x0531 && $cp <= 0x0556) || $cp === 0x0559 || ($cp >= 0x0561 && $cp <= 0x0587) || ($cp >= 0x05d0 && $cp <= 0x05ea)
+				|| ($cp >= 0x05f0 && $cp <= 0x05f2) || ($cp >= 0x0620 && $cp <= 0x064a) || $cp === 0x066e || $cp === 0x066f
+				|| ($cp >= 0x0671 && $cp <= 0x06d3) || $cp === 0x06d5 || $cp === 0x06e5 || $cp === 0x06e6 || $cp === 0x06ee
+				|| $cp === 0x06ef || ($cp >= 0x06fa && $cp <= 0x06fc) || $cp === 0x06ff || $cp === 0x0710 || ($cp >= 0x0712 && $cp <= 0x072f)
+				|| ($cp >= 0x074d && $cp <= 0x07a5) || $cp === 0x07b1 || ($cp >= 0x07ca && $cp <= 0x07ea) || $cp === 0x07f4
+				|| $cp === 0x07f5 || $cp === 0x07fa || ($cp >= 0x0800 && $cp <= 0x0815) || $cp === 0x081a || $cp === 0x0824 || $cp === 0x0828
+				|| ($cp >= 0x0840 && $cp <= 0x0858) || $cp === 0x08a0 || ($cp >= 0x08a2 && $cp <= 0x08ac) || ($cp >= 0x0904 && $cp <= 0x0939)
+				|| $cp === 0x093d || $cp === 0x0950 || ($cp >= 0x0958 && $cp <= 0x0961) || ($cp >= 0x0971 && $cp <= 0x0977)
+				|| ($cp >= 0x0979 && $cp <= 0x097f) || ($cp >= 0x0985 && $cp <= 0x098c) || $cp === 0x098f || $cp === 0x0990
+				|| ($cp >= 0x0993 && $cp <= 0x09a8) || ($cp >= 0x09aa && $cp <= 0x09b0) || $cp === 0x09b2 || ($cp >= 0x09b6 && $cp <= 0x09b9)
+				|| $cp === 0x09bd || $cp === 0x09ce || $cp === 0x09dc || $cp === 0x09dd || ($cp >= 0x09df && $cp <= 0x09e1) || $cp === 0x09f0
+				|| $cp === 0x09f1 || ($cp >= 0x0a05 && $cp <= 0x0a0a) || $cp === 0x0a0f || $cp === 0x0a10 || ($cp >= 0x0a13 && $cp <= 0x0a28)
+				|| ($cp >= 0x0a2a && $cp <= 0x0a30) || $cp === 0x0a32 || $cp === 0x0a33 || $cp === 0x0a35 || $cp === 0x0a36 || $cp === 0x0a38
+				|| $cp === 0x0a39 || ($cp >= 0x0a59 && $cp <= 0x0a5c) || $cp === 0x0a5e || ($cp >= 0x0a72 && $cp <= 0x0a74) || ($cp >= 0x0a85 && $cp <= 0x0a8d)
+				|| ($cp >= 0x0a8f && $cp <= 0x0a91) || ($cp >= 0x0a93 && $cp <= 0x0aa8) || ($cp >= 0x0aaa && $cp <= 0x0ab0) || $cp === 0x0ab2
+				|| $cp === 0x0ab3 || ($cp >= 0x0ab5 && $cp <= 0x0ab9) || $cp === 0x0abd || $cp === 0x0ad0 || $cp === 0x0ae0 || $cp === 0x0ae1
+				|| ($cp >= 0x0b05 && $cp <= 0x0b0c) || $cp === 0x0b0f || $cp === 0x0b10 || ($cp >= 0x0b13 && $cp <= 0x0b28) || ($cp >= 0x0b2a && $cp <= 0x0b30)
+				|| $cp === 0x0b32 || $cp === 0x0b33 || ($cp >= 0x0b35 && $cp <= 0x0b39) || $cp === 0x0b3d || $cp === 0x0b5c || $cp === 0x0b5d
+				|| ($cp >= 0x0b5f && $cp <= 0x0b61) || $cp === 0x0b71 || $cp === 0x0b83 || ($cp >= 0x0b85 && $cp <= 0x0b8a) || ($cp >= 0x0b8e && $cp <= 0x0b90)
+				|| ($cp >= 0x0b92 && $cp <= 0x0b95) || $cp === 0x0b99 || $cp === 0x0b9a || $cp === 0x0b9c || $cp === 0x0b9e || $cp === 0x0b9f
+				|| $cp === 0x0ba3 || $cp === 0x0ba4 || ($cp >= 0x0ba8 && $cp <= 0x0baa) || ($cp >= 0x0bae && $cp <= 0x0bb9) || $cp === 0x0bd0
+				|| ($cp >= 0x0c05 && $cp <= 0x0c0c) || ($cp >= 0x0c0e && $cp <= 0x0c10) || ($cp >= 0x0c12 && $cp <= 0x0c28) || ($cp >= 0x0c2a && $cp <= 0x0c33)
+				|| ($cp >= 0x0c35 && $cp <= 0x0c39) || $cp === 0x0c3d || $cp === 0x0c58 || $cp === 0x0c59 || $cp === 0x0c60 || $cp === 0x0c61
+				|| ($cp >= 0x0c85 && $cp <= 0x0c8c) || ($cp >= 0x0c8e && $cp <= 0x0c90) || ($cp >= 0x0c92 && $cp <= 0x0ca8) || ($cp >= 0x0caa && $cp <= 0x0cb3)
+				|| ($cp >= 0x0cb5 && $cp <= 0x0cb9) || $cp === 0x0cbd || $cp === 0x0cde || $cp === 0x0ce0 || $cp === 0x0ce1 || $cp === 0x0cf1
+				|| $cp === 0x0cf2 || ($cp >= 0x0d05 && $cp <= 0x0d0c) || ($cp >= 0x0d0e && $cp <= 0x0d10) || ($cp >= 0x0d12 && $cp <= 0x0d3a)
+				|| $cp === 0x0d3d || $cp === 0x0d4e || $cp === 0x0d60 || $cp === 0x0d61 || ($cp >= 0x0d7a && $cp <= 0x0d7f) || ($cp >= 0x0d85 && $cp <= 0x0d96)
+				|| ($cp >= 0x0d9a && $cp <= 0x0db1) || ($cp >= 0x0db3 && $cp <= 0x0dbb) || $cp === 0x0dbd || ($cp >= 0x0dc0 && $cp <= 0x0dc6)
+				|| ($cp >= 0x0e01 && $cp <= 0x0e30) || $cp === 0x0e32 || $cp === 0x0e33 || ($cp >= 0x0e40 && $cp <= 0x0e46) || $cp === 0x0e81
+				|| $cp === 0x0e82 || $cp === 0x0e84 || $cp === 0x0e87 || $cp === 0x0e88 || $cp === 0x0e8a || $cp === 0x0e8d || ($cp >= 0x0e94 && $cp <= 0x0e97)
+				|| ($cp >= 0x0e99 && $cp <= 0x0e9f) || ($cp >= 0x0ea1 && $cp <= 0x0ea3) || $cp === 0x0ea5 || $cp === 0x0ea7 || $cp === 0x0eaa
+				|| $cp === 0x0eab || ($cp >= 0x0ead && $cp <= 0x0eb0) || $cp === 0x0eb2 || $cp === 0x0eb3 || $cp === 0x0ebd || ($cp >= 0x0ec0 && $cp <= 0x0ec4)
+				|| $cp === 0x0ec6 || ($cp >= 0x0edc && $cp <= 0x0edf) || $cp === 0x0f00 || ($cp >= 0x0f40 && $cp <= 0x0f47) || ($cp >= 0x0f49 && $cp <= 0x0f6c)
+				|| ($cp >= 0x0f88 && $cp <= 0x0f8c) || ($cp >= 0x1000 && $cp <= 0x102a) || $cp === 0x103f || ($cp >= 0x1050 && $cp <= 0x1055)
+				|| ($cp >= 0x105a && $cp <= 0x105d) || $cp === 0x1061 || $cp === 0x1065 || $cp === 0x1066 || ($cp >= 0x106e && $cp <= 0x1070)
+				|| ($cp >= 0x1075 && $cp <= 0x1081) || $cp === 0x108e || ($cp >= 0x10a0 && $cp <= 0x10c5) || $cp === 0x10c7 || $cp === 0x10cd
+				|| ($cp >= 0x10d0 && $cp <= 0x10fa) || ($cp >= 0x10fc && $cp <= 0x1248) || ($cp >= 0x124a && $cp <= 0x124d) || ($cp >= 0x1250 && $cp <= 0x1256)
+				|| $cp === 0x1258 || ($cp >= 0x125a && $cp <= 0x125d) || ($cp >= 0x1260 && $cp <= 0x1288) || ($cp >= 0x128a && $cp <= 0x128d)
+				|| ($cp >= 0x1290 && $cp <= 0x12b0) || ($cp >= 0x12b2 && $cp <= 0x12b5) || ($cp >= 0x12b8 && $cp <= 0x12be) || $cp === 0x12c0
+				|| ($cp >= 0x12c2 && $cp <= 0x12c5) || ($cp >= 0x12c8 && $cp <= 0x12d6) || ($cp >= 0x12d8 && $cp <= 0x1310) || ($cp >= 0x1312 && $cp <= 0x1315)
+				|| ($cp >= 0x1318 && $cp <= 0x135a) || ($cp >= 0x1380 && $cp <= 0x138f) || ($cp >= 0x13a0 && $cp <= 0x13f4) || ($cp >= 0x1401 && $cp <= 0x166c)
+				|| ($cp >= 0x166f && $cp <= 0x167f) || ($cp >= 0x1681 && $cp <= 0x169a) || ($cp >= 0x16a0 && $cp <= 0x16ea) || ($cp >= 0x16ee && $cp <= 0x16f0)
+				|| ($cp >= 0x1700 && $cp <= 0x170c) || ($cp >= 0x170e && $cp <= 0x1711) || ($cp >= 0x1720 && $cp <= 0x1731) || ($cp >= 0x1740 && $cp <= 0x1751)
+				|| ($cp >= 0x1760 && $cp <= 0x176c) || ($cp >= 0x176e && $cp <= 0x1770) || ($cp >= 0x1780 && $cp <= 0x17b3) || $cp === 0x17d7
+				|| $cp === 0x17dc || ($cp >= 0x1820 && $cp <= 0x1877) || ($cp >= 0x1880 && $cp <= 0x18a8) || $cp === 0x18aa || ($cp >= 0x18b0 && $cp <= 0x18f5)
+				|| ($cp >= 0x1900 && $cp <= 0x191c) || ($cp >= 0x1950 && $cp <= 0x196d) || ($cp >= 0x1970 && $cp <= 0x1974) || ($cp >= 0x1980 && $cp <= 0x19ab)
+				|| ($cp >= 0x19c1 && $cp <= 0x19c7) || ($cp >= 0x1a00 && $cp <= 0x1a16) || ($cp >= 0x1a20 && $cp <= 0x1a54) || $cp === 0x1aa7
+				|| ($cp >= 0x1b05 && $cp <= 0x1b33) || ($cp >= 0x1b45 && $cp <= 0x1b4b) || ($cp >= 0x1b83 && $cp <= 0x1ba0) || $cp === 0x1bae
+				|| $cp === 0x1baf || ($cp >= 0x1bba && $cp <= 0x1be5) || ($cp >= 0x1c00 && $cp <= 0x1c23) || ($cp >= 0x1c4d && $cp <= 0x1c4f)
+				|| ($cp >= 0x1c5a && $cp <= 0x1c7d) || ($cp >= 0x1ce9 && $cp <= 0x1cec) || ($cp >= 0x1cee && $cp <= 0x1cf1) || $cp === 0x1cf5
+				|| $cp === 0x1cf6 || ($cp >= 0x1d00 && $cp <= 0x1dbf) || ($cp >= 0x1e00 && $cp <= 0x1f15) || ($cp >= 0x1f18 && $cp <= 0x1f1d)
+				|| ($cp >= 0x1f20 && $cp <= 0x1f45) || ($cp >= 0x1f48 && $cp <= 0x1f4d) || ($cp >= 0x1f50 && $cp <= 0x1f57) || $cp === 0x1f59
+				|| $cp === 0x1f5b || $cp === 0x1f5d || ($cp >= 0x1f5f && $cp <= 0x1f7d) || ($cp >= 0x1f80 && $cp <= 0x1fb4) || ($cp >= 0x1fb6 && $cp <= 0x1fbc)
+				|| $cp === 0x1fbe || ($cp >= 0x1fc2 && $cp <= 0x1fc4) || ($cp >= 0x1fc6 && $cp <= 0x1fcc) || ($cp >= 0x1fd0 && $cp <= 0x1fd3)
+				|| ($cp >= 0x1fd6 && $cp <= 0x1fdb) || ($cp >= 0x1fe0 && $cp <= 0x1fec) || ($cp >= 0x1ff2 && $cp <= 0x1ff4) || ($cp >= 0x1ff6 && $cp <= 0x1ffc)
+				|| $cp === 0x2071 || $cp === 0x207f || ($cp >= 0x2090 && $cp <= 0x209c) || $cp === 0x2102 || $cp === 0x2107 || ($cp >= 0x210a && $cp <= 0x2113)
+				|| $cp === 0x2115 || ($cp >= 0x2119 && $cp <= 0x211d) || $cp === 0x2124 || $cp === 0x2126 || $cp === 0x2128 || ($cp >= 0x212a && $cp <= 0x212d)
+				|| ($cp >= 0x212f && $cp <= 0x2139) || ($cp >= 0x213c && $cp <= 0x213f) || ($cp >= 0x2145 && $cp <= 0x2149) || $cp === 0x214e
+				|| ($cp >= 0x2160 && $cp <= 0x2188) || ($cp >= 0x2c00 && $cp <= 0x2c2e) || ($cp >= 0x2c30 && $cp <= 0x2c5e) || ($cp >= 0x2c60 && $cp <= 0x2ce4)
+				|| ($cp >= 0x2ceb && $cp <= 0x2cee) || $cp === 0x2cf2 || $cp === 0x2cf3 || ($cp >= 0x2d00 && $cp <= 0x2d25) || $cp === 0x2d27
+				|| $cp === 0x2d2d || ($cp >= 0x2d30 && $cp <= 0x2d67) || $cp === 0x2d6f || ($cp >= 0x2d80 && $cp <= 0x2d96) || ($cp >= 0x2da0 && $cp <= 0x2da6)
+				|| ($cp >= 0x2da8 && $cp <= 0x2dae) || ($cp >= 0x2db0 && $cp <= 0x2db6) || ($cp >= 0x2db8 && $cp <= 0x2dbe) || ($cp >= 0x2dc0 && $cp <= 0x2dc6)
+				|| ($cp >= 0x2dc8 && $cp <= 0x2dce) || ($cp >= 0x2dd0 && $cp <= 0x2dd6) || ($cp >= 0x2dd8 && $cp <= 0x2dde) || $cp === 0x2e2f
+				|| ($cp >= 0x3005 && $cp <= 0x3007) || ($cp >= 0x3021 && $cp <= 0x3029) || ($cp >= 0x3031 && $cp <= 0x3035) || ($cp >= 0x3038 && $cp <= 0x303c)
+				|| ($cp >= 0x3041 && $cp <= 0x3096) || ($cp >= 0x309d && $cp <= 0x309f) || ($cp >= 0x30a1 && $cp <= 0x30fa) || ($cp >= 0x30fc && $cp <= 0x30ff)
+				|| ($cp >= 0x3105 && $cp <= 0x312d) || ($cp >= 0x3131 && $cp <= 0x318e) || ($cp >= 0x31a0 && $cp <= 0x31ba) || ($cp >= 0x31f0 && $cp <= 0x31ff)
+				|| ($cp >= 0x3400 && $cp <= 0x4db5) || ($cp >= 0x4e00 && $cp <= 0x9fcc) || ($cp >= 0xa000 && $cp <= 0xa48c) || ($cp >= 0xa4d0 && $cp <= 0xa4fd)
+				|| ($cp >= 0xa500 && $cp <= 0xa60c) || ($cp >= 0xa610 && $cp <= 0xa61f) || $cp === 0xa62a || $cp === 0xa62b || ($cp >= 0xa640 && $cp <= 0xa66e)
+				|| ($cp >= 0xa67f && $cp <= 0xa697) || ($cp >= 0xa6a0 && $cp <= 0xa6ef) || ($cp >= 0xa717 && $cp <= 0xa71f) || ($cp >= 0xa722 && $cp <= 0xa788)
+				|| ($cp >= 0xa78b && $cp <= 0xa78e) || ($cp >= 0xa790 && $cp <= 0xa793) || ($cp >= 0xa7a0 && $cp <= 0xa7aa) || ($cp >= 0xa7f8 && $cp <= 0xa801)
+				|| ($cp >= 0xa803 && $cp <= 0xa805) || ($cp >= 0xa807 && $cp <= 0xa80a) || ($cp >= 0xa80c && $cp <= 0xa822) || ($cp >= 0xa840 && $cp <= 0xa873)
+				|| ($cp >= 0xa882 && $cp <= 0xa8b3) || ($cp >= 0xa8f2 && $cp <= 0xa8f7) || $cp === 0xa8fb || ($cp >= 0xa90a && $cp <= 0xa925)
+				|| ($cp >= 0xa930 && $cp <= 0xa946) || ($cp >= 0xa960 && $cp <= 0xa97c) || ($cp >= 0xa984 && $cp <= 0xa9b2) || $cp === 0xa9cf
+				|| ($cp >= 0xaa00 && $cp <= 0xaa28) || ($cp >= 0xaa40 && $cp <= 0xaa42) || ($cp >= 0xaa44 && $cp <= 0xaa4b) || ($cp >= 0xaa60 && $cp <= 0xaa76)
+				|| $cp === 0xaa7a || ($cp >= 0xaa80 && $cp <= 0xaaaf) || $cp === 0xaab1 || $cp === 0xaab5 || $cp === 0xaab6 || ($cp >= 0xaab9 && $cp <= 0xaabd)
+				|| $cp === 0xaac0 || $cp === 0xaac2 || ($cp >= 0xaadb && $cp <= 0xaadd) || ($cp >= 0xaae0 && $cp <= 0xaaea) || ($cp >= 0xaaf2 && $cp <= 0xaaf4)
+				|| ($cp >= 0xab01 && $cp <= 0xab06) || ($cp >= 0xab09 && $cp <= 0xab0e) || ($cp >= 0xab11 && $cp <= 0xab16) || ($cp >= 0xab20 && $cp <= 0xab26)
+				|| ($cp >= 0xab28 && $cp <= 0xab2e) || ($cp >= 0xabc0 && $cp <= 0xabe2) || ($cp >= 0xac00 && $cp <= 0xd7a3) || ($cp >= 0xd7b0 && $cp <= 0xd7c6)
+				|| ($cp >= 0xd7cb && $cp <= 0xd7fb) || ($cp >= 0xf900 && $cp <= 0xfa6d) || ($cp >= 0xfa70 && $cp <= 0xfad9) || ($cp >= 0xfb00 && $cp <= 0xfb06)
+				|| ($cp >= 0xfb13 && $cp <= 0xfb17) || $cp === 0xfb1d || ($cp >= 0xfb1f && $cp <= 0xfb28) || ($cp >= 0xfb2a && $cp <= 0xfb36)
+				|| ($cp >= 0xfb38 && $cp <= 0xfb3c) || $cp === 0xfb3e || $cp === 0xfb40 || $cp === 0xfb41 || $cp === 0xfb43 || $cp === 0xfb44
+				|| ($cp >= 0xfb46 && $cp <= 0xfbb1) || ($cp >= 0xfbd3 && $cp <= 0xfd3d) || ($cp >= 0xfd50 && $cp <= 0xfd8f) || ($cp >= 0xfd92 && $cp <= 0xfdc7)
+				|| ($cp >= 0xfdf0 && $cp <= 0xfdfb) || ($cp >= 0xfe70 && $cp <= 0xfe74) || ($cp >= 0xfe76 && $cp <= 0xfefc) || ($cp >= 0xff21 && $cp <= 0xff3a)
+				|| ($cp >= 0xff41 && $cp <= 0xff5a) || ($cp >= 0xff66 && $cp <= 0xffbe) || ($cp >= 0xffc2 && $cp <= 0xffc7) || ($cp >= 0xffca && $cp <= 0xffcf)
+				|| ($cp >= 0xffd2 && $cp <= 0xffd7) || ($cp >= 0xffda && $cp <= 0xffdc)) {
+			return true;
+		}
+
+		if (!$start && (($cp >= 0x0300 && $cp <= 0x0374) || ($cp >= 0x0483 && $cp <= 0x0487) || ($cp >= 0x0591 && $cp <= 0x05bd) || $cp === 0x05bf
+			|| $cp === 0x05c1 || $cp === 0x05c2 || $cp === 0x05c4 || $cp === 0x05c5 || $cp === 0x05c7 || ($cp >= 0x0610 && $cp <= 0x061a)
+			|| ($cp >= 0x0620 && $cp <= 0x0669) || ($cp >= 0x06d3 && $cp <= 0x06dc) || ($cp >= 0x06df && $cp <= 0x06e8) || ($cp >= 0x06ea && $cp <= 0x06fc)
+			|| $cp === 0x074a || ($cp >= 0x074d && $cp <= 0x07c0) || ($cp >= 0x0800 && $cp <= 0x082d) || ($cp >= 0x0840 && $cp <= 0x085b)
+			|| ($cp >= 0x08e4 && $cp <= 0x08fe) || ($cp >= 0x0900 && $cp <= 0x0963) || ($cp >= 0x0966 && $cp <= 0x096f) || ($cp >= 0x0981 && $cp <= 0x0983)
+			|| ($cp >= 0x09bc && $cp <= 0x09c4) || $cp === 0x09c7 || $cp === 0x09c8 || ($cp >= 0x09cb && $cp <= 0x09d7) || ($cp >= 0x09df && $cp <= 0x09e3)
+			|| ($cp >= 0x09e6 && $cp <= 0x0a01) || $cp === 0x0a03 || $cp === 0x0a3c || ($cp >= 0x0a3e && $cp <= 0x0a42) || $cp === 0x0a47
+			|| $cp === 0x0a48 || ($cp >= 0x0a4b && $cp <= 0x0a4d) || $cp === 0x0a51 || ($cp >= 0x0a66 && $cp <= 0x0a75) || ($cp >= 0x0a81 && $cp <= 0x0a83)
+			|| ($cp >= 0x0abc && $cp <= 0x0ac5) || ($cp >= 0x0ac7 && $cp <= 0x0ac9) || ($cp >= 0x0acb && $cp <= 0x0acd) || $cp === 0x0ae3
+			|| ($cp >= 0x0ae6 && $cp <= 0x0aef) || ($cp >= 0x0b01 && $cp <= 0x0b03) || ($cp >= 0x0b3c && $cp <= 0x0b44) || $cp === 0x0b47
+			|| $cp === 0x0b48 || ($cp >= 0x0b4b && $cp <= 0x0b4d) || $cp === 0x0b56 || $cp === 0x0b57 || ($cp >= 0x0b5f && $cp <= 0x0b63)
+			|| ($cp >= 0x0b66 && $cp <= 0x0b6f) || $cp === 0x0b82 || ($cp >= 0x0bbe && $cp <= 0x0bc2) || ($cp >= 0x0bc6 && $cp <= 0x0bc8)
+			|| ($cp >= 0x0bca && $cp <= 0x0bcd) || $cp === 0x0bd7 || ($cp >= 0x0be6 && $cp <= 0x0bef) || ($cp >= 0x0c01 && $cp <= 0x0c03)
+			|| $cp === 0x0c44 || ($cp >= 0x0c46 && $cp <= 0x0c48) || ($cp >= 0x0c4a && $cp <= 0x0c4d) || $cp === 0x0c55 || ($cp >= 0x0c56 && $cp <= 0x0c63)
+			|| ($cp >= 0x0c66 && $cp <= 0x0c6f) || $cp === 0x0c82 || $cp === 0x0c83 || ($cp >= 0x0cbc && $cp <= 0x0cc4) || ($cp >= 0x0cc6 && $cp <= 0x0cc8)
+			|| ($cp >= 0x0cca && $cp <= 0x0ccd) || $cp === 0x0cd5 || ($cp >= 0x0cd6 && $cp <= 0x0ce3) || ($cp >= 0x0ce6 && $cp <= 0x0cef)
+			|| $cp === 0x0d02 || ($cp >= 0x0d03 && $cp <= 0x0d44) || ($cp >= 0x0d46 && $cp <= 0x0d48) || ($cp >= 0x0d4a && $cp <= 0x0d57)
+			|| $cp === 0x0d63 || ($cp >= 0x0d66 && $cp <= 0x0d6f) || $cp === 0x0d82 || $cp === 0x0d83 || $cp === 0x0dca || ($cp >= 0x0dcf && $cp <= 0x0dd4)
+			|| $cp === 0x0dd6 || ($cp >= 0x0dd8 && $cp <= 0x0ddf) || $cp === 0x0df2 || $cp === 0x0df3 || ($cp >= 0x0e01 && $cp <= 0x0e3a)
+			|| ($cp >= 0x0e40 && $cp <= 0x0e4e) || ($cp >= 0x0e50 && $cp <= 0x0e59) || ($cp >= 0x0ead && $cp <= 0x0eb9) || ($cp >= 0x0ebb && $cp <= 0x0ec8)
+			|| $cp === 0x0ecd || ($cp >= 0x0ed0 && $cp <= 0x0ed9) || $cp === 0x0f18 || $cp === 0x0f19 || ($cp >= 0x0f20 && $cp <= 0x0f29)
+			|| $cp === 0x0f35 || $cp === 0x0f37 || $cp === 0x0f39 || ($cp >= 0x0f3e && $cp <= 0x0f47) || ($cp >= 0x0f71 && $cp <= 0x0f84)
+			|| ($cp >= 0x0f86 && $cp <= 0x0f97) || ($cp >= 0x0f99 && $cp <= 0x0fbc) || $cp === 0x0fc6 || ($cp >= 0x1000 && $cp <= 0x1049)
+			|| ($cp >= 0x1050 && $cp <= 0x109d) || ($cp >= 0x135d && $cp <= 0x135f) || ($cp >= 0x170e && $cp <= 0x1714) || ($cp >= 0x1720 && $cp <= 0x1734)
+			|| ($cp >= 0x1740 && $cp <= 0x1753) || $cp === 0x1772 || $cp === 0x1773 || ($cp >= 0x1780 && $cp <= 0x17d3) || $cp === 0x17dd
+			|| ($cp >= 0x17e0 && $cp <= 0x17e9) || ($cp >= 0x180b && $cp <= 0x180d) || ($cp >= 0x1810 && $cp <= 0x1819) || ($cp >= 0x1880 && $cp <= 0x1920)
+			|| $cp === 0x192b || ($cp >= 0x1930 && $cp <= 0x193b) || ($cp >= 0x1946 && $cp <= 0x196d) || ($cp >= 0x19b0 && $cp <= 0x19c9)
+			|| ($cp >= 0x19d0 && $cp <= 0x19d9) || ($cp >= 0x1a00 && $cp <= 0x1a1b) || ($cp >= 0x1a20 && $cp <= 0x1a5e) || ($cp >= 0x1a60 && $cp <= 0x1a7c)
+			|| ($cp >= 0x1a7f && $cp <= 0x1a89) || ($cp >= 0x1a90 && $cp <= 0x1a99) || ($cp >= 0x1b00 && $cp <= 0x1b4b) || ($cp >= 0x1b50 && $cp <= 0x1b59)
+			|| ($cp >= 0x1b6b && $cp <= 0x1b73) || ($cp >= 0x1b80 && $cp <= 0x1bf3) || ($cp >= 0x1c00 && $cp <= 0x1c37) || ($cp >= 0x1c40 && $cp <= 0x1c49)
+			|| ($cp >= 0x1c4d && $cp <= 0x1c7d) || ($cp >= 0x1cd0 && $cp <= 0x1cd2) || ($cp >= 0x1cd4 && $cp <= 0x1d00) || $cp === 0x1de6
+			|| ($cp >= 0x1dfc && $cp <= 0x1f15) || $cp === 0x200c || $cp === 0x200d || $cp === 0x203f || $cp === 0x2040 || $cp === 0x2054
+			|| ($cp >= 0x20d0 && $cp <= 0x20dc) || $cp === 0x20e1 || ($cp >= 0x20e5 && $cp <= 0x20f0) || ($cp >= 0x2ceb && $cp <= 0x2d7f)
+			|| $cp === 0x2d96 || ($cp >= 0x2de0 && $cp <= 0x2dff) || ($cp >= 0x3021 && $cp <= 0x302f) || $cp === 0x3099 || $cp === 0x309a
+			|| ($cp >= 0xa610 && $cp <= 0xa640) || $cp === 0xa66f || ($cp >= 0xa674 && $cp <= 0xa67d) || ($cp >= 0xa69f && $cp <= 0xa6f1)
+			|| ($cp >= 0xa7f8 && $cp <= 0xa827) || ($cp >= 0xa880 && $cp <= 0xa8c4) || ($cp >= 0xa8d0 && $cp <= 0xa8d9) || ($cp >= 0xa8e0 && $cp <= 0xa8f7)
+			|| ($cp >= 0xa900 && $cp <= 0xa92d) || ($cp >= 0xa930 && $cp <= 0xa953) || ($cp >= 0xa980 && $cp <= 0xa9c0) || $cp === 0xa9d9
+			|| ($cp >= 0xaa00 && $cp <= 0xaa36) || ($cp >= 0xaa40 && $cp <= 0xaa4d) || ($cp >= 0xaa50 && $cp <= 0xaa59) || $cp === 0xaa7b
+			|| ($cp >= 0xaa80 && $cp <= 0xaae0) || $cp === 0xaaef || ($cp >= 0xaaf2 && $cp <= 0xaaf6) || ($cp >= 0xabc0 && $cp <= 0xabea)
+			|| $cp === 0xabec || $cp === 0xabed || ($cp >= 0xabf0 && $cp <= 0xabf9) || $cp === 0xfb28 || ($cp >= 0xfe00 && $cp <= 0xfe0f)
+			|| ($cp >= 0xfe20 && $cp <= 0xfe26) || $cp === 0xfe33 || $cp === 0xfe34 || ($cp >= 0xfe4d && $cp <= 0xfe4f) || ($cp >= 0xff10 && $cp <= 0xff19)
+			|| $cp === 0xff3f)) {
+				return true;
 		}
 	}
 
@@ -433,7 +581,7 @@ class JSTokenizer {
 
 			break;
 		}
-		
+
 		if ($this->cursor >= $this->length) {
 			$tt = TOKEN_END;
 			$match = '';
@@ -629,11 +777,7 @@ class JSTokenizer {
 					if ($match = $this->matchIdentifier()) {
 						$tt = in_array($match, $this->keywords) ? $match : TOKEN_IDENTIFIER;
 					} else {
-						throw $this->newSyntaxError('Illegal token'
-							. (!$this->unicodeWhitespace && preg_match('~^[\t\v\f\s \p{Zs}]~u', $this->getChar()) ?
-								': unicode-whitespace' : ' (0x' . dechex($this->getCodePoint()) . ')'
-							), true
-						);
+						throw $this->newSyntaxError('Illegal token (0x' . dechex($this->getCodePoint()) . ')', true);
 					}
 			}
 		}

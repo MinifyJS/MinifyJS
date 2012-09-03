@@ -4,10 +4,10 @@
 }
 === INPUT
 (function() {
-    var x = function fun(a, fun, b) {
-        return fun;
+    var x = function fun(a, fun, b, \u0062) {
+        return fun(x, \u0078);
     };
 	x();
 }());
 === EXPECT
-(function(){var e=function(e,t,n){return t};e()}())
+(function(){var e=function(t,n,r,r){return n(e,e)};e()}())
