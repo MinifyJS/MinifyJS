@@ -56,6 +56,10 @@ class TypeofExpression extends Expression {
 		return $this->left->mayInline();
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects();
+	}
+
 	public function removeUseless() {
 		return $this->left->removeUseless();
 	}

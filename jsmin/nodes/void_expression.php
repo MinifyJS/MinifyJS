@@ -45,6 +45,10 @@ class VoidExpression extends Expression {
 		$this->left->gone();
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects();
+	}
+
 	public function type() {
 		return 'undefined';
 	}

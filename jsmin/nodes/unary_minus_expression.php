@@ -35,6 +35,10 @@ class UnaryMinusExpression extends UnaryExpression {
         return $this->left->mayInline();
     }
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects();
+	}
+
 	public function precedence() {
 		return 14;
 	}

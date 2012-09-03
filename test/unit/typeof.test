@@ -1,0 +1,8 @@
+{
+  "name": "Test typeof resolving with constants",
+  "options": []
+}
+=== INPUT
+print(typeof 5, typeof 'string', typeof void 0);
+=== EXPECT
+print('number','string','undefined')
