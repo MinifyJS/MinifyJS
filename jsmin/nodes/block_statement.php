@@ -201,6 +201,12 @@ class BlockStatement extends Node {
 							$var = null;
 						}
 					}
+				} elseif ($n instanceof ForInNode && count($vars) === 1) {
+					$iter = $n->iterator();
+					if (($iter instanceof IdentifierExpression) && ($iter->value() === $vars[0]->name()->value())) {
+						$n->iterator($vars[0]);
+						$finished = true;
+					}
 				}
 
 				if ($vars) {

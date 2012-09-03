@@ -40,6 +40,13 @@ class ForInNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function iterator($new = null) {
+		if ($new) {
+			$this->iterator = $new;
+		}
+		return $this->iterator;
+	}
+
 	public function last() {
 		return $this->body->last();
 	}
