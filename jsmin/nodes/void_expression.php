@@ -34,7 +34,7 @@ class VoidExpression extends Expression {
 	}
 
 	public function toString() {
-		return 'void' . Stream::legalStart($this->group($this, $this->left, false));
+		return 'void' . Stream::legalStart($this->group($this, $this->left));
 	}
 
 	public function isConstant() {

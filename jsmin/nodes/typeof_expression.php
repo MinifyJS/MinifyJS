@@ -37,7 +37,7 @@ class TypeofExpression extends Expression {
 	}
 
 	public function toString() {
-		return 'typeof' . Stream::legalStart($this->group($this, $this->left, false));
+		return 'typeof' . Stream::legalStart($this->group($this, $this->left));
 	}
 
 	public function isConstant() {
