@@ -88,6 +88,10 @@ class Scope {
 		}
 
 		if ($this->parent || $this->labelScope) {
+			uasort($this->declared, function (Identifier $a, Identifier $b) {
+				return max(min($b->used() - $a->used(), 1), -1);
+			});
+
 			foreach($this->declared as $ident) {
 				if (($ident->declared() && $ident->scope() === $this && $ident->keep(1)) || $this->labelScope) {
 					for (;;) {

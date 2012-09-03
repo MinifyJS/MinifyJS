@@ -10,4 +10,4 @@
 	x();
 }());
 === EXPECT
-(function(){var e=function(t,n,r,r){return n(e,e)};e()}())
+(function(){var e=function(r,n,t,t){return n(e,e)};e()}())
