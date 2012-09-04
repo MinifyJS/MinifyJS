@@ -30,6 +30,14 @@ class ThrowNode extends Node {
 		return 'throw' . Stream::legalStart($this->exception->toString());
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('t', 'h', 'r', 'o', 'w') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->exception->countLetters($letters);
+	}
+
 	public function value() {
 		return $this->exception;
 	}

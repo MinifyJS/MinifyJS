@@ -32,6 +32,24 @@ class Boolean extends ConstantExpression {
 		return $this->left ? 'true' : 'false';
 	}
 
+	public function countLetters(&$letters) {
+		if (AST::$options['crush-bool']) {
+			$letters[$this->left ? 0 : 1] += 1;
+		} else {
+			$letters['e'] += 1;
+			if ($this->left) {
+				$letters['t'] += 1;
+				$letters['r'] += 1;
+				$letters['u'] += 1;
+			} else {
+				$letters['f'] += 1;
+				$letters['a'] += 1;
+				$letters['l'] += 1;
+				$letters['s'] += 1;
+			}
+		}
+	}
+
 	public function negate() {
 		return new Boolean(!$this->left);
 	}

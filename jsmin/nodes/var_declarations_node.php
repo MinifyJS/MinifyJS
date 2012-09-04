@@ -77,6 +77,16 @@ class VarDeclarationsNode extends Node {
 		return $o ? 'var ' . join(',', $o) : '';
 	}
 
+	public function countLetters(&$letters) {
+		$letters['v'] += 1;
+		$letters['a'] += 1;
+		$letters['r'] += 1;
+
+		foreach($this->nodes as $n) {
+			$n->countLetters($letters);
+		}
+	}
+
 	public function gone() {
 		foreach($this->nodes as $n) {
 			$n->gone();

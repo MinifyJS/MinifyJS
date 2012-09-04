@@ -73,4 +73,12 @@ class Number extends ConstantExpression {
 
 		return $this->output = AST::bestOption($options);
 	}
+
+	public function countLetters(&$letters) {
+		$str = $this->toString();
+
+		foreach(array_keys($letters) as $letter) {
+			$letters[$letter] += substr_count($str, $letter);
+		}
+	}
 }

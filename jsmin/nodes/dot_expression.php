@@ -59,6 +59,14 @@ class DotExpression extends Expression {
 		return $left . '.' . $this->rightString;
 	}
 
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+
+		foreach(array_keys($letters) as $letter) {
+			$letters[$letter] += substr_count($this->rightString, $letter);
+		}
+	}
+
 	public function isRedundant() {
 		return $this->left->isRedundant();
 	}

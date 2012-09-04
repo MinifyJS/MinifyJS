@@ -166,6 +166,14 @@ class String extends ConstantExpression {
 		return null;
 	}
 
+	public function countLetters(&$letters) {
+		$str = $this->toString();
+
+		foreach(array_keys($letters) as $letter) {
+			$letters[$letter] += substr_count($str, $letter);
+		}
+	}
+
 	public function debug() {
 		return $this->toString();
 	}

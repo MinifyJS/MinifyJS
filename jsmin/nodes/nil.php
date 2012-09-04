@@ -24,6 +24,13 @@ class Nil extends ConstantExpression {
 		return 'null';
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('n', 'u', 'l', 'l') as $l) {
+			$letters[$l] += 1;
+		}
+	}
+
+
 	public function negate() {
 		return new Boolean(true);
 	}

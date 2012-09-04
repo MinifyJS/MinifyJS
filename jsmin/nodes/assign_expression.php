@@ -70,6 +70,11 @@ class AssignExpression extends Expression {
 		return false;
 	}
 
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+		$this->right->countLetters($letters);
+	}
+
 	public function assignType() {
 		return $this->type;
 	}

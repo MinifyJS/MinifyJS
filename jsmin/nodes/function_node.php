@@ -66,7 +66,7 @@ class FunctionNode extends Node {
 
 		return null;
 	}
-	
+
 	public function optimizeArguments() {
 		for ($i = count($this->params); $i--; ) {
 			if ($this->params[$i]->used() < 2) {
@@ -82,6 +82,14 @@ class FunctionNode extends Node {
 		if ($this->name) {
 			$this->name->used(false);
 		}
+	}
+
+	public function countLetters(&$letters) {
+		foreach(array('f', 'u', 'n', 'c', 't', 'i', 'o', 'n') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->body->countLetters($letters);
 	}
 
 	public function debug() {

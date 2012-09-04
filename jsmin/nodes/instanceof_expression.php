@@ -36,6 +36,15 @@ class InstanceofExpression extends Expression {
 		return 'boolean';
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('i', 'n', 's', 't', 'a', 'n', 'c', 'e', 'o', 'f') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->left->countLetters($letters);
+		$this->right->countLetters($letters);
+	}
+
 	public function precedence() {
 		return 10;
 	}

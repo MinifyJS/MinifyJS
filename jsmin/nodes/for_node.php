@@ -87,6 +87,28 @@ class ForNode extends Node {
 		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}
 
+
+	public function countLetters(&$letters) {
+		$letters['f'] += 1;
+		$letters['o'] += 1;
+		$letters['r'] += 1;
+
+		if ($this->initializer) {
+			$this->initializer->countLetters($letters);
+		}
+
+		if ($this->condition) {
+			$this->condition->countLetters($letters);
+		}
+
+		if ($this->update) {
+			$this->update->countLetters($letters);
+		}
+
+		$this->body->countLetters($letters);
+	}
+
+
 	public function toString() {
 		return 'for('
 			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : '') . ';'

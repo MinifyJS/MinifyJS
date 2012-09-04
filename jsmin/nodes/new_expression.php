@@ -50,6 +50,17 @@ class NewExpression extends Expression {
 		}
 	}
 
+	public function countLetters(&$letters) {
+		$letters['n'] += 1;
+		$letters['e'] += 1;
+		$letters['w'] += 1;
+
+		$this->left->countLetters($letters);
+		foreach($this->right as $n) {
+			$n->countLetters($letters);
+		}
+	}
+
 	public function toString() {
 		return 'new' . Stream::legalStart($this->group($this, $this->left)) . ($this->right ?  '(' . implode(',', $this->right) . ')' : '');
 	}

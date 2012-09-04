@@ -108,6 +108,10 @@ abstract class Node {
 		return array($this);
 	}
 
+	public function countLetters(&$letters) {
+		echo get_class($this) . "\n";
+	}
+
 	/**
 	 * Check if a node contains a breaking statement (return, continue, break, throw)
 	 * @return boolean

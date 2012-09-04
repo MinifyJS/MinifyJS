@@ -38,9 +38,13 @@ class FunctionExpression extends Expression {
 	public function removeUseless() {
 		return new VoidExpression(new Number(0));
 	}
-	
+
 	public function optimizeArguments() {
 		$this->middle->optimizeArguments();
+	}
+
+	public function countLetters(&$letters) {
+		$this->middle->countLetters($letters);
 	}
 
 	public function debug () {

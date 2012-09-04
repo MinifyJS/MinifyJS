@@ -40,6 +40,21 @@ class SwitchNode extends Node {
 		}
 	}
 
+	public function countLetters(&$letters) {
+		$letters['s'] += 1;
+		$letters['w'] += 1;
+		$letters['i'] += 1;
+		$letters['t'] += 1;
+		$letters['c'] += 1;
+		$letters['h'] += 1;
+
+		$this->discriminant->countLetters($letters);
+
+		foreach ($this->cases as $c) {
+			$c->countLetters($letters);
+		}
+	}
+
 	public function toString() {
 		$result = 'switch(' . $this->discriminant->toString() . ')';
 		if (AST::$options['beautify']) {

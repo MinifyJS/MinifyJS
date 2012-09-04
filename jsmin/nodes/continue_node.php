@@ -36,6 +36,12 @@ class ContinueNode extends Node {
 		return new VoidExpression(new Number(0));
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('c', 'o', 'n', 't', 'i', 'n', 'u', 'e') as $l) {
+			$letters[$l] += 1;
+		}
+	}
+
 	public function isBreaking() {
 		return true;
 	}

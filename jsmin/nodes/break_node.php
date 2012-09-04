@@ -32,6 +32,13 @@ class BreakNode extends Node {
 		return true;
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('b', 'r', 'e', 'a', 'k') as $l) {
+			$letters[$l] += 1;
+		}
+	}
+
+
 	public function hasLabel() {
 		return !!$this->label;
 	}

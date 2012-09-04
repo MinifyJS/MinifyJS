@@ -30,6 +30,17 @@ class CaseNode extends Node {
 		return 'case' . Stream::legalStart($this->label->toString()) . ':' . $this->stmt->asBlock()->toString(true);
 	}
 
+	public function countLetters(&$letters) {
+		$letters['c'] += 1;
+		$letters['a'] += 1;
+		$letters['s'] += 1;
+		$letters['e'] += 1;
+
+		$this->label->countLetters($letters);
+		$this->stmt->countLetters($letters);
+	}
+
+
 	public function collectStatistics(AST $ast) {
 		$this->label->collectStatistics($ast);
 		$this->stmt->collectStatistics($ast);

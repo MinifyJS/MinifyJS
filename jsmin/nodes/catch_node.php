@@ -28,6 +28,14 @@ class CatchNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('c', 'a', 't', 'c', 'h') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->body->countLetters($letters);
+	}
+
 	public function toString() {
 		return 'catch(' . $this->variable->toString() . '){'
 			. Stream::trimSemicolon($this->body->asBlock()->toString(true, false))

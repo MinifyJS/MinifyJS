@@ -32,6 +32,14 @@ class InExpression extends Expression {
 			. ($noIn ? ')' : '');
 	}
 
+	public function countLetters(&$letters) {
+		$letters['i'] += 1;
+		$letters['n'] += 1;
+
+		$this->left->countLetters($letters);
+		$this->right->countLetters($letters);
+	}
+
 	public function type() {
 		return 'boolean';
 	}

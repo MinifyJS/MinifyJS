@@ -45,6 +45,24 @@ class TryNode extends Node {
 		}
 	}
 
+	public function countLetters(&$letters) {
+		$letters['t'] += 1;
+		$letters['r'] += 1;
+		$letters['y'] += 1;
+
+		if ($this->catch) {
+			$this->catch->countLetters($letters);
+		}
+
+		if ($this->finally) {
+			foreach(array('f', 'i', 'n', 'a', 'l', 'l', 'y') as $l) {
+				$letters[$l] += 1;
+			}
+
+			$this->finally->countLetters($letters);
+		}
+	}
+
 	public function toString() {
 		return 'try{' . Stream::trimSemicolon($this->body->asBlock()->toString(true, false)) . '}'
 			. ($this->catch ? $this->catch->toString() : '')

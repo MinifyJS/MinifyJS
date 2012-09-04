@@ -135,7 +135,7 @@ class CallExpression extends Expression {
 				}
 			}
 		}
-		
+
 		if ($ast->hasStats() && !$result && $this->left instanceof FunctionExpression) {
 			$this->left->optimizeArguments();
 		}
@@ -178,6 +178,14 @@ class CallExpression extends Expression {
 		$this->left->gone();
 		foreach($this->right as $n) {
 			$n->gone();
+		}
+	}
+
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+
+		foreach ($this->right as $n) {
+			$n->countLetters($letters);
 		}
 	}
 

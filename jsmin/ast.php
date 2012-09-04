@@ -61,7 +61,7 @@ class AST {
 		}
 
 		foreach($consts as $name => $const) {
-			if (!($const instanceof Node)) {
+			if (!($const instanceof Expression)) {
 				throw new Exception;
 			}
 
@@ -77,7 +77,6 @@ class AST {
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
-		//self::$options['squeeze'] = true;
 
 		$this->tree = $this->tree->visit($this);
 		$this->tree->collectStatistics($this);
@@ -85,6 +84,8 @@ class AST {
 		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
+			//$this->rootScope->optimizeList();
+
 			$this->rootScope->optimize();
 			$this->rootLabelScope->optimize();
 		}
@@ -105,6 +106,10 @@ class AST {
 
 	public function hasStats() {
 		return $this->secondVisit;
+	}
+
+	public function countLetters(&$letters) {
+		$this->tree->countLetters($letters);
 	}
 
 	public function toString() {

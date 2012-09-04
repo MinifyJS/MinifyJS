@@ -72,6 +72,12 @@ class NotExpression extends UnaryExpression {
 		return parent::looseBoolean();
 	}
 
+
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+	}
+
+
 	public function negate() {
 		return $this->left;
 	}

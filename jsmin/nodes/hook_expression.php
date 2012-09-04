@@ -114,6 +114,12 @@ class HookExpression extends Expression {
 		return null;
 	}
 
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+		$this->middle->countLetters($letters);
+		$this->right->countLetters($letters);
+	}
+
 	public function precedence() {
 		return 2;
 	}

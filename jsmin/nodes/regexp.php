@@ -35,6 +35,12 @@ class RegExp extends ConstantExpression {
 		return new VoidExpression(new Number(0));
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array_keys($letters) as $letter) {
+			$letters[$letter] += substr_count($this->left, $letter);
+		}
+	}
+
 	public function mayInline() {
 		return false;
 	}

@@ -52,6 +52,12 @@ class ObjectExpression extends Expression {
 		return null;
 	}
 
+	public function countLetters(&$letters) {
+		foreach($this->nodes as $n) {
+			$n->countLetters($letters);
+		}
+	}
+
 	public function debug() {
 		$out = array();
 		foreach($this->nodes as $n) {

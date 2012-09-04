@@ -37,6 +37,15 @@ class DeleteExpression extends Expression {
 		return 'boolean';
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('d', 'e', 'l', 'e', 't', 'e') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->left->countLetters($letters);
+	}
+
+
 	public function precedence() {
 		return 14;
 	}

@@ -107,6 +107,10 @@ class IdentifierExpression extends ConstantExpression {
 		return $this->toString();
 	}
 
+	public function countLetters(&$letters) {
+
+	}
+
 	public function get() {
 		return $this->left;
 	}

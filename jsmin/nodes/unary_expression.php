@@ -28,6 +28,10 @@ class UnaryExpression extends Expression {
 		return 14;
 	}
 
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+	}
+
 	public function removeUseless() {
 		return $this->left->removeUseless();
 	}

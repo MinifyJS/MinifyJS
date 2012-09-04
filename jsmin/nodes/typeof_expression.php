@@ -60,6 +60,14 @@ class TypeofExpression extends Expression {
 		return $this->left->hasSideEffects();
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('t', 'y', 'p', 'e', 'o', 'f') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->left->countLetters($letters);
+	}
+
 	public function removeUseless() {
 		return $this->left->removeUseless();
 	}

@@ -82,6 +82,16 @@ class VarNode extends Node {
 		}
 	}
 
+	public function countLetters(&$letters) {
+		$letters['v'] += 0.5;
+		$letters['a'] += 0.5;
+		$letters['r'] += 0.5;
+
+		if (!$this->initializer->isVoid()) {
+			$this->initializer->countLetters($letters);
+		}
+	}
+
 	public function toString($force = false, $noIn = false) {
 		$init = $this->initializer;
 

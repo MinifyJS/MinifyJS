@@ -57,6 +57,16 @@ class VoidExpression extends Expression {
 		return 14;
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('v', 'o', 'i', 'd') as $l) {
+			$letters[$l] += 1;
+		}
+
+		if (!$this->left->isVoid()) {
+			$this->left->countLetters($letters);
+		}
+	}
+
 	public function removeUseless() {
 		return $this->left->removeUseless();
 	}

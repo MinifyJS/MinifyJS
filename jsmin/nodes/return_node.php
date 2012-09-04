@@ -50,6 +50,16 @@ class ReturnNode extends Node {
 		return 'return' . Stream::legalStart($this->value);
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('r', 'e', 't', 'u', 'r', 'n') as $l) {
+			$letters[$l] += 1;
+		}
+
+		if (!$this->value->isVoid()) {
+			$this->value->countLetters($letters);
+		}
+	}
+
 	public function isBreaking() {
 		return true;
 	}

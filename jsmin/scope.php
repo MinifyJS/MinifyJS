@@ -7,9 +7,9 @@ class Scope {
 	 * List based on occurence of characters in jQuery, Prototype and Mootools (all keywords and dot-identifiers)
 	 */
 	static private $all = array(
-		'e','t','n','r','i','s','o','u','a','f','l','c','h','p','d','v','m','g','y','b','w','E','S','x','T','N',
-		'C','k','L','A','O','M','_','D','P','H','B','j','F','I','q','R','U','z','W','X','V','$','J','K','Q','G',
-		'Y','Z','0','5','1','6','3','7','2','9','8','4'
+		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+		'$','_','0','1','2','3','4','5','6','7','8','9'
 	);
 
 	protected static $keywords = array(
@@ -65,6 +65,21 @@ class Scope {
 		}
 
 		$this->labelScope = $labelScope;
+	}
+
+	public function optimizeList() {
+		$list = array_combine(self::$all, array_fill(0, count(self::$all), 0));
+
+		$this->program->countLetters($list);
+
+		arsort($list);
+		$list = array_keys($list);
+
+		self::$all = array_merge(array_filter($list, function ($a) {
+			return !ctype_digit((string)$a);
+		}), array_filter($list, function ($a) {
+			return ctype_digit((string)$a);
+		}));
 	}
 
 	public function usesWith($does = 1, $parents = false) {

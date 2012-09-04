@@ -38,6 +38,16 @@ class WhileNode extends Node {
 		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}
 
+
+	public function countLetters(&$letters) {
+		foreach(array('w', 'h', 'i', 'l', 'e') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->condition->countLetters($letters);
+		$this->body->countLetters($letters);
+	}
+
 	public function toString() {
 		return 'while(' . $this->condition->toString() . ')' . $this->body->asBlock()->toString(null, true);
 	}

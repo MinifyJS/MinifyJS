@@ -51,6 +51,16 @@ class ForInNode extends Node {
 		return $this->body->last();
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('f', 'o', 'r', 'i', 'n') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->iterator->countLetters($letters);
+		$this->object->countLetters($letters);
+		$this->body->countLetters($letters);
+	}
+
 	public function toString() {
 		return 'for('
 			. Stream::legalEnd($this->iterator->toString())

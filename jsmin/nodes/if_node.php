@@ -149,6 +149,17 @@ class IfNode extends Node {
 		return $this->else;
 	}
 
+	public function countLetters(&$letters) {
+		$letters['i'] += 1;
+		$letters['f'] += 1;
+
+		$this->condition->countLetters($letters);
+		$this->then->countLetters($letters);
+		if ($this->else) {
+			$this->else->countLetters($letters);
+		}
+	}
+
 	public function breaking() {
 		// bail early if we don't have to break
 		if (!$this->else) {

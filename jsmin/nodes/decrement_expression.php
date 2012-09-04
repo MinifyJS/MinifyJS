@@ -41,6 +41,11 @@ class DecrementExpression extends UnaryExpression {
 		return new DecrementExpression($this->left, false);
 	}
 
+	public function countLetters(&$letters) {
+		$this->left->countLetters($letters);
+	}
+
+
 	public function removeUseless() {
 		return new DecrementExpression($this->left->removeUseless(), $this->postfix);
 	}

@@ -42,6 +42,14 @@ class Property extends Node {
 		$this->value->collectStatistics($ast);
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array_keys($letters) as $letter) {
+			$letters[$letter] += substr_count($this->keyString, $letter);
+		}
+
+		$this->value->countLetters($letters);
+	}
+
 	public function toString() {
 		$v = $this->value->toString();
 		if ($this->value instanceof CommaExpression) {

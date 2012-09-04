@@ -23,6 +23,15 @@ class DoWhileNode extends WhileNode {
 		. 'while(' . $this->condition->toString() . ')' . ";\0";
 	}
 
+	public function countLetters(&$letters) {
+		foreach(array('d', 'o', 'w', 'h', 'i', 'l', 'e') as $l) {
+			$letters[$l] += 1;
+		}
+
+		$this->body->countLetters($letters);
+		$this->condition->countLetters($letters);
+	}
+
 	public function last() {
 		return $this;
 	}

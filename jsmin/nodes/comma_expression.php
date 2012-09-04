@@ -134,6 +134,12 @@ class CommaExpression extends Expression {
 		));
 	}
 
+	public function countLetters(&$letters) {
+		foreach ($this->nodes as $n) {
+			$n->countLetters($letters);
+		}
+	}
+
 	public function precedence() {
 		return 1;
 	}

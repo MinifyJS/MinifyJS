@@ -35,6 +35,17 @@ class WithNode extends Node {
 		$this->body->collectStatistics($ast);
 	}
 
+	public function countLetters(&$letters) {
+		$letters['w'] += 1;
+		$letters['i'] += 1;
+		$letters['t'] += 1;
+		$letters['h'] += 1;
+
+		$this->object->countLetters($letters);
+		$this->body->countLetters($letters);
+	}
+
+
 	public function toString() {
 		return 'with(' . $this->object->toString() . ')' . $this->body->asBlock()->toString(null, true);
 	}
