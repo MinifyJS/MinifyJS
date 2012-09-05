@@ -149,9 +149,13 @@ try {
 		print_r($timers);
 	} else {
 		if (!AST::$options['no-copyright']) {
-			foreach($parser->getLicenses() as $license) {
-				echo $license;
-			}
+			echo array_reduce($parser->getLicenses(), function ($a, $b) {
+				if ($a === null) {
+					return $b;
+				}
+
+				return substr($a, 0, -1) . substr($b, 1);
+			});
 		}
 
 		echo $tree;
