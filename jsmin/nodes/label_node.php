@@ -22,6 +22,10 @@ class LabelNode extends Node {
 		return $this;
 	}
 
+	public function countLetters(&$letters) {
+		$this->stmt->countLetters($letters);
+	}
+
 	public function toString() {
 		return $this->label->toString() . ':' . $this->stmt->toString();
 	}
