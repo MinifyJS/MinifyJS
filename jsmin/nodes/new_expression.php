@@ -66,6 +66,10 @@ class NewExpression extends Expression {
 	}
 
 	public function precedence() {
+		if ($this->right) {
+			return 0;
+		}
+
 		return 16;
 	}
 }
