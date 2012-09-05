@@ -84,7 +84,7 @@ class AST {
 		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
-			//$this->rootScope->optimizeList();
+			$this->rootScope->optimizeList();
 
 			$this->rootScope->optimize();
 			$this->rootLabelScope->optimize();
