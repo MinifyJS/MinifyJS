@@ -11,11 +11,11 @@ abstract class Node {
 	protected $debug = true;
 
 	public function visit(AST $ast) {
-		throw new Exception('Node::visit() Not implemented in ' . get_class($this));
+		throw new Exception('Node::visit( ) Not implemented in ' . get_class($this));
 	}
 
 	public function collectStatistics(AST $ast) {
-		throw new Exception('Node::collectStatistics() Not implemented in ' . get_class($this));
+		throw new Exception('Node::collectStatistics( ) Not implemented in ' . get_class($this));
 	}
 
 	public function __construct() {
@@ -101,7 +101,7 @@ abstract class Node {
 
 	// this node has disappeared. Notify all subnodes
 	public function gone() {
-		throw new Exception('Node::gone() Not implemented in ' . get_class($this));
+		throw new Exception('Node::gone( ) Not implemented in ' . get_class($this));
 	}
 
 	public function nodes() {
@@ -109,7 +109,7 @@ abstract class Node {
 	}
 
 	public function countLetters(&$letters) {
-		echo get_class($this) . "\n";
+		throw new Exception('Node::countLetters( &$letters ) Not implemented in ' . get_class($this));
 	}
 
 	/**
