@@ -25,11 +25,20 @@ class InExpression extends Expression {
 	}
 
 	public function toString($noIn = false) {
-		return ($noIn ? '(' : '')
-			. Stream::legalEnd($this->group($this, $this->left))
-			. 'in'
-			. Stream::legalStart($this->group($this, $this->right, false))
-			. ($noIn ? ')' : '');
+		$left = $this->group($this, $this->left);
+		$right = $this->group($this, $this->right, false);
+
+		if (AST::$options['beautify']) {
+			$output = $left . ' in ' . $right;
+		} else {
+			$output = Stream::legalEnd($left) . 'in' . Stream::legalStart($right);
+		}
+
+		if ($noIn) {
+			$output = '(' . $output . ')';
+		}
+
+		return $output;
 	}
 
 	public function countLetters(&$letters) {
