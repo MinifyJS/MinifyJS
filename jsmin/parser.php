@@ -211,22 +211,22 @@ class JSParser {
 
 			while (($tt = $this->t->get()) !== OP_RIGHT_CURLY) {
 				switch ($tt) {
-					case KEYWORD_DEFAULT:
+				case KEYWORD_DEFAULT:
 					$n2 = new JSNode($this->t);
 
-						if ($n->defaultIndex !== -1) {
-							throw $this->t->newSyntaxError('More than one switch default');
-						}
+					if ($n->defaultIndex !== -1) {
+						throw $this->t->newSyntaxError('More than one switch default');
+					}
 
-						$n->defaultIndex = count($n->cases);
-						break;
-					case KEYWORD_CASE:
-						$n2 = new JSNode($this->t);
-						$n2->caseLabel = $this->Expression($x, OP_COLON);
-						break;
+					$n->defaultIndex = count($n->cases);
+					break;
+				case KEYWORD_CASE:
+					$n2 = new JSNode($this->t);
+					$n2->caseLabel = $this->Expression($x, OP_COLON);
+					break;
 
-					default:
-						throw $this->t->newSyntaxError('Invalid switch case');
+				default:
+					throw $this->t->newSyntaxError('Invalid switch case');
 				}
 
 				$this->t->mustMatch(OP_COLON);
@@ -596,7 +596,7 @@ class JSParser {
 					break 2;
 				}
 
-				while (!empty($operators) && $this->opPrecedence[end($operators)->type] >= $this->opPrecedence[$tt]) {
+				while ($operators && $this->opPrecedence[end($operators)->type] >= $this->opPrecedence[$tt]) {
 					$this->reduce($operators, $operands);
 				}
 
