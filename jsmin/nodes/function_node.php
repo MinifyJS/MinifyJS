@@ -54,14 +54,22 @@ class FunctionNode extends Node {
 
 		return 'function' . ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1) ? ' ' . $this->name->toString() : $space)
 			. '(' . implode(',' . $space, $this->params) . ')' . $space
-			. '{' . $this->body->asBlock()->toString(true, false) . '}';
+			. $this->body->asBlock()->toString(false, false);
 	}
 
 	public function onlyReturns() {
+		foreach ($this->params as $param) {
+			if ($param->used() > 1) {
+				return null;
+			}
+		}
+
 		$n = $this->body->isSingle();
 
 		if ($n instanceof ReturnNode) {
 			return $n->value();
+		} elseif ($n instanceof Expression) {
+			return new VoidExpression($n);
 		}
 
 		return null;
