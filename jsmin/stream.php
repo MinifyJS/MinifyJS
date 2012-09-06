@@ -15,4 +15,8 @@ class Stream {
 	public static function indent($o) {
 		return preg_replace('~^~m', '    ', $o);
 	}
+
+	public static function unindent($o) {
+		return preg_replace('~^    ~m', '', $o);
+	}
 }

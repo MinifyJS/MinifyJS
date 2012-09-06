@@ -59,7 +59,7 @@ for ($i = 1, $length = count($_SERVER['argv']); $i < $length; ++$i) {
 		$name = $_SERVER['argv'][$i + 1];
 		$tree = $parser->parse($_SERVER['argv'][$i + 2], '[cmd]', 1, AST::$options['unicode-ws']);
 		$ast = new AST($tree);
-		$defines[$name] = $ast->tree()->rootElement();
+		$defines[$name] = $ast->squeeze()->tree()->rootElement();
 
 		$i += 2;
 	} elseif (isset($options[$option])) {
@@ -158,7 +158,7 @@ try {
 			});
 		}
 
-		echo $tree;
+		echo AST::$options['beautify'] ? Stream::unindent($tree) : $tree;
 	}
 } catch (Exception $e) {
 	echo $e->getMessage();
