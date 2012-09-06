@@ -9,6 +9,10 @@ class Stream {
 	}
 
 	public static function trimSemicolon($t) {
+		if (AST::$options['beautify']) {
+			return $t;
+		}
+
 		return preg_replace('~(?|(;\s*\x00)|;(\s*\n?))+\z~', '$1', $t);
 	}
 
