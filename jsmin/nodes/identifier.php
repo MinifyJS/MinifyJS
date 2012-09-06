@@ -109,7 +109,7 @@ class Identifier {
 			return $name;
 		}
 
-		return substr($name, 0, -1) . '\\u' . substr('0000' . dechex(ord(substr($name, -1))), -4);
+		return (mb_strlen($name, 'UTF-8') > 1 ? substr($name, 0, -1) : '') . '\\u' . substr('0000' . dechex(ord(substr($name, -1))), -4);
 	}
 
 	public static function isValid($str) {
