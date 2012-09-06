@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+#!/usr/bin/php -q
 <?php
 ini_set('memory_limit', '1G');
 date_default_timezone_set('Europe/Amsterdam');
@@ -75,8 +75,14 @@ for ($i = 1, $length = count($_SERVER['argv']); $i < $length; ++$i) {
 
 if (!isset($f) || $f === '-') {
 	$s = '';
-	while (false !== ($line = fgets(STDIN))) {
+	$fd = defined('STDIN') ? STDIN : fopen('php://stdin', 'r');
+
+	while (false !== ($line = fgets($fd))) {
 		$s .= $line;
+	}
+
+	if (!defined('STDIN')) {
+		fclose($fd);
 	}
 
 	$f = '[stdin]';
