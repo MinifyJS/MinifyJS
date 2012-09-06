@@ -23,7 +23,7 @@ class IfNode extends Node {
 
 		// if (*) {} else *; -> if (!*) *
 		if ($this->else && $this->then->isVoid()) {
-			$this->condition = $this->condition->negate()->visit($ast);
+			$this->condition = $this->condition->negate();
 			$this->then = $this->else;
 			$this->else = null;
 		}
@@ -156,6 +156,10 @@ class IfNode extends Node {
 		$this->condition->countLetters($letters);
 		$this->then->countLetters($letters);
 		if ($this->else) {
+			$letters['e'] += 2;
+			$letters['l'] += 1;
+			$letters['s'] += 1;
+
 			$this->else->countLetters($letters);
 		}
 	}
