@@ -19,6 +19,11 @@ class InstanceofExpression extends Expression {
 		$this->right->collectStatistics($ast);
 	}
 
+	public function gone() {
+		$this->left->gone();
+		$this->right->gone();
+	}
+
 	public function toString() {
 		$left = $this->group($this, $this->left);
 		$right = $this->group($this, $this->right, false);
