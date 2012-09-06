@@ -33,7 +33,11 @@ class ContinueNode extends Node {
 	}
 
 	public function optimizeBreak() {
-		return new VoidExpression(new Number(0));
+		if (!$this->hasLabel()) {
+			return new VoidExpression(new Number(0));
+		}
+
+		return $this;
 	}
 
 	public function countLetters(&$letters) {
