@@ -242,7 +242,9 @@ class BlockStatement extends Node {
 		if (count($this->nodes) === 1 && $this->nodes[0] instanceof BlockStatement) {
 			return $this->nodes[0]->toString($forceNoBraces, $forceOut);
 		} elseif (!$this->nodes) {
-			if ($forceOut) {
+			if ($forceNoBraces === false) {
+				return '{}';
+			} elseif ($forceOut) {
 				return ";\0";
 			} else {
 				return ';';
@@ -322,8 +324,8 @@ class BlockStatement extends Node {
 
 		$o = implode(AST::$options['beautify'] ? "\n" : '', $o);
 
-		if (AST::$options['beautify'] && ($size > 1 || $forceNoBraces === false)) {
-			$o = "\n" . preg_replace('~^~m', '    ', $o) . "\n";
+		if (AST::$options['beautify']) {
+			$o = "\n" . preg_replace('~^(?!$)~m', '    ', $o) . "\n";
 
 			if ($forceNoBraces !== true) {
 				$o = '{' . $o . '}';
@@ -377,7 +379,8 @@ class BlockStatement extends Node {
 		if ($this->nodes) {
 			$check = end($this->nodes)->optimizeBreak();
 			if ($check instanceof ContinueNode && !$check->hasLabel()) {
-				array_splice($this->nodes, -1);
+				$end = array_splice($this->nodes, -1);
+				$end->gone();
 			}
 		}
 
