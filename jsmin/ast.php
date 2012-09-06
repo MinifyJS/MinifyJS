@@ -53,7 +53,7 @@ class AST {
 
 	public function __construct(JSNode $root, array $consts = array()) {
 		$this->rootScope = $this->enter();
-		$this->rootLabelScope = $this->labelScope;
+		$this->rootLabelScope = $this->labelScope = new Scope($this, null, true);
 
 		if (AST::$options['toplevel']) {
 			// sneaky trick for mangling toplevel, just pretend we're already in a scope
@@ -94,6 +94,8 @@ class AST {
 		self::$options['squeeze'] = false;
 
 		self::$finalize = true;
+
+		return $this;
 	}
 
 	public function visitScope(Scope $scope = null) {
@@ -135,13 +137,13 @@ class AST {
 	}
 
 	protected function enter() {
-		$this->labelScope = new Scope($this, $this->labelScope, true);
+	//	$this->labelScope = new Scope($this, $this->labelScope, true);
 
 		return $this->scope = new Scope($this, $this->scope);
 	}
 
 	protected function leave() {
-		$this->labelScope = $this->labelScope->parent();
+	//	$this->labelScope = $this->labelScope->parent();
 
 		return $this->scope = $this->scope->parent();
 	}
@@ -154,7 +156,6 @@ class AST {
 		if (!($n instanceof JSNode)) {
 			return $n;
 		}
-
 
 		switch($n->type) {
 		case JS_SCRIPT:
@@ -208,7 +209,11 @@ class AST {
 				$this->generate($n->nodes[1])
 			);
 		case JS_LABEL:
-			return new LabelNode($this->labelScope->find($n->label, true), $this->generate($n->statement));
+			$this->labelScope = new Scope($this, $this->labelScope, true);
+			$result = new LabelNode($this->labelScope->find($n->label, true), $this->generate($n->statement));
+			$this->labelScope = $this->labelScope->parent();
+
+			return $result;
 		case KEYWORD_FUNCTION:
 			$ident = $n->name === null ? null : new IdentifierExpression($this->scope->find($n->name, true));
 
@@ -434,13 +439,7 @@ class AST {
 
 		foreach($l as $x) {
 			$q = $this->generate($x);
-			if (is_array($q)) {
-				foreach($q as $a) {
-					if ($a) {
-						$n[] = $a;
-					}
-				}
-			} else {
+			foreach(is_array($q) ? $q : array($q) as $q) {
 				if ($q) {
 					$n[] = $q;
 				}
