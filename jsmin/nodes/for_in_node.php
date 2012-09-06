@@ -4,7 +4,7 @@ class ForInNode extends Node {
 	protected $object;
 	protected $body;
 
-	public function __construct(Node $iterator, Node $object, Node $body) {
+	public function __construct(Node $iterator, Expression $object, Node $body) {
 		$this->iterator = $iterator;
 		$this->object = $object;
 		$this->body = $body;
