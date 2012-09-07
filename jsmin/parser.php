@@ -261,11 +261,7 @@ class JSParser {
 				$n->type = JS_FOR_IN;
 				if ($n2->type === KEYWORD_VAR) {
 					if (count($n2->nodes) !== 1) {
-						throw $this->t->SyntaxError(
-							'Invalid for..in left-hand side',
-							$this->t->filename,
-							$n2->lineno
-						);
+						throw $this->t->newSyntaxError('Invalid for‥in left-hand side');
 					}
 
 					// NB: n2[0].type == IDENTIFIER and n2[0].value == n2[0].name.
