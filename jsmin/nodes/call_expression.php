@@ -133,6 +133,10 @@ class CallExpression extends Expression {
 				if (!$this->right || ($argc === 1 && $this->right[0]->asString() === ',')) {
 					$result = new PlusExpression($this->left->left(), new String('', false));
 				}
+			} elseif ($this->left->left()->actualType() === 'date' && $this->left->right()->name() === 'getTime') {
+				if (!$this->right) {
+					$result = new UnaryPlusExpression($this->left->left());
+				}
 			}
 		}
 
