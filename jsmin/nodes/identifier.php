@@ -113,7 +113,7 @@ class Identifier {
 	}
 
 	public static function isValid($str) {
-		return preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}]+)*\z~iu', $str)
+		return preg_match('~\A(?:\\\\u[0-9A-F]{4}|[$_\pL\p{Nl}\x{200c}\x{200d}]+)+(?:\\\\u[0-9A-F]{4}|[$_\pL\pN\p{Mn}\p{Mc}\p{Pc}\x{200c}\x{200d}]+)*\z~iu', $str)
 			&& !Scope::keyword($str);
 	}
 }

@@ -100,7 +100,7 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function mayInline() {
-		return $this->isLocal() && !$this->initializer() && !$this->reassigned();
+		return $this->left->isLocal() && !$this->initializer() && !$this->reassigned();
 	}
 
 	public function __toString() {
@@ -108,7 +108,9 @@ class IdentifierExpression extends ConstantExpression {
 	}
 
 	public function countLetters(&$letters) {
-
+		if (!$this->left->isLocal()) {
+			$this->counter((string)$this->left->name(), $letters);
+		}
 	}
 
 	public function get() {
