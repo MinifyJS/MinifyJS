@@ -75,10 +75,6 @@ class Number extends ConstantExpression {
 	}
 
 	public function countLetters(&$letters) {
-		$str = $this->toString();
-
-		foreach(array_keys($letters) as $letter) {
-			$letters[$letter] += substr_count($str, $letter);
-		}
+		$this->counter($this->toString(), $letters);
 	}
 }

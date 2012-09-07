@@ -36,9 +36,7 @@ class RegExp extends ConstantExpression {
 	}
 
 	public function countLetters(&$letters) {
-		foreach(array_keys($letters) as $letter) {
-			$letters[$letter] += substr_count($this->left, $letter);
-		}
+		$this->counter($this->left, $letters);
 	}
 
 	public function mayInline() {
