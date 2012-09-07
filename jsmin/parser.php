@@ -710,6 +710,10 @@ class JSParser {
 						$tt = $this->t->get();
 						$tv = $this->t->currentToken()->value;
 
+						if (($tv === 'get' || $tv === 'set') && $this->t->peek() === TOKEN_IDENTIFIER) {
+							throw $this->t->newSyntaxError('Illegal property accessor');
+						}
+
 						switch ($tt) {
 						case TOKEN_IDENTIFIER:
 						case TOKEN_NUMBER:
