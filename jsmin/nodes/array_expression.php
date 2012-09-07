@@ -34,7 +34,17 @@ class ArrayExpression extends Expression {
 			$options[] = $n instanceof CommaExpression ? '(' . $v . ')' : $v;
 		}
 
-		return '[' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $options) . ']';
+		if (AST::$options['beautify']) {
+			if (count($options) > 6) { // arbitrary for now
+				$body = "\n" . Stream::indent(implode(",\n", $options)) . "\n";
+			} else {
+				$body = implode(', ', $options);
+			}
+		} else {
+			$body = implode(',', $options);
+		}
+
+		return '[' . $body . ']';
 	}
 
 	public function type() {
