@@ -3,6 +3,6 @@
   "options": []
 }
 === INPUT
-alert('5'.toString(), String('5'), a.toString(), String(a), (+a).toString(), String(+a));
+alert('\u00','5'.toString(), String('5'), a.toString(), String(a), (+a).toString(), String(+a));
 === EXPECT
-alert('5','5',''+a,''+a,+a+'',+a+'')
+alert('u00','5','5',''+a,''+a,+a+'',+a+'')

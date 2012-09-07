@@ -1,0 +1,16 @@
+{
+  "name": "Object property keys",
+  "options": []
+}
+=== INPUT
+print({
+	'.5': 1,
+	'0.5' : 1,
+	0.5: 1,
+	"key": 1,
+	key: 1,
+	'\t': '\\t',
+	'\n': '\\n'
+});
+=== EXPECT
+print({'.5':1,.5:1,.5:1,key:1,key:1,'	':'\\t','\n':'\\n'})

@@ -6,19 +6,36 @@ const STATE_META = 0;
 const STATE_KEY = 1;
 const STATE_DATA = 2;
 
+
+
 function test($info) {
-	$cmd = 'echo ' . escapeshellarg($info['data']['INPUT']) . ' | ../min.php';
+	$options = '';
 	foreach($info['meta']['options'] as $option) {
-		$cmd .= ' --' . $option;
+		$options .= ' --' . $option;
 	}
 
-	$out = shell_exec($cmd);
-	$result = $out === $info['data']['EXPECT'];
+	$process = proc_open('../min.php' . $options, array(
+	   0 => array('pipe', 'r'),
+	   1 => array('pipe', 'w'),
+	), $pipes, __DIR__, array(
+	));
 
-	echo ' * ' . $info['meta']['name'] . ': ' . ($result ? 'pass' : 'FAIL') . "\n";
-	if (!$result) {
-		echo '  expect: ' . $info['data']['EXPECT'] . "\n";
-		echo '  gotten: ' . $out . "\n\n";
+	if (is_resource($process)) {
+	    fwrite($pipes[0], $info['data']['INPUT']);
+	    fclose($pipes[0]);
+
+	    $out = stream_get_contents($pipes[1]);
+	    fclose($pipes[1]);
+
+	    $return = proc_close($process);
+
+		$result = $out === $info['data']['EXPECT'];
+
+		echo ' * ' . $info['meta']['name'] . ': ' . ($result ? 'pass' : 'FAIL') . "\n";
+		if (!$result) {
+			echo '  expect: ' . $info['data']['EXPECT'] . "\n";
+			echo '  gotten: ' . $out . "\n\n";
+		}
 	}
 }
 
