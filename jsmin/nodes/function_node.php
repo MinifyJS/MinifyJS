@@ -97,6 +97,10 @@ class FunctionNode extends Node {
 			$letters[$l] += 1;
 		}
 
+		if ($this->name && ($this->functionForm !== EXPRESSED_FORM || $this->name->used() > 1)) {
+			$this->name->countLetters($letters);
+		}
+
 		$this->body->countLetters($letters);
 	}
 
