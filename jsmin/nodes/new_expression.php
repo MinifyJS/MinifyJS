@@ -65,6 +65,21 @@ class NewExpression extends Expression {
 		return 'new' . Stream::legalStart($this->group($this, $this->left)) . ($this->right ?  '(' . implode(',', $this->right) . ')' : '');
 	}
 
+	public function actualType() {
+		if ($this->left instanceof IdentifierExpression && !$this->left->isLocal()) {
+			switch ((string)$this->left->value()) {
+			case 'Array':
+				return 'array';
+			case 'RegExp':
+				return 'regexp';
+			case 'Function':
+				return 'function';
+			case 'Date':
+				return 'date';
+			}
+		}
+	}
+
 	public function precedence() {
 		if ($this->right) {
 			return 0;
