@@ -777,7 +777,7 @@ class JSTokenizer {
 					if ($match = $this->matchIdentifier()) {
 						$tt = in_array($match, $this->keywords) ? $match : TOKEN_IDENTIFIER;
 					} else {
-						throw $this->newSyntaxError('Illegal token (0x' . dechex($this->getCodePoint()) . ')', true);
+						throw $this->newSyntaxError('Illegal token (U+' . str_pad(dechex($this->getCodePoint()), 4, '0', STR_PAD_LEFT) . ')', true);
 					}
 			}
 		}
