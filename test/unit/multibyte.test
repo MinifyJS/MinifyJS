@@ -1,0 +1,8 @@
+{
+  "name": "Ensure working unicode recognition",
+  "options": []
+}
+=== INPUT
+foo('é','æ');
+=== EXPECT
+foo('é','æ')
