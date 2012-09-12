@@ -3,6 +3,6 @@
   "options": []
 }
 === INPUT
-foo('é','æ');
+foo('é','æ\ucae6\ucad8\u11b5');
 === EXPECT
-foo('é','æ')
+foo('é','æ쫦쫦')
