@@ -72,14 +72,19 @@ class Scope {
 
 		$this->program->countLetters($list);
 
-		arsort($list);
-		$list = array_keys($list);
+		uksort($list, function ($a, $b) use($list) {
+			if (is_int($a) && !is_int($b)) {
+				return 1;
+			}
 
-		self::$all = array_merge(array_filter($list, function ($a) {
-			return !ctype_digit((string)$a);
-		}), array_filter($list, function ($a) {
-			return ctype_digit((string)$a);
-		}));
+			if (!is_int($a) && is_int($b)) {
+				return -1;
+			}
+
+			return $list[$b] - $list[$a];
+		});
+
+		self::$all = array_keys($list);
 	}
 
 	public function usesWith($does = 1, $parents = false) {
@@ -103,9 +108,9 @@ class Scope {
 		}
 
 		if ($this->parent || $this->labelScope) {
-			uasort($this->declared, function (Identifier $a, Identifier $b) {
-				return max(min($b->used() - $a->used(), 1), -1);
-			});
+			//uasort($this->declared, function (Identifier $a, Identifier $b) {
+			//	return max(min($b->used() - $a->used(), 1), -1);
+			//});
 
 			foreach($this->declared as $ident) {
 				if (($ident->declared() && $ident->scope() === $this && $ident->keep(1)) || $this->labelScope) {

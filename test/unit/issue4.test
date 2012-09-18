@@ -14,4 +14,4 @@ var d = 64 / 0;
   alert(a/b,a/c,c/a);
 }());
 === EXPECT
-var a=1/0,b=1/-0,c=1/-0,d=1/0;(function(){alert(1/0,1/-0,0)}())
+var a=1/0,b=1/-0,c=1/-0,d=1/0;alert(1/0,1/-0,0)

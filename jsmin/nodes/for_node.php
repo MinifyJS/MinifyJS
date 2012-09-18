@@ -83,6 +83,20 @@ class ForNode extends Node {
 		$this->body->gone();
 	}
 
+	public function moveExpression(Expression $x) {
+		if (!$this->initializer) {
+			$this->initializer = $x;
+			return true;
+		}
+
+		if ($this->initializer instanceof Expression) {
+			$this->initializer = new CommaExpression(array_merge($x->nodes(), $this->initializer->nodes()));
+			return true;
+		}
+
+		return false;
+	}
+
 	public function last() {
 		return count($this->body->asBlock()->nodes) > 1 ? $this : $this->body->last();
 	}

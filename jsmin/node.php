@@ -112,12 +112,20 @@ abstract class Node {
 		throw new Exception('Node::countLetters( &$letters ) Not implemented in ' . get_class($this));
 	}
 
+	public function removeUseless() {
+		return $this;
+	}
+
 	public function counter($string, &$letters) {
 		for ($i = 0, $length = strlen($string); $i !== $length; ++$i) {
 			if (isset($letters[$string[$i]])) {
 				$letters[$string[$i]] += 1;
 			}
 		}
+	}
+
+	public function moveExpression(Expression $n) {
+		return false;
 	}
 
 	/**

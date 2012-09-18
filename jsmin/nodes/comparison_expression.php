@@ -3,10 +3,24 @@ class ComparisonExpression extends BinaryExpression {
 	const STRICT = true;
 	const NOT_STRICT = false;
 
-	public function visit(AST $ast) {
-		parent::visit($ast);
+	static protected $reverseMap = array(
+		OP_LE => OP_GT,
+		OP_GE => OP_LT,
+		OP_LT => OP_GE,
+		OP_GT => OP_LE
+	);
 
-		return $this;
+	public function visit(AST $ast) {
+		$left = $this->left->visit($ast);
+		$right = $this->right->visit($ast);
+
+		if (AST::$options['unsafe'] && ($this->type === OP_GE || $this->type === OP_GT)) {
+			return new ComparisonExpression(self::$reverseMap[$this->type], $right, $left);
+		}
+
+		$that = new ComparisonExpression($this->type, $left, $right);
+
+		return $that;
 	}
 
 	public function isConstant() {
@@ -29,15 +43,8 @@ class ComparisonExpression extends BinaryExpression {
 		$options = array(parent::negate());
 
 		if (AST::$options['unsafe']) {
-			$map = array(
-				OP_LE => OP_GT,
-				OP_GE => OP_LT,
-				OP_LT => OP_GE,
-				OP_GT => OP_LE
-			);
-
-			if (isset($map[$this->type])) {
-				$options[] = new ComparisonExpression($map[$this->type], $this->left, $this->right);
+			if (isset(self::$reverseMap[$this->type])) {
+				$options[] = new ComparisonExpression(self::$reverseMap[$this->type], $this->left, $this->right);
 			}
 		}
 

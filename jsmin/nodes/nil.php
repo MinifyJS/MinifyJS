@@ -30,6 +30,9 @@ class Nil extends ConstantExpression {
 		}
 	}
 
+	public function isImmutable() {
+		return true;
+	}
 
 	public function negate() {
 		return new Boolean(true);

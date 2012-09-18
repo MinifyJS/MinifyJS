@@ -17,6 +17,15 @@ class OrExpression extends BinaryExpression {
 			return $this->right;
 		}
 
+		if ($this->right instanceof OrExpression) {
+			$result = new OrExpression(
+				new OrExpression($this->left, $this->right->left),
+				$this->right->right
+			);
+
+			return $result->visit($ast);
+		}
+
 		// this will be inferred from the expression
 		if ($this->actualType() === 'boolean') {
 			/*
@@ -26,9 +35,9 @@ class OrExpression extends BinaryExpression {
 	  	  	 * !!(a || b || c)
 			 */
 			return AST::bestOption(array(
-				$this,
+				new NotExpression(new NotExpression($this->negate()->negate())),
 				new NotExpression($this->negate()),
-				new NotExpression(new NotExpression($this->negate()->negate()))
+				$this
 			));
 		}
 
@@ -37,6 +46,16 @@ class OrExpression extends BinaryExpression {
 
 	public function toString() {
 		return $this->binary('||');
+	}
+
+	public function looseBoolean() {
+		if (false === ($right = $this->right->asBoolean())) {
+			return $this->left->looseBoolean();
+		}
+
+		$result = $this->negate()->negate();
+
+		return !($result instanceof self) ? $result->looseBoolean() : $result;
 	}
 
 	public function negate() {
@@ -56,8 +75,8 @@ class OrExpression extends BinaryExpression {
 
 	public function optimize() {
 		return AST::bestOption(array(
-			$this,
-			new AndExpression($this->left->negate(), $this->right)
+			$this->looseBoolean(),
+			new AndExpression($this->left->negate()->looseBoolean(), $this->right)
 		));
 	}
 

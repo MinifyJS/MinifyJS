@@ -78,9 +78,10 @@ class AST {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 
-		$this->tree = $this->tree->visit($this);
 		$this->tree->collectStatistics($this);
 		$this->secondVisit = true;
+		// visit twice
+		$this->tree = $this->tree->visit($this);
 		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
@@ -231,7 +232,10 @@ class AST {
 
 			if ($n->functionForm === EXPRESSED_FORM) {
 				return new FunctionExpression($f);
+			} elseif ($n->functionForm === STATEMENT_FORM) {
+				return new VarNode($ident, new FunctionExpression($f));
 			}
+
 
 			return $f;
 		case KEYWORD_VAR:

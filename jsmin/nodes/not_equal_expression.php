@@ -8,7 +8,11 @@ class NotEqualExpression extends ComparisonExpression {
 	}
 
 	public function visit(AST $ast) {
-		$that = parent::visit($ast);
+		$that = new NotEqualExpression(
+			$this->left->visit($ast),
+			$this->right->visit($ast),
+			$this->strict
+		);
 
 		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
 			if ($left !== null) {
@@ -24,6 +28,13 @@ class NotEqualExpression extends ComparisonExpression {
 			} elseif ((null !== $type = $that->left->left->type())) {
 				return new Boolean($type !== 'undefined');
 			}
+		}
+
+		if ($that->right->isImmutable() && !$that->left->isImmutable()) {
+			return AST::bestOption(array(
+				new NotEqualExpression($that->right, $that->left, $this->strict),
+				$that
+			));
 		}
 
 		return $that;

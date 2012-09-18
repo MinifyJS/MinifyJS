@@ -170,6 +170,10 @@ class String extends ConstantExpression {
 		$this->counter($this->toString(), $letters);
 	}
 
+	public function isImmutable() {
+		return true;
+	}
+
 	public function debug() {
 		return $this->toString();
 	}

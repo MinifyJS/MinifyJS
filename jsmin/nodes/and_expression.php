@@ -20,20 +20,39 @@ class AndExpression extends BinaryExpression {
 			return $left;
 		}
 
+		if ($that->right instanceof AndExpression) {
+			$result = new AndExpression(
+				new AndExpression($that->left, $that->right->left),
+				$that->right->right
+			);
+
+			return $result->visit($ast);
+		}
+
 		// this will be inferred from the expression
 		if ($that->actualType() === 'boolean') {
 			return AST::bestOption(array(
-				$that,
+				new NotExpression(new NotExpression($that->negate()->negate())),
 				new NotExpression($that->negate()),
-				new NotExpression(new NotExpression($that->negate()->negate()))
+				$that
 			));
 		}
 
-		return $this;
+		return $that;
 	}
 
 	public function toString() {
 		return $this->binary('&&');
+	}
+
+	public function looseBoolean() {
+		if (true === $right = $this->right->asBoolean()) {
+			return $this->left->looseBoolean();
+		}
+
+		$result = $this->negate()->negate();
+
+		return !($result instanceof self) ? $result->looseBoolean() : $result;
 	}
 
 	public function negate() {
@@ -45,8 +64,11 @@ class AndExpression extends BinaryExpression {
 
 	public function optimize() {
 		return AST::bestOption(array(
-			$this,
-			new OrExpression($this->left->negate(), $this->right)
+			$this->looseBoolean(),
+			new OrExpression(
+				$this->left->negate()->looseBoolean(),
+				$this->right
+			)
 		));
 	}
 

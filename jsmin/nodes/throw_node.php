@@ -42,6 +42,11 @@ class ThrowNode extends Node {
 		return $this->exception;
 	}
 
+	public function moveExpression(Expression $x) {
+		$this->value = new CommaExpression(array_merge($x->nodes(), $this->exception->nodes()));
+		return true;
+	}
+
 	public function isBreaking() {
 		return true;
 	}

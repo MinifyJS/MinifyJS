@@ -11,7 +11,12 @@ class BlockStatement extends Node {
 		$count = count($nodes = $this->moveVars(
 			$this->transformToComma(
 				$ast,
-				$this->mergeBlocks($this->redoIfElse($this->nodes)),
+				$this->moveExpressions(
+					$this->mergeBlocks(
+						$this->redoIfElse($this->nodes)
+					),
+					$revisit
+				),
 				$revisit
 			),
 			$revisit
@@ -19,23 +24,6 @@ class BlockStatement extends Node {
 
 		if ($count === 0) {
 			return new VoidExpression(new Number(0));
-		}
-
-		if ($count >= 2) {
-			$expr = $nodes[$count - 2];
-			$return = $nodes[$count - 1];
-
-			if ($expr instanceof Expression && $return instanceof ReturnNode && !$return->value()->isVoid()) {
-				array_splice($nodes, -2, 2, array(
-					new ReturnNode(new CommaExpression(array_merge(
-						$expr->nodes(),
-						$return->value()->nodes()
-					)))
-				));
-
-				--$count;
-				$revisit = true;
-			}
 		}
 
 		if ($count === 1) {
@@ -59,70 +47,61 @@ class BlockStatement extends Node {
 		$this->nodes[] = $n;
 	}
 
-	protected function transformToComma(AST $ast, array $original, &$revisit) {
-		$list = array();
+	protected function moveExpressions(array $original, &$revisit) {
 		$nodes = array();
-		$vars = array();
+		$last = null;
 
-		$returnSeen = false;
+		foreach ($original as $n) {
+			if ($last) {
+				if (!$n->moveExpression($last)) {
+					$nodes[] = $last;
+				} else {
+					$revisit = true;
+				}
 
-		foreach($original as $n) {
-			// removed functions always need revisiting
-			$wasFunction = $n instanceof FunctionNode;
-
-			$n = $n->visit($ast, $this)->optimize();
-
-			if ($wasFunction && !($n instanceof FunctionNode)) {
-				$revisit = true;
+				$last = null;
 			}
 
-			if ((!$returnSeen && !$n->isConstant()) || $n instanceof VarNode || $n instanceof FunctionNode) {
-				if ($n instanceof Expression) {
-					foreach($n->removeUseless()->nodes() as $x) {
-						$x = $x->removeUseless();
-						if (!$x->isVoid()) {
-							if ($x instanceof AssignExpression && $x->assignType() === '='
-									&& $x->left() instanceof IdentifierExpression && $x->right()->mayInline()
-									&& isset($vars[$x->left()->value()])) {
-								$vars[$x->left()->value()]->initializer($x->right());
-								$x->left()->gone();
-							} else {
-								$vars = array();
-								$list[] = $x;
-							}
-						}
-					}
-				} else {
-					if ($list) {
-						$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
-						$list = array();
-					}
-
-					// okay… let's get smart!
-					foreach(($n->breaking() ?: array($n)) as $x) {
-						if (!$returnSeen || $x instanceof VarNode || $x instanceof FunctionNode) {
-							if ($x instanceof ReturnNode || $x instanceof BreakNode) {
-								$returnSeen = true;
-							}
-
-							if ($x instanceof VarNode && (!$x->initializer() || $x->initializer()->isVoid())) {
-								$vars[$x->name()->value()] = $x;
-							}
-
-							$nodes[] = $x;
-						} else {
-							$x->gone();
-							$revisit = true;
-						}
-					}
-				}
+			if ($n instanceof Expression) {
+				$last = $n;
 			} else {
-				$n->gone();
+				$nodes[] = $n;
 			}
 		}
 
-		if ($list) {
-			$nodes[] = count($list) === 1 ? $list[0] : new CommaExpression($list);
+		if ($last) {
+			$nodes[] = $last;
+		}
+
+		return $nodes;
+	}
+
+	protected function transformToComma(AST $ast, array $original, &$revisit) {
+		$nodes = array();
+		$last = null;
+
+		foreach ($original as $n) {
+			// removed functions always need revisiting
+			$wasFunction = $n instanceof FunctionNode;
+
+			$x = $n->visit($ast)->optimize()->removeUseless();
+
+			if ($wasFunction && !($x instanceof FunctionNode)) {
+				$revisit = true;
+			}
+
+			if ($x->isConstant()) {
+				$x->gone();
+				continue;
+			}
+
+			if ($last instanceof Expression && $x instanceof Expression) {
+				$last = new CommaExpression(array_merge($last->nodes(), $x->nodes()));
+				array_splice($nodes, -1, 1, array($last));
+			} else {
+				$nodes[] = $x;
+				$last = $x;
+			}
 		}
 
 		return $nodes;
@@ -140,12 +119,8 @@ class BlockStatement extends Node {
 		$nodes = array();
 
 		foreach($original as $n) {
-			if ($n instanceof BlockStatement) {
-				foreach($n->nodes as $x) {
-					$nodes[] = $x;
-				}
-			} else {
-				$nodes[] = $n;
+			foreach($n instanceof BlockStatement ? $n->nodes : array($n) as $x) {
+				$nodes[] = $x;
 			}
 		}
 

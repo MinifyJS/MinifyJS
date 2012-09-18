@@ -14,7 +14,13 @@ class IfNode extends Node {
 	}
 
 	public function visit(AST $ast) {
-		$this->condition = $this->condition->visit($ast)->looseBoolean();
+		$condition = $this->condition->visit($ast);
+
+		$this->condition = AST::bestOption(array(
+			$condition->negate()->negate()->looseBoolean(),
+			$condition->looseBoolean()
+		));
+
 		$this->then = $this->then->visit($ast);
 
 		if ($this->else) {
@@ -22,8 +28,8 @@ class IfNode extends Node {
 		}
 
 		// if (*) {} else *; -> if (!*) *
-		if ($this->else && $this->then->isVoid()) {
-			$this->condition = $this->condition->negate();
+		if ($this->else && !$this->else->isVoid() && $this->then->isVoid()) {
+			$this->condition = $this->condition->negate()->looseBoolean();
 			$this->then = $this->else;
 			$this->else = null;
 		}
@@ -75,6 +81,11 @@ class IfNode extends Node {
 			}
 
 			return new VoidExpression(new Number(0));
+		} elseif ($this->then instanceof IfNode && (!$this->else || $this->else->isVoid()) && (!$this->then->else || $this->then->else->isVoid())) {
+			$result = new IfNode(
+				new AndExpression($this->condition, $this->then->condition),
+				$this->then->then
+			);
 		}
 
 		return $result ? $result->visit($ast) : $this;
@@ -90,16 +101,14 @@ class IfNode extends Node {
 	}
 
 	public function optimizeBreak() {
-		$this->then = $this->then->optimizeBreak();
-		if ($this->else) {
-			$this->else = $this->else->optimizeBreak();
+		$then = $this->then->optimizeBreak();
+		$else = $this->else ? $this->else->optimizeBreak() : null;
 
-			if ($this->else->isVoid()) {
-				$this->else = null;
-			}
+		if ($else && $else->isVoid()) {
+			$else = null;
 		}
 
-		return $this;
+		return new IfNode($this->condition, $then, $else);
 	}
 
 	public function gone() {
@@ -115,6 +124,7 @@ class IfNode extends Node {
 	}
 
 	public function toString() {
+		$space = AST::$options['beautify'] ? ' ' : '';
 		$noBlock = null;
 
 		if ($this->else && !($this->then instanceof Expression || $this->then instanceof VarNode || $this->then instanceof ReturnNode
@@ -123,11 +133,11 @@ class IfNode extends Node {
 			$noBlock = false;
 		}
 
-		$o = 'if(' . $this->condition->toString() . ')' . $this->then->asBlock()->toString($noBlock, true);
+		$o = 'if' . $space . '(' . $this->condition->toString() . ')' . $space . $this->then->asBlock()->toString($noBlock, true);
 
-		if ($this->else) {
+		if ($this->else && !$this->else->isVoid()) {
 			$e = Stream::legalStart($this->else->asBlock()->toString());
-			$o .= 'else' . ($e === ';' ? '{}' : $e);
+			$o .= $space . 'else' . $space . ($e === ';' ? '{}' : $e);
 		}
 
 		return $o;
@@ -164,11 +174,18 @@ class IfNode extends Node {
 		}
 	}
 
+	public function moveExpression(Expression $x) {
+		$this->condition = new CommaExpression(array_merge($x->nodes(), $this->condition->nodes()));
+		return true;
+	}
+
 	public function breaking() {
 		// bail early if we don't have to break
 		if (!$this->else) {
 			return null;
 		}
+
+		return null;
 
 		// check if we have a breaking statement here. In that case, discard all unreachable
 		// nodes and return the resulting statements

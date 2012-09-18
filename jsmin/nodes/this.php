@@ -16,7 +16,6 @@ class This extends ConstantExpression {
 		return false;
 	}
 
-
 	public function countLetters(&$letters) {
 		foreach(array('t', 'h', 'i', 's') as $l) {
 			$letters[$l] += 1;

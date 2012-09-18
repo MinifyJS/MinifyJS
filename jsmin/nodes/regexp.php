@@ -39,6 +39,10 @@ class RegExp extends ConstantExpression {
 		$this->counter($this->left, $letters);
 	}
 
+	public function isImmutable() {
+		return true;
+	}
+
 	public function mayInline() {
 		return false;
 	}

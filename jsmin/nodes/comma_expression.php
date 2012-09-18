@@ -34,7 +34,14 @@ class CommaExpression extends Expression {
 			return new VoidExpression(new Number(0));
 		}
 
-		if (count($nodes) === 1) {
+		$size = count($nodes);
+		if ($size > 1 && $nodes[$size - 1] instanceof IdentifierExpression
+				&& $nodes[$size - 2]->represents()->toString() === $nodes[$size - 1]->toString()) {
+			array_splice($nodes, -1);
+			--$size;
+		}
+
+		if ($size === 1) {
 			return $nodes[0];
 		}
 
@@ -44,9 +51,21 @@ class CommaExpression extends Expression {
 	public function optimize() {
 		$result = array();
 		foreach($this->nodes as $n) {
-			$result[] = $n->optimize();
+			$x = $n->optimize();
+
+			if (!$x->isConstant()) {
+				$result[] = $n;
+			}
 		}
-		return new CommaExpression($result);
+
+		switch (count($result)) {
+		case 0:
+			return new VoidExpression(new Number(0));
+		case 1:
+			return $result[0];
+		default:
+			return new CommaExpression($result);
+		}
 	}
 
 	public function first() {

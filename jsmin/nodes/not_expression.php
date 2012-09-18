@@ -1,19 +1,17 @@
 <?php
 class NotExpression extends UnaryExpression {
 	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+		$that = new NotExpression($this->left->visit($ast));
 
-		if (null !== $result = $this->asBoolean()) {
+		if (null !== $result = $that->asBoolean()) {
 			$result = new Boolean($result);
 			return $result->visit($ast);
 		}
 
 		return AST::bestOption(array(
-			$this,
-			$this->left->negate()->boolean()
+			$that,
+			$that->left->negate()->boolean()
 		));
-
-		return $this;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -72,6 +70,9 @@ class NotExpression extends UnaryExpression {
 		return parent::looseBoolean();
 	}
 
+	public function optimize() {
+		return $this->left;
+	}
 
 	public function countLetters(&$letters) {
 		$this->left->countLetters($letters);

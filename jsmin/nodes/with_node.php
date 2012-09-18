@@ -45,6 +45,11 @@ class WithNode extends Node {
 		$this->body->countLetters($letters);
 	}
 
+	public function moveExpression(Expression $x) {
+		$this->object = new CommaExpression(array_merge($x->nodes(), $this->object->nodes()));
+		return true;
+	}
+
 
 	public function toString() {
 		return 'with(' . $this->object->toString() . ')' . $this->body->asBlock()->toString(null, true);

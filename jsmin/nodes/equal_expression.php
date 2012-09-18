@@ -8,7 +8,11 @@ class EqualExpression extends ComparisonExpression {
 	}
 
 	public function visit(AST $ast) {
-		$that = parent::visit($ast);
+		$that = new EqualExpression(
+			$this->left->visit($ast),
+			$this->right->visit($ast),
+			$this->strict
+		);
 
 		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
 			if ($left !== null) {
@@ -37,6 +41,13 @@ class EqualExpression extends ComparisonExpression {
 				$result = new Boolean($left === $right);
 				return $result->visit($ast);
 			}
+		}
+
+		if ($that->right->isImmutable() && !$that->left->isImmutable()) {
+			return AST::bestOption(array(
+				new EqualExpression($that->right, $that->left, $this->strict),
+				$that
+			));
 		}
 
 		return $that;

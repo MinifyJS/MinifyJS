@@ -77,4 +77,8 @@ class Number extends ConstantExpression {
 	public function countLetters(&$letters) {
 		$this->counter($this->toString(), $letters);
 	}
+
+	public function isImmutable() {
+		return true;
+	}
 }

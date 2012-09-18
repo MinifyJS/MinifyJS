@@ -60,6 +60,11 @@ class ReturnNode extends Node {
 		}
 	}
 
+	public function moveExpression(Expression $x) {
+		$this->value = new CommaExpression(array_merge($x->nodes(), $this->value->nodes()));
+		return true;
+	}
+
 	public function isBreaking() {
 		return true;
 	}

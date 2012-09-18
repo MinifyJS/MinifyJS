@@ -32,7 +32,11 @@ class ScriptNode extends BlockStatement {
 		}
 
 		$revisit = false;
-		$result = $this->reverseIfElse($nodes, $revisit);
+		$result = $this->reverseIfElse(
+			$nodes,
+			new ScriptNode(array(), $this->scope, $this->strict),
+			$revisit
+		);
 
 		if ($revisit) {
 			return $result->visit($ast);
@@ -41,19 +45,24 @@ class ScriptNode extends BlockStatement {
 		return $result;
 	}
 
-	protected function reverseIfElse(array $nodes, &$revisit) {
+	protected function reverseIfElse(array $nodes, BlockStatement $base, &$revisit) {
 		// we will loop, if we find if(...) return; ... , transform into if(!...) { ... }
 		// ^ note that this optimisation is only valid in ScriptStatements
-		$add = $base = new ScriptNode(array(), $this->scope, $this->strict);
+		$add = $base;
 		$last = count($nodes) - 1;
 
 		foreach($nodes as $i => $node) {
-			if ($node instanceof IfNode && !$node->_else() && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
+			if ($node instanceof IfNode && $node->then() instanceof ReturnNode && $node->then()->value()->isVoid()) {
 				// got one!
 				$old = $add;
 				$add = new BlockStatement(array());
 
-				$old->add(new IfNode($node->condition()->negate(), $add));
+				if ($node->_else() && !$node->_else()->isVoid()) {
+					$add = $this->reverseIfElse($node->_else()->nodes(), $add, $revisit);
+					$revisit = true;
+				}
+
+				$old->add(new IfNode($node->condition()->negate()->looseBoolean(), $add));
 
 				$revisit = true;
 			} else {
@@ -79,6 +88,10 @@ class ScriptNode extends BlockStatement {
 	}
 
 	public function toString($noBraces = true, $forceOut = false) {
+		//while (($last = end($this->nodes)) instanceof ReturnNode && $last->value()->isVoid()) {
+		//	array_splice($this->nodes, -1);
+		//}
+
 		return Stream::trimSemicolon(parent::toString($noBraces, $forceOut));
 	}
 }
