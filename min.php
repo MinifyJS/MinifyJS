@@ -49,7 +49,10 @@ $options = array(
 	'--toplevel' => array('toplevel' => true),
 
 	'-p' => array('profile' => true),
-	'--profile' => array('profile' => true)
+	'--profile' => array('profile' => true),
+
+	'-q' => array('silent' => true),
+	'--quiet' => array('silent' => false)
 );
 
 for ($i = 1, $length = count($_SERVER['argv']); $i < $length; ++$i) {

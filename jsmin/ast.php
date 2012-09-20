@@ -34,7 +34,8 @@ class AST {
 		'toplevel' => false,
 		'squeeze' => false,
 		'profile' => false,
-		'ascii' => false
+		'ascii' => false,
+		'silent' => false
 	);
 
 	public static function load($class) {
@@ -75,6 +76,10 @@ class AST {
 	}
 
 	public static function warn($msg) {
+		if (AST::$options['silent']) {
+			return;
+		}
+
 		if (defined('STDERR')) {
 			fwrite(STDERR, 'WARN: ' . $msg . "\n");
 		} else {
