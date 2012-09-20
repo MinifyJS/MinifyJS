@@ -102,6 +102,17 @@ class Scope {
 		}
 	}
 
+	public function clean() {
+		$this->usesWith = 0;
+		foreach($this->declared as $var) {
+			$var->cleanStats();
+		}
+
+		foreach($this->children as $scope) {
+			$scope->clean();
+		}
+	}
+
 	public function optimize() {
 		if (!AST::$options['mangle'] || $this->usesWith > 0) {
 			return;

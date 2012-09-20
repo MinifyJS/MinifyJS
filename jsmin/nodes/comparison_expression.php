@@ -5,16 +5,14 @@ class ComparisonExpression extends BinaryExpression {
 
 	static protected $reverseMap = array(
 		OP_LE => OP_GT,
-		OP_GE => OP_LT,
 		OP_LT => OP_GE,
-		OP_GT => OP_LE
 	);
 
 	public function visit(AST $ast, Node $parent = null) {
 		$left = $this->left->visit($ast, $this);
 		$right = $this->right->visit($ast, $this);
 
-		if (AST::$options['unsafe'] && ($this->type === OP_GE || $this->type === OP_GT)) {
+		if (AST::$options['unsafe'] && isset(self::$reverseMap[$this->type])) {
 			return new ComparisonExpression(self::$reverseMap[$this->type], $right, $left);
 		}
 
@@ -42,10 +40,8 @@ class ComparisonExpression extends BinaryExpression {
 	public function negate() {
 		$options = array(parent::negate());
 
-		if (AST::$options['unsafe']) {
-			if (isset(self::$reverseMap[$this->type])) {
-				$options[] = new ComparisonExpression(self::$reverseMap[$this->type], $this->left, $this->right);
-			}
+		if (AST::$options['unsafe'] && isset(self::$reverseMap[$this->type])) {
+			$options[] = new ComparisonExpression(self::$reverseMap[$this->type], $this->left, $this->right);
 		}
 
 		return AST::bestOption($options);

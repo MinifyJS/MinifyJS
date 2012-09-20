@@ -91,10 +91,16 @@ class AST {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 
+		$this->rootScope->clean();
+		$this->rootLabelScope->clean();
+
 		$this->tree->collectStatistics($this);
-		$this->secondVisit = true;
-		// visit twice
 		$this->tree = $this->tree->visit($this);
+
+		$this->rootScope->clean();
+		$this->rootLabelScope->clean();
+
+		$this->tree->collectStatistics($this);
 		$this->tree = $this->tree->visit($this);
 
 		if (AST::$options['mangle']) {
@@ -121,6 +127,7 @@ class AST {
 	}
 
 	public function hasStats() {
+		return true;
 		return $this->secondVisit;
 	}
 
@@ -483,6 +490,10 @@ class AST {
 	public static function bestOption($options) {
 		if (!is_array($options)) {
 			return $options;
+		}
+
+		if (count($options) === 1) {
+			return $options[0];
 		}
 
 		$minLength = null;

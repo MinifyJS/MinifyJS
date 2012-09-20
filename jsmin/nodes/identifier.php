@@ -15,8 +15,6 @@ class Identifier {
 
 	protected $usage = 0;
 
-	protected $linkedTo;
-
 	protected $toString;
 
 	public function __construct(Scope $scope = null, $name) {
@@ -24,6 +22,12 @@ class Identifier {
 		$this->name = $name;
 
 		$this->toString = $this->escape($this->name);
+	}
+
+	public function cleanStats() {
+		$this->reassigned = 0;
+		$this->usage = 0;
+		$this->initializer = null;
 	}
 
 	public function mustDeclare() {
