@@ -6,11 +6,11 @@ class CallExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
 
 		foreach($this->right as $i => $r) {
-			$this->right[$i] = $r->visit($ast);
+			$this->right[$i] = $r->visit($ast, $this);
 		}
 
 		$argc = count($this->right);
@@ -34,7 +34,7 @@ class CallExpression extends Expression {
 				array($this->left->left())
 			);
 
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		if (AST::$options['strip-debug'] && $this->left instanceof DotExpression && $this->left->left()->value() === 'console') {
@@ -43,7 +43,7 @@ class CallExpression extends Expression {
 				$nodes[] = new VoidExpression(new Number(0));
 
 				$result = new CommaExpression($nodes);
-				return $result->visit($ast);
+				return $result->visit($ast, $parent);
 			}
 		}
 
@@ -148,7 +148,7 @@ class CallExpression extends Expression {
 			}
 		}
 
-		return $result ? $result->visit($ast) : $this;
+		return $result ? $result->visit($ast, $parent) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {
@@ -169,8 +169,7 @@ class CallExpression extends Expression {
 			$o[] = $n;
 		}
 
-		// small exception here: when left is a NewExpression with args, no need for grouping
-		return ($this->left instanceof NewExpression && $this->left->right() ? $this->left->toString() : $this->group($this, $this->left))
+		return $this->group($this, $this->left)
 			. '(' . implode(',' . (AST::$options['beautify'] ? ' ' : ''), $o) . ')';
 	}
 

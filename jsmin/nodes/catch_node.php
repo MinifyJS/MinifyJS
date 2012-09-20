@@ -8,8 +8,8 @@ class CatchNode extends Node {
 		$this->body = $body;
 	}
 
-	public function visit(AST $ast) {
-		$this->body = $this->body->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->body = $this->body->visit($ast, $this);
 
 		return $this;
 	}

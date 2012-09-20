@@ -6,8 +6,8 @@ class DeleteExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
 
 		return $this;
 	}

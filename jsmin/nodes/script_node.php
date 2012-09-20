@@ -9,8 +9,8 @@ class ScriptNode extends BlockStatement {
 	}
 
 
-	public function visit(AST $ast) {
-		$new = parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$new = parent::visit($ast, $parent);
 
 		$nodes = array();
 		$after = array();
@@ -39,7 +39,7 @@ class ScriptNode extends BlockStatement {
 		);
 
 		if ($revisit) {
-			return $result->visit($ast);
+			return $result->visit($ast, $this);
 		}
 
 		return $result;

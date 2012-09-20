@@ -6,27 +6,22 @@ class CommaExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$nodes = array();
 		$last = count($this->nodes) - 1;
 
 		foreach($this->nodes as $i => $e) {
-			if (($node = $e->visit($ast)) && !$node->isVoid()) {
-				foreach($node->nodes() as $n) {
-					if ($i !== $last) {
-						$n = $n->removeUseless();
+			foreach($e->visit($ast, $this)->nodes() as $n) {
+				if ($i !== $last) {
+					$n = $n->optimize();
 
-						if ($n->isConstant()) {
-							continue;
-						}
-					}
-
-					if (!$n->isVoid()) {
-						$nodes[] = $n;
-					} else {
+					if ($n->isConstant()) {
 						$n->gone();
+						continue;
 					}
 				}
+
+				$nodes[] = $n;
 			}
 		}
 

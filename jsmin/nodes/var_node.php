@@ -12,13 +12,15 @@ class VarNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->name = $this->name->visit($ast);
-		$this->initializer = $this->initializer->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->name = $this->name->visit($ast, $this);
+		$this->initializer = $this->initializer->visit($ast, $this);
 
 		if ($ast->hasStats()) {
 			if (!$this->name->keep(1)) {
 				$this->name->gone();
+
+				AST::warn('Dropping unused variable ' . $this->name->value());
 
 				if ($this->initializer) {
 					return $this->initializer;

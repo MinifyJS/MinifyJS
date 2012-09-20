@@ -1,11 +1,11 @@
 <?php
 class UnaryMinusExpression extends UnaryExpression {
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
 
 		if ($this->left instanceof UnaryMinusExpression) {
 			$result = new UnaryPlusExpression($this->left->left());
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		if (null !== $value = $this->left->asNumber()) {

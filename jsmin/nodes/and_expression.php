@@ -4,18 +4,20 @@ class AndExpression extends BinaryExpression {
 		parent::__construct(OP_AND, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		$left = $this->left->visit($ast);
-		$right = $this->right()->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$left = $this->left->visit($ast, $this);
+		$right = $this->right()->visit($ast, $this);
 
 		$that = new AndExpression($left, $right);
 
 		$else = $left->asBoolean();
 
 		if ($else === true) {
+			AST::warn('Dropping left side of &&-expression');
 			$left->gone();
 			return $right;
 		} elseif ($else === false) {
+			AST::warn('Dropping right side of &&-expression');
 			$right->gone();
 			return $left;
 		}
@@ -26,7 +28,7 @@ class AndExpression extends BinaryExpression {
 				$that->right->right
 			);
 
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		// this will be inferred from the expression

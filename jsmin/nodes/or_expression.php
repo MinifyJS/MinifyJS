@@ -4,30 +4,30 @@ class OrExpression extends BinaryExpression {
 		parent::__construct(OP_OR, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = parent::visit($ast, $parent);
 
-		$else = $this->left->asBoolean();
+		$else = $that->left->asBoolean();
 
 		if ($else === true) {
-			$this->right->gone();
-			return $this->left;
+			$that->right->gone();
+			return $that->left;
 		} elseif ($else === false) {
 			$this->left->gone();
-			return $this->right;
+			return $that->right;
 		}
 
-		if ($this->right instanceof OrExpression) {
+		if ($that->right instanceof OrExpression) {
 			$result = new OrExpression(
-				new OrExpression($this->left, $this->right->left),
-				$this->right->right
+				new OrExpression($that->left, $that->right->left),
+				$that->right->right
 			);
 
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		// this will be inferred from the expression
-		if ($this->actualType() === 'boolean') {
+		if ($that->actualType() === 'boolean') {
 			/*
 			 * This method will allow deep boolean expressions to be shorter:
 		  	 * !!a || !!b || !!c
@@ -35,13 +35,13 @@ class OrExpression extends BinaryExpression {
 	  	  	 * !!(a || b || c)
 			 */
 			return AST::bestOption(array(
-				new NotExpression(new NotExpression($this->negate()->negate())),
-				new NotExpression($this->negate()),
-				$this
+				new NotExpression(new NotExpression($that->negate()->negate())),
+				new NotExpression($that->negate()),
+				$that
 			));
 		}
 
-		return $this;
+		return $that;
 	}
 
 	public function toString() {

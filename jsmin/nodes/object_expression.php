@@ -6,9 +6,9 @@ class ObjectExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		foreach($this->nodes as $i => $e) {
-			$this->nodes[$i] = $e->visit($ast);
+			$this->nodes[$i] = $e->visit($ast, $this);
 		}
 
 		return $this;

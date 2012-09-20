@@ -9,9 +9,9 @@ class WhileNode extends Node {
 		$this->body = $body;
 	}
 
-	public function visit(AST $ast) {
-		$this->condition = $this->condition->visit($ast)->looseBoolean();
-		$this->body = $this->body->visit($ast)->optimizeBreak();
+	public function visit(AST $ast, Node $parent = null) {
+		$this->condition = $this->condition->visit($ast, $this)->looseBoolean();
+		$this->body = $this->body->visit($ast, $this)->optimizeBreak();
 
 		$result = $this->condition->asBoolean();
 

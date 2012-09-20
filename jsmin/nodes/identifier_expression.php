@@ -11,13 +11,14 @@ class IdentifierExpression extends ConstantExpression {
 		return $this->left->toString();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		// check for some common variables
-		if (!$this->write && (!$this->left->declared() || !AST::$options['mangle'])) {
+		if (!$this->write && !$this->left->declared()) {
 			switch ($this->left->toString()) {
 			case 'undefined':
 				return new VoidExpression(new Number(0));
-				break;
+			case 'NaN':
+				return new DivExpression(new Number(0), new Number(0));
 			}
 		}
 
@@ -40,6 +41,7 @@ class IdentifierExpression extends ConstantExpression {
 
 				if ((($usage - 1) * $valueLength) < (($usage * 1) + 4 + $valueLength)) {
 					$this->left->used(false);
+					AST::warn('Replacing reference to ' . $this->left->toString() . ' with its constant value `' . $init->toString() . '`');
 					return $init;
 				}
 			}

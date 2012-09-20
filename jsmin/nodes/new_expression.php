@@ -7,10 +7,10 @@ class NewExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
 		foreach($this->right as $i => $n) {
-			$this->right[$i] = $n->visit($ast);
+			$this->right[$i] = $n->visit($ast, $this);
 		}
 
 		$result = null;
@@ -33,7 +33,7 @@ class NewExpression extends Expression {
 			}
 		}
 
-		return $result ? $result->visit($ast) : $this;
+		return $result ? $result->visit($ast, $parent) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {

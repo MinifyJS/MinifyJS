@@ -8,7 +8,7 @@ class ContinueNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		return $this;
 	}
 
@@ -34,6 +34,7 @@ class ContinueNode extends Node {
 
 	public function optimizeBreak() {
 		if (!$this->hasLabel()) {
+			AST::warn('Dropping continue statement');
 			return new VoidExpression(new Number(0));
 		}
 

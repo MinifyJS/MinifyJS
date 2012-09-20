@@ -10,9 +10,9 @@ class ComparisonExpression extends BinaryExpression {
 		OP_GT => OP_LE
 	);
 
-	public function visit(AST $ast) {
-		$left = $this->left->visit($ast);
-		$right = $this->right->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$left = $this->left->visit($ast, $this);
+		$right = $this->right->visit($ast, $this);
 
 		if (AST::$options['unsafe'] && ($this->type === OP_GE || $this->type === OP_GT)) {
 			return new ComparisonExpression(self::$reverseMap[$this->type], $right, $left);

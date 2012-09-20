@@ -5,8 +5,8 @@ class FunctionExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->middle = $this->middle->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->middle = $this->middle->visit($ast, $parent);
 
 		return $this;
 	}

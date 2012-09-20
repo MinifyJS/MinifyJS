@@ -8,8 +8,8 @@ class ThrowNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->exception = $this->exception->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->exception = $this->exception->visit($ast, $this);
 
 		return $this;
 	}

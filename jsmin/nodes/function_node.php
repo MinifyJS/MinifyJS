@@ -14,7 +14,7 @@ class FunctionNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if ($ast->hasStats() && $this->name) {
 			if ($this->functionForm !== EXPRESSED_FORM && !$this->name->keep(1)) {
 				$this->gone();
@@ -24,7 +24,7 @@ class FunctionNode extends Node {
 		}
 
 		if ($this->name) {
-			$this->name = $this->name->visit($ast);
+			$this->name = $this->name->visit($ast, $this);
 		}
 
 		foreach($this->params as $i => $p) {
@@ -32,7 +32,7 @@ class FunctionNode extends Node {
 			$this->params[$i] = $p->visit($ast);
 		}
 
-		$this->body = $this->body->visit($ast);
+		$this->body = $this->body->visit($ast, $this);
 
 		return $this;
 	}

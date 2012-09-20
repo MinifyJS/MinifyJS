@@ -1,8 +1,8 @@
 <?php
 class DebuggerNode extends Node {
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if (AST::$options['strip-debug']) {
-			return new Number(0);
+			return new VoidExpression(new Number(0));
 		}
 
 		return $this;

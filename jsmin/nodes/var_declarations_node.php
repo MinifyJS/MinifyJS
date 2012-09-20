@@ -12,9 +12,9 @@ class VarDeclarationsNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		foreach($this->nodes as $i => $e) {
-			$this->nodes[$i] = $e->visit($ast);
+			$this->nodes[$i] = $e->visit($ast, $parent);
 		}
 
 		return $this;

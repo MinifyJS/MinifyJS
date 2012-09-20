@@ -109,7 +109,7 @@ class Scope {
 
 		if ($this->parent || $this->labelScope) {
 			//uasort($this->declared, function (Identifier $a, Identifier $b) {
-			//	return max(min($b->used() - $a->used(), 1), -1);
+			//	return $b->used() - $a->used();
 			//});
 
 			foreach($this->declared as $ident) {

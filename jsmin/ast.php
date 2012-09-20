@@ -74,6 +74,14 @@ class AST {
 		$this->secondVisit = false;
 	}
 
+	public static function warn($msg) {
+		if (defined('STDERR')) {
+			fwrite(STDERR, 'WARN: ' . $msg . "\n");
+		} else {
+			trigger_error($msg, E_USER_NOTICE);
+		}
+	}
+
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;

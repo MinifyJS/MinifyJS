@@ -14,7 +14,7 @@ class Number extends ConstantExpression {
 		return $this->left;
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if (is_nan($this->left)) {
 			return new DivExpression(new Number(0), new Number(0));
 		}

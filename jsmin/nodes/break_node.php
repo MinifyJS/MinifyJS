@@ -8,7 +8,7 @@ class BreakNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		return $this;
 	}
 

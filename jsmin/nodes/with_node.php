@@ -8,9 +8,9 @@ class WithNode extends Node {
 		$this->body = $body;
 	}
 
-	public function visit(AST $ast) {
-		$this->object = $this->object->visit($ast);
-		$this->body = $this->body->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->object = $this->object->visit($ast, $this);
+		$this->body = $this->body->visit($ast, $this);
 
 		if ($this->body->isRedundant()) {
 			if ($ast->hasStats()) {

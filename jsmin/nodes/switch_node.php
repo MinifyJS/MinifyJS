@@ -10,11 +10,11 @@ class SwitchNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->discriminant = $this->discriminant->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->discriminant = $this->discriminant->visit($ast, $this);
 
 		foreach($this->cases as $i => $e) {
-			$this->cases[$i] = $e->visit($ast);
+			$this->cases[$i] = $e->visit($ast, $this);
 		}
 
 		if ($this->cases && $last = end($this->cases)) {

@@ -11,9 +11,9 @@ class AssignExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
-		$this->right = $this->right->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
+		$this->right = $this->right->visit($ast, $this);
 
 		if ($this->type === '=') {
 			// you're a stupid jerk if you do c[i++] = c[i++] + 5;

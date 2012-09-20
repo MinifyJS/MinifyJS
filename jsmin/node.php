@@ -10,7 +10,7 @@ abstract class Node {
 
 	protected $debug = true;
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		throw new Exception('Node::visit( ) Not implemented in ' . get_class($this));
 	}
 

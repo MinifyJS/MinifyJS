@@ -1,11 +1,11 @@
 <?php
 class NotExpression extends UnaryExpression {
-	public function visit(AST $ast) {
-		$that = new NotExpression($this->left->visit($ast));
+	public function visit(AST $ast, Node $parent = null) {
+		$that = new NotExpression($this->left->visit($ast, $this));
 
 		if (null !== $result = $that->asBoolean()) {
 			$result = new Boolean($result);
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		return AST::bestOption(array(

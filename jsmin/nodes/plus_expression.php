@@ -4,8 +4,8 @@ class PlusExpression extends BinaryExpression {
 		parent::__construct(OP_PLUS, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		$that = parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = parent::visit($ast, $parent);
 
 		if ($that->left->type() === 'string' || $that->right->type() === 'string') {
 			if ((null !== $left = $that->left->asString()) && (null !== $right = $that->right->asString())) {
@@ -18,7 +18,7 @@ class PlusExpression extends BinaryExpression {
 				&& (null !== $right = $that->right()->asString())) {
 			if (null !== $left = $that->left->right()->asString()) {
 				$result = new PlusExpression($that->left->left(), new String($left . $right, false));
-				return $result->visit($ast);
+				return $result->visit($ast, $parent);
 			}
 		}
 

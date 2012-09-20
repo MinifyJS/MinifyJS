@@ -4,8 +4,8 @@ class MulExpression extends BinaryExpression {
 		parent::__construct(OP_MUL, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		$that = parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = parent::visit($ast, $parent);
 
 		if (null !== $result = $that->asNumber()) {
 			return AST::bestOption(array(new Number($result), $that));

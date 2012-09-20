@@ -8,11 +8,12 @@ abstract class BinaryExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
-		$this->right = $this->right->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = clone $this;
+		$that->left = $that->left->visit($ast, $this);
+		$that->right = $that->right->visit($ast, $this);
 
-		return $this;
+		return $that;
 	}
 
 	public function collectStatistics(AST $ast) {

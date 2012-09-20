@@ -1,8 +1,8 @@
 <?php
 class DoWhileNode extends WhileNode {
-	public function visit(AST $ast) {
-		$this->body = $this->body->visit($ast);
-		$this->condition = $this->condition->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->body = $this->body->visit($ast, $this);
+		$this->condition = $this->condition->visit($ast, $this);
 
 		$result = $this->condition->asBoolean();
 

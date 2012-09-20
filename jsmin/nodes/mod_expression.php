@@ -4,15 +4,15 @@ class ModExpression extends BinaryExpression {
 		parent::__construct(OP_MOD, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = parent::visit($ast, $parent);
 
 		// division can be messy (1/3 = 0.333…)
 		if (null !== $result = $this->asNumber()) {
-			return AST::bestOption(array(new Number($result), $this));
+			return AST::bestOption(array(new Number($result), $that));
 		}
 
-		return $this;
+		return $that;
 	}
 
 	public function asNumber() {

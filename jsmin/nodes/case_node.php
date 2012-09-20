@@ -8,10 +8,10 @@ class CaseNode extends Node {
 		$this->stmt = $stmt;
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$old = $this->label;
 		$this->label = $this->label->visit($ast);
-		$this->stmt = $this->stmt->visit($ast);
+		$this->stmt = $this->stmt->visit($ast, $this);
 
 		return $this;
 	}

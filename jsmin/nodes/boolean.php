@@ -8,7 +8,7 @@ class Boolean extends ConstantExpression {
 		return 'boolean';
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if (!AST::$options['crush-bool']) {
 			return $this;
 		}

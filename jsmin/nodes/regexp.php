@@ -23,7 +23,7 @@ class RegExp extends ConstantExpression {
 		return true;
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		return $this;
 	}
 

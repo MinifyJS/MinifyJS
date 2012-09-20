@@ -21,20 +21,20 @@ class ForNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if ($this->initializer) {
-			$this->initializer = $this->initializer->visit($ast)->optimize();
+			$this->initializer = $this->initializer->visit($ast, $this)->optimize();
 		}
 
 		if ($this->condition) {
-			$this->condition = $this->condition->visit($ast)->looseBoolean();
+			$this->condition = $this->condition->visit($ast, $this)->looseBoolean();
 		}
 
 		if ($this->update) {
-			$this->update = $this->update->visit($ast)->optimize();
+			$this->update = $this->update->visit($ast, $this)->optimize();
 		}
 
-		$this->body = $this->body->visit($ast)->optimizeBreak();
+		$this->body = $this->body->visit($ast, $this)->optimizeBreak();
 
 		return $this;
 	}
@@ -84,7 +84,7 @@ class ForNode extends Node {
 	}
 
 	public function moveExpression(Expression $x) {
-		if (!$this->initializer) {
+		if (!$this->initializer || $this->initializer->isVoid()) {
 			$this->initializer = $x;
 			return true;
 		}

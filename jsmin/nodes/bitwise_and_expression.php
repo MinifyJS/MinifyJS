@@ -4,8 +4,8 @@ class BitwiseAndExpression extends BinaryExpression {
 		parent::__construct(OP_BITWISE_AND, $left, $right);
 	}
 
-	public function visit(AST $ast) {
-		$that = parent::visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$that = parent::visit($ast, $parent);
 
 		// division can be messy (1/3 = 0.333…)
 		if (null !== $result = $that->asNumber()) {

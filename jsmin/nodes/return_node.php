@@ -8,8 +8,15 @@ class ReturnNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->value = $this->value->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->value = $this->value->visit($ast, $this);
+
+		if ($this->value instanceof CommaExpression && $this->value->represents()->isVoid()) {
+			return new BlockStatement(array(
+				new CommaExpression(array_slice($this->value->nodes(), 0, -1)),
+				new ReturnNode(new VoidExpression(new Number(0)))
+			));
+		}
 
 		return $this;
 	}

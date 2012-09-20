@@ -4,8 +4,8 @@ class DefaultCaseNode extends CaseNode {
 		$this->stmt = $stmt;
 	}
 
-	public function visit(AST $ast) {
-		$this->stmt = $this->stmt->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->stmt = $this->stmt->visit($ast, $this);
 
 		return $this;
 	}

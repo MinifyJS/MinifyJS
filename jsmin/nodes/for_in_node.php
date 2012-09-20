@@ -14,10 +14,10 @@ class ForInNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->iterator = $this->iterator->visit($ast);
-		$this->object = $this->object->visit($ast);
-		$this->body = $this->body->visit($ast)->optimizeBreak();
+	public function visit(AST $ast, Node $parent = null) {
+		$this->iterator = $this->iterator->visit($ast, $this);
+		$this->object = $this->object->visit($ast, $this);
+		$this->body = $this->body->visit($ast, $this)->optimizeBreak();
 
 		if ($this->body->isVoid()) {
 			return $this->iterator;

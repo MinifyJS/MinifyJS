@@ -8,10 +8,10 @@ class HookExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
-		$this->middle = $this->middle->visit($ast);
-		$this->right = $this->right->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
+		$this->middle = $this->middle->visit($ast, $this);
+		$this->right = $this->right->visit($ast, $this);
 
 		$condition = $this->left->asBoolean();
 
@@ -40,7 +40,7 @@ class HookExpression extends Expression {
 				)
 			);
 
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		if ($this->middle instanceof IndexExpression && $this->right instanceof IndexExpression
@@ -50,7 +50,7 @@ class HookExpression extends Expression {
 				new HookExpression($this->left, $this->middle->right(), $this->right->right())
 			);
 
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		if ($this->type() === 'boolean' && (null !== $left = $this->middle->asBoolean()) && (null !== $right = $this->right->asBoolean())) {

@@ -7,9 +7,9 @@ class IndexExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
-		$this->right = $this->right->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
+		$this->right = $this->right->visit($ast, $this);
 
 		if (null !== $test = $this->right->asString()) {
 			if (Identifier::isValid($test)) {

@@ -11,8 +11,8 @@ class DotExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->left = $this->left->visit($ast, $this);
 
 		if ($this->left instanceof IdentifierExpression && $this->left->value() === 'Number') {
 			switch ($this->right->name()) {

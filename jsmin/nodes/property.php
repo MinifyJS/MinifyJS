@@ -18,7 +18,7 @@ class Property extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		if ($this->key instanceof String) {
 			if (Identifier::isValid($test = $this->key->asString())) {
 				$this->key = new Identifier(null, $test);
@@ -29,7 +29,7 @@ class Property extends Node {
 			}
 		}
 
-		$this->value = $this->value->visit($ast);
+		$this->value = $this->value->visit($ast, $this);
 
 		return $this;
 	}

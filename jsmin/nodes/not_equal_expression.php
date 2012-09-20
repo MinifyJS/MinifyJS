@@ -7,10 +7,10 @@ class NotEqualExpression extends ComparisonExpression {
 		$this->strict = $strict;
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$that = new NotEqualExpression(
-			$this->left->visit($ast),
-			$this->right->visit($ast),
+			$this->left->visit($ast, $this),
+			$this->right->visit($ast, $this),
 			$this->strict
 		);
 

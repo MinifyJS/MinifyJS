@@ -6,10 +6,10 @@ class ArrayExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$nodes = array();
 		foreach($this->nodes as $i => $e) {
-			$nodes[] = $e->visit($ast);
+			$nodes[] = $e->visit($ast, $this);
 		}
 
 		return new ArrayExpression($nodes);

@@ -12,8 +12,8 @@ class LabelNode extends Node {
 		return $this->stmt;
 	}
 
-	public function visit(AST $ast) {
-		$this->stmt = $this->stmt->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->stmt = $this->stmt->visit($ast, $parent);
 
 		if ($ast->hasStats() && !$this->label->used()) {
 			return $this->stmt;

@@ -13,18 +13,26 @@ class IfNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$condition = $this->condition->visit($ast);
+	public function visit(AST $ast, Node $parent = null, $parentScript = false) {
+		$condition = $this->condition->visit($ast, $this);
 
 		$this->condition = AST::bestOption(array(
 			$condition->negate()->negate()->looseBoolean(),
 			$condition->looseBoolean()
 		));
 
-		$this->then = $this->then->visit($ast);
+		$this->then = $this->then->visit($ast, $this, $parentScript || $parent instanceof ScriptNode);
 
 		if ($this->else) {
-			$this->else = $this->else->visit($ast);
+			$this->else = $this->else->visit($ast, $this, $parentScript || $parent instanceof ScriptNode);
+		}
+
+		if (null !== $cond = $this->condition->asBoolean()) {
+			if ($cond) {
+				return $this->then;
+			} else {
+				return $this->else ?: new VoidExpression(new Number(0));
+			}
 		}
 
 		// if (*) {} else *; -> if (!*) *
@@ -86,9 +94,15 @@ class IfNode extends Node {
 				new AndExpression($this->condition, $this->then->condition),
 				$this->then->then
 			);
+		} elseif (($parent instanceof ScriptNode || $parentScript) && $this->then instanceof ReturnNode) {
+			$result = new ReturnNode(new HookExpression(
+				$this->condition,
+				$this->then->value(),
+				new VoidExpression(new Number(0))
+			));
 		}
 
-		return $result ? $result->visit($ast) : $this;
+		return $result ? $result->visit($ast, $parent) : $this;
 	}
 
 	public function collectStatistics(AST $ast) {

@@ -7,9 +7,9 @@ class InExpression extends Expression {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
-		$this->right = $this->right->visit($ast);
-		$this->left = $this->left->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->right = $this->right->visit($ast, $this);
+		$this->left = $this->left->visit($ast, $this);
 
 		return $this;
 	}

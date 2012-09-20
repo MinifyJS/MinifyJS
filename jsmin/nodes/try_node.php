@@ -10,14 +10,14 @@ class TryNode extends Node {
 		$this->finally = $finally;
 	}
 
-	public function visit(AST $ast) {
-		$this->body = $this->body->visit($ast);
+	public function visit(AST $ast, Node $parent = null) {
+		$this->body = $this->body->visit($ast, $this);
 
 		if ($this->catch) {
-			$this->catch = $this->catch->visit($ast);
+			$this->catch = $this->catch->visit($ast, $this);
 		}
 		if ($this->finally) {
-			$this->finally = $this->finally->visit($ast);
+			$this->finally = $this->finally->visit($ast, $this);
 		}
 
 		return $this;

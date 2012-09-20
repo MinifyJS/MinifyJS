@@ -12,7 +12,7 @@ class ConstantExpression extends Expression {
 		return $this->left->toString();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		return $this;
 	}
 

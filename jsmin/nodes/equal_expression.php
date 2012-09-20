@@ -7,10 +7,10 @@ class EqualExpression extends ComparisonExpression {
 		$this->strict = $strict;
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$that = new EqualExpression(
-			$this->left->visit($ast),
-			$this->right->visit($ast),
+			$this->left->visit($ast, $this),
+			$this->right->visit($ast, $this),
 			$this->strict
 		);
 
@@ -24,7 +24,7 @@ class EqualExpression extends ComparisonExpression {
 		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression) {
 			if ($that->left->left()->isLocal()) {
 				$result = new EqualExpression($that->left->left(), new VoidExpression(new Number(0)), true);
-				return $result->visit($ast);
+				return $result->visit($ast, $parent);
 			} elseif ((null !== $type = $that->left->left->type())) {
 				return new Boolean($type === 'undefined');
 			}
@@ -39,13 +39,13 @@ class EqualExpression extends ComparisonExpression {
 				$that->right->gone();
 
 				$result = new Boolean($left === $right);
-				return $result->visit($ast);
+				return $result->visit($ast, $parent);
 			}
 		}
 
 		if ($that->right->isImmutable() && !$that->left->isImmutable()) {
 			return AST::bestOption(array(
-				new EqualExpression($that->right, $that->left, $this->strict),
+				new EqualExpression($that->right, $that->left, $that->strict),
 				$that
 			));
 		}

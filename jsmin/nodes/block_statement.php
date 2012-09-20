@@ -5,39 +5,36 @@ class BlockStatement extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast) {
+	public function visit(AST $ast, Node $parent = null) {
 		$revisit = false;
 
-		$count = count($nodes = $this->moveVars(
-			$this->transformToComma(
-				$ast,
-				$this->moveExpressions(
-					$this->mergeBlocks(
-						$this->redoIfElse($this->nodes)
-					),
-					$revisit
-				),
-				$revisit
-			),
-			$revisit
-		));
+		$nodes = $this->redoIfElse($this->nodes, $revisit);
+		$nodes = $this->mergeBlocks($nodes);
+		$nodes = $this->moveExpressions($nodes);
+		$nodes = $this->transformToComma($ast, $nodes, $revisit);
+		$nodes = $this->moveVars($nodes);
+
+		$count = count($nodes);
 
 		if ($count === 0) {
 			return new VoidExpression(new Number(0));
 		}
 
 		if ($count === 1) {
-			if ($revisit) {
-				return $nodes[0]->visit($ast);
-			}
-
 			return $nodes[0];
+		}
+
+		if ($this instanceof BlockStatement && $count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode) {
+			if ($nodes[1]->moveExpression($nodes[0])) {
+				$nodes = array($nodes[1]);
+				$count = 1;
+			}
 		}
 
 		$result = new BlockStatement($nodes);
 
 		if ($revisit) {
-			return $result->visit($ast);
+			return $result->visit($ast, $parent);
 		}
 
 		return $result;
@@ -47,7 +44,7 @@ class BlockStatement extends Node {
 		$this->nodes[] = $n;
 	}
 
-	protected function moveExpressions(array $original, &$revisit) {
+	protected function moveExpressions(array $original) {
 		$nodes = array();
 		$last = null;
 
@@ -55,8 +52,6 @@ class BlockStatement extends Node {
 			if ($last) {
 				if (!$n->moveExpression($last)) {
 					$nodes[] = $last;
-				} else {
-					$revisit = true;
 				}
 
 				$last = null;
@@ -81,26 +76,19 @@ class BlockStatement extends Node {
 		$last = null;
 
 		foreach ($original as $n) {
-			// removed functions always need revisiting
-			$wasFunction = $n instanceof FunctionNode;
+			foreach($n->visit($ast, $this)->optimize()->removeUseless()->nodes() as $x) {
+				if ($x->isConstant()) {
+					$x->gone();
+					continue;
+				}
 
-			$x = $n->visit($ast)->optimize()->removeUseless();
-
-			if ($wasFunction && !($x instanceof FunctionNode)) {
-				$revisit = true;
-			}
-
-			if ($x->isConstant()) {
-				$x->gone();
-				continue;
-			}
-
-			if ($last instanceof Expression && $x instanceof Expression) {
-				$last = new CommaExpression(array_merge($last->nodes(), $x->nodes()));
-				array_splice($nodes, -1, 1, array($last));
-			} else {
-				$nodes[] = $x;
-				$last = $x;
+				if ($last instanceof Expression && $x instanceof Expression) {
+					$last = new CommaExpression(array_merge($last->nodes(), $x->nodes()));
+					array_splice($nodes, -1, 1, array($last));
+				} else {
+					$nodes[] = $x;
+					$last = $x;
+				}
 			}
 		}
 
@@ -127,7 +115,7 @@ class BlockStatement extends Node {
 		return $nodes;
 	}
 
-	protected function redoIfElse(array $nodes) {
+	protected function redoIfElse(array $nodes, &$revisit) {
 		for ($i = 0, $length = count($nodes); $i < $length; ++$i) {
 			$n = $nodes[$i];
 
@@ -139,7 +127,9 @@ class BlockStatement extends Node {
 						continue;
 					}
 
-					$e = $this->redoIfElse($r);
+					$revisit = true;
+
+					$e = $this->redoIfElse($r, $revisit);
 
 					return array_merge(
 						array_slice($nodes, 0, $i),
@@ -156,7 +146,7 @@ class BlockStatement extends Node {
 		return $nodes;
 	}
 
-	protected function moveVars(array $original, &$revisit) {
+	protected function moveVars(array $original) {
 		$vars = array();
 		$nodes = array();
 
@@ -251,13 +241,13 @@ class BlockStatement extends Node {
 				$varCache = array();
 			}
 
-			$f = $n->first();
-
 			$x = $n->toString(false);
 
-			if (!strlen($x)) {
+			if ((string)$x === '') {
 				continue;
 			}
+
+			$f = $n->first();
 
 			/*
 			 * ECMA-262, 12.4 Expression Statement
@@ -329,8 +319,6 @@ class BlockStatement extends Node {
 	}
 
 	public function breaking() {
-		//return array();
-
 		$nodes = array();
 		$broken = false;
 
@@ -352,10 +340,8 @@ class BlockStatement extends Node {
 
 	public function optimizeBreak() {
 		if ($this->nodes) {
-			$check = end($this->nodes)->optimizeBreak();
-			if ($check instanceof ContinueNode && !$check->hasLabel()) {
-				$end = array_splice($this->nodes, -1);
-				$end->gone();
+			if (end($this->nodes)->optimizeBreak()->isVoid()) {
+				array_splice($this->nodes, -1);
 			}
 		}
 
