@@ -9,7 +9,7 @@ const STATE_DATA = 2;
 
 
 function test($info) {
-	$options = '';
+	$options = ' --quiet';
 	foreach($info['meta']['options'] as $option) {
 		$options .= ' --' . $option;
 	}
