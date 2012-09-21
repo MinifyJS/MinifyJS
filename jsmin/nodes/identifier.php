@@ -4,6 +4,8 @@
  *
  */
 class Identifier {
+	protected static $sequence = 0;
+
 	protected $scope;
 	protected $name;
 	protected $small;
@@ -12,6 +14,8 @@ class Identifier {
 
 	protected $reassigned = 0;
 	protected $initializer;
+
+	protected $id;
 
 	protected $usage = 0;
 
@@ -22,6 +26,8 @@ class Identifier {
 		$this->name = $name;
 
 		$this->toString = $this->escape($this->name);
+
+		$this->id = self::$sequence++;
 	}
 
 	public function cleanStats() {
@@ -67,7 +73,7 @@ class Identifier {
 	}
 
 	public function keep($min = 0) {
-		return $this->used() > $min || $this->reassigned() || !$this->scope->parent();
+		return !$this->scope || $this->used() > $min || $this->reassigned() || !$this->scope->parent();
 	}
 
 	public function scope() {
@@ -99,7 +105,7 @@ class Identifier {
 	}
 
 	public function toString() {
-		if (AST::$options['squeeze']) {
+		if ($this->scope && AST::$options['squeeze']) {
 			return 'a';
 		}
 

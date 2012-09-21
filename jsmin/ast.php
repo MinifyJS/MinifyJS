@@ -87,16 +87,28 @@ class AST {
 		}
 	}
 
+	public static function debug($msg) {
+		if (AST::$options['silent']) {
+			return;
+		}
+
+		if (defined('STDERR')) {
+			fwrite(STDERR, 'DEBUG: ' . $msg . "\n");
+		}
+	}
+
+
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
 		self::$options['squeeze'] = true;
 
-		for ($i = 0; $i < 2; ++$i) {
 			$this->rootScope->clean();
 			$this->rootLabelScope->clean();
 
 			$this->tree->collectStatistics($this);
+
+		for ($i = 0; $i < 2; ++$i) {
 			$this->tree = $this->tree->visit($this);
 		}
 
@@ -133,11 +145,6 @@ class AST {
 	}
 
 	public function toString() {
-		// we still need stats…
-		if (!$this->secondVisit) {
-			$this->tree->collectStatistics($this);
-		}
-
 		// strip out final semicolons
 		return str_replace("\0", '', $this->tree->asBlock()->toString(true));
 	}
@@ -514,3 +521,134 @@ class AST {
 
 
 
+class Debug {
+	public static function backtrace( $print = true, $skip = 0, array $source = null ) {
+		$out = array( );
+		$b = $source ?: debug_backtrace( );
+
+		for( $i = -1; $i < $skip; ++$i ) {
+			array_shift( $b );
+		}
+
+		$i = '';
+		foreach($b as $p) {
+			$a = array();
+			foreach($p['args'] as $c) {
+				if (is_array($c)) {
+					$a[] = '[object Array -> ' . count($c) . ']';
+				} elseif(is_object($c)) {
+					$toString = method_exists($c, '__toString') ? ' -> ' . (string)$c : '';
+					$a[] = '[object ' . get_class($c) . $toString . ']';
+				} elseif(is_string($c)) {
+					$c = str_replace(array("\r\n", "\r"), "\n", ltrim(substr($c, 0, 105)));
+					$a[] = self::quote(self::trimString(substr($c, 0, strpos($c, "\n") ?: 105), 100), "'");
+				} elseif (is_bool($c)) {
+					$a[] = $c ? 'true' : 'false';
+				} elseif ($c === null) {
+					$a[] = 'NULL';
+				} else {
+					$a[] = $c;
+				}
+			}
+
+			$out[] = @($i . ($p['class'] ? $p['class'] . '::' : '') . $p['function'] . '(' . implode(', ', $a) . ")\n{$i}    called at line " . $p['line']) . ' in file ' . $p['file'] . "\n";
+			$i .= '  ';
+		}
+
+		$out = implode( '', $out );
+
+		if( $print ) {
+			echo $out;
+		}
+
+		return $out;
+	}
+
+	protected static function trimString($string, $length) {
+		if (strlen($string) > $length) {
+			return substr($string, 0, $length - 3) . ' ...';
+		}
+
+		return $string;
+	}
+
+	protected static function quote($s, $c) {
+	    $escape = '~(?:\\\\(?=[btnfru' . $c . ']|\\\\*$)|[' . $c . '\x00-\x1f\x7f-\x{ffff}])~u';
+
+		return $c . preg_replace_callback($escape, array(__CLASS__, 'escapeHelper'), $s) . $c;
+	}
+
+	protected static function escapeHelper($m) {
+		$meta = array(
+	        "\x08" => '\b',
+	        "\t"   => ' ',
+	        "\n"   => '\n',
+	        "\x0C" => '\f',
+	        "\r"   => '\r',
+	        '\\'   => '\\\\',
+	        "'"    => "\'",
+			'"'    => '\"',
+			'/'    => '\/'
+	 	);
+
+	 	$c = $m[0];
+
+	 	if (isset($meta[$c])) {
+	 		return $meta[$c];
+	 	}
+
+	 	$x = '0000';
+	 	foreach(self::toCodePoints($c) as $cp) {
+	 		$x .= base_convert($cp, 10, 16);
+	 	}
+
+	 	return '\u' . substr($x, -4);
+	}
+
+	protected static function toCodePoints($string) {
+		if (is_string($string)) {
+			$unicodePoints = array();
+			$strlen = strlen($string);
+			$pos = 0;
+			$codePoint = 0;
+
+			while ($pos < $strlen){
+				$length = 0;
+				$char = ord($string[$pos++]);
+				if (!($char & 0x80)) {
+					$codePoint = $char;
+				} elseif (0xC0 === ($char & 0xE0)) {
+					$length = 1;
+					$codePoint = $char & 0x1F;
+				} elseif (0xE0 === ($char & 0xF0)) {
+					$length = 2;
+					$codePoint = $char & 0xF;
+				} elseif (0xF0 === ($char & 0xF8)) {
+					$length = 3;
+					$codePoint = $char & 0x7;
+				} else {
+					return null;
+				}
+
+				if ($pos + $length > $strlen) {
+					return null;
+				}
+
+				while ($length--) {
+					$char = ord($string[$pos++]);
+					if (($char & 0xC0) !== 0x80) {
+						continue 2;
+					}
+
+					$codePoint = $codePoint << 6 | $char & 0x3F;
+				}
+
+				$unicodePoints[] = $codePoint;
+			}
+
+			return $unicodePoints;
+		}
+
+		return null;
+	}
+}
