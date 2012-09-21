@@ -100,7 +100,7 @@ class Identifier {
 
 	public function toString() {
 		if (AST::$options['squeeze']) {
-			return 'ab';
+			return 'a';
 		}
 
 		return $this->toString;

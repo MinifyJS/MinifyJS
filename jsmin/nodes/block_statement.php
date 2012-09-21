@@ -8,7 +8,7 @@ class BlockStatement extends Node {
 	public function visit(AST $ast, Node $parent = null) {
 		$revisit = false;
 
-		$nodes = $this->redoIfElse($this->nodes, $revisit);
+		$nodes = $this->redoIfElse($this->nodes);
 		$nodes = $this->mergeBlocks($nodes);
 		$nodes = $this->moveExpressions($nodes);
 		$nodes = $this->transformToComma($ast, $nodes, $revisit);
@@ -77,17 +77,19 @@ class BlockStatement extends Node {
 
 		foreach ($original as $n) {
 			foreach($n->visit($ast, $this)->optimize()->removeUseless()->nodes() as $x) {
-				if ($x->isConstant()) {
-					$x->gone();
-					continue;
-				}
+				foreach($x->breaking() ?: array($x) as $x) {
+					if ($x->isConstant()) {
+						$x->gone();
+						continue;
+					}
 
-				if ($last instanceof Expression && $x instanceof Expression) {
-					$last = new CommaExpression(array_merge($last->nodes(), $x->nodes()));
-					array_splice($nodes, -1, 1, array($last));
-				} else {
-					$nodes[] = $x;
-					$last = $x;
+					if ($last instanceof Expression && $x instanceof Expression) {
+						$last = new CommaExpression(array_merge($last->nodes(), $x->nodes()));
+						array_splice($nodes, -1, 1, array($last));
+					} else {
+						$nodes[] = $x;
+						$last = $x;
+					}
 				}
 			}
 		}
@@ -115,7 +117,7 @@ class BlockStatement extends Node {
 		return $nodes;
 	}
 
-	protected function redoIfElse(array $nodes, &$revisit) {
+	protected function redoIfElse(array $nodes) {
 		for ($i = 0, $length = count($nodes); $i < $length; ++$i) {
 			$n = $nodes[$i];
 
@@ -127,9 +129,7 @@ class BlockStatement extends Node {
 						continue;
 					}
 
-					$revisit = true;
-
-					$e = $this->redoIfElse($r, $revisit);
+					$e = $this->redoIfElse($r);
 
 					return array_merge(
 						array_slice($nodes, 0, $i),
@@ -156,8 +156,8 @@ class BlockStatement extends Node {
 			} else {
 				$finished = false;
 				if ($n instanceof ForNode) {
-					if ($vars && $n->initializer()) {
-						if ($n->initializer()->isVoid()) {
+					if ($vars) {
+						if (!$n->initializer() || $n->initializer()->isVoid()) {
 							$n->initializer(new VarDeclarationsNode($vars));
 							$finished = true;
 						} elseif ($n->initializer() instanceof VarDeclarationsNode) {

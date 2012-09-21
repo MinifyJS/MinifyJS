@@ -90,18 +90,15 @@ class AST {
 	public function squeeze() {
 		$oldBeautify = self::$options['beautify'];
 		self::$options['beautify'] = false;
+		self::$options['squeeze'] = true;
 
-		$this->rootScope->clean();
-		$this->rootLabelScope->clean();
+		for ($i = 0; $i < 2; ++$i) {
+			$this->rootScope->clean();
+			$this->rootLabelScope->clean();
 
-		$this->tree->collectStatistics($this);
-		$this->tree = $this->tree->visit($this);
-
-		$this->rootScope->clean();
-		$this->rootLabelScope->clean();
-
-		$this->tree->collectStatistics($this);
-		$this->tree = $this->tree->visit($this);
+			$this->tree->collectStatistics($this);
+			$this->tree = $this->tree->visit($this);
+		}
 
 		if (AST::$options['mangle']) {
 			$this->rootScope->optimizeList();
@@ -184,11 +181,13 @@ class AST {
 				$this->scope->find($fun->name, true);
 			}
 
+			$nodeList = array();
+
 			foreach($n->context->varDecls as $var) {
 				$this->scope->find($var, true);
 			}
 
-			return new ScriptNode($this->nodeList($n->nodes), $this->scope);
+			return new ScriptNode(array_merge($nodeList, $this->nodeList($n->nodes)), $this->scope);
 		case JS_BLOCK:
 			$nl = $this->nodeList($n->nodes);
 
@@ -262,7 +261,7 @@ class AST {
 			$l = array();
 			foreach($n->nodes as $x) {
 				$l[] = new VarNode(
-					new IdentifierExpression($this->scope->find($x->name, true)),
+					new IdentifierExpression($this->scope->find($x->name)),
 					$this->generate($x->initializer)
 				);
 			}
@@ -500,7 +499,7 @@ class AST {
 		$min = null;
 
 		foreach($options as $option) {
-			$length = strlen($option);
+			$length = strlen(str_replace("\0", '', Stream::trimSemicolon($option)));
 			if ($length < $minLength || $minLength === null) {
 				$minLength = $length;
 				$min = $option;

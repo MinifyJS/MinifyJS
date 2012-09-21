@@ -9,10 +9,13 @@ class BitwiseAndExpression extends BinaryExpression {
 
 		// division can be messy (1/3 = 0.333…)
 		if (null !== $result = $that->asNumber()) {
-			return AST::bestOption(array(new Number($result), $that));
+			return AST::bestOption(array(
+				new Number($result),
+				$that->resolveLeftSequence()
+			));
 		}
 
-		return $this;
+		return $that->resolveLeftSequence();
 	}
 
 	public function toString() {

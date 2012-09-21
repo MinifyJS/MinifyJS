@@ -80,6 +80,10 @@ class IdentifierExpression extends ConstantExpression {
 		return $this->declared();
 	}
 
+	public function isVoid() {
+		return $this->left->name() === 'undefined';
+	}
+
 	public function keep($min = 0) {
 		return $this->left->keep($min);
 	}

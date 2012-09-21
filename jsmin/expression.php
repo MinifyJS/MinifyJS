@@ -30,7 +30,11 @@ abstract class Expression extends Node {
 		}
 	}
 
-	public function left() {
+	public function left(Expression $new = null) {
+		if ($new) {
+			$this->left = $new;
+		}
+
 		return $this->left;
 	}
 
@@ -134,6 +138,29 @@ abstract class Expression extends Node {
 		} else {
 			return $inner;
 		}
+	}
+
+	public function resolveLeftSequence() {
+		if ($this->left instanceof CommaExpression) {
+			$x = $this->left->nodes();
+
+			return AST::bestOption(array(
+				new CommaExpression(array(
+					new CommaExpression(array_slice($x, 0, -1)),
+					$this instanceof HookExpression ? new HookExpression(
+						end($x),
+						$this->middle,
+						$this->right
+					) : new static(
+						end($x),
+						$this->right
+					)
+				)),
+				$this
+			));
+		}
+
+		return $this;
 	}
 
 	public function isRedundant() {

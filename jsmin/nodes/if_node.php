@@ -150,8 +150,13 @@ class IfNode extends Node {
 		$o = 'if' . $space . '(' . $this->condition->toString() . ')' . $space . $this->then->asBlock()->toString($noBlock, true);
 
 		if ($this->else && !$this->else->isVoid()) {
-			$e = Stream::legalStart($this->else->asBlock()->toString());
-			$o .= $space . 'else' . $space . ($e === ';' ? '{}' : $e);
+			$x = $this->else;
+			if (!$this->else instanceof IfNode) {
+				$x = $x->asBlock();
+			}
+
+			$e = Stream::legalStart($x->toString());
+			$o .= $space . 'else' . $space . ($e === ';' ? '{}' : $space ? ltrim($e) : $e);
 		}
 
 		return $o;
@@ -195,11 +200,9 @@ class IfNode extends Node {
 
 	public function breaking() {
 		// bail early if we don't have to break
-		if (!$this->else) {
+		if (!$this->else || $this->else->isVoid()) {
 			return null;
 		}
-
-		return null;
 
 		// check if we have a breaking statement here. In that case, discard all unreachable
 		// nodes and return the resulting statements
@@ -208,7 +211,7 @@ class IfNode extends Node {
 			// the then clause breaks, no need for the else
 
 			$result = array(new IfNode($this->condition, new BlockStatement($new)));
-			foreach ($this->else->asBlock()->nodes as $n) {
+			foreach ($this->else->nodes() as $n) {
 				$result[] = $n;
 			}
 

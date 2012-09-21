@@ -37,11 +37,11 @@ class OrExpression extends BinaryExpression {
 			return AST::bestOption(array(
 				new NotExpression(new NotExpression($that->negate()->negate())),
 				new NotExpression($that->negate()),
-				$that
+				$this->resolveLeftSequence($that)
 			));
 		}
 
-		return $that;
+		return $this->resolveLeftSequence($that);
 	}
 
 	public function toString() {

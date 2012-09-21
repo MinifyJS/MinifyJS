@@ -9,6 +9,7 @@ class CommaExpression extends Expression {
 	public function visit(AST $ast, Node $parent = null) {
 		$nodes = array();
 		$last = count($this->nodes) - 1;
+		$prev = null;
 
 		foreach($this->nodes as $i => $e) {
 			foreach($e->visit($ast, $this)->nodes() as $n) {
@@ -21,7 +22,17 @@ class CommaExpression extends Expression {
 					}
 				}
 
-				$nodes[] = $n;
+				if ($prev && ($n instanceof BinaryExpression || $n instanceof InExpression || $n instanceof InstanceofExpression)) {
+					$q = $n->left();
+					$r = $prev->represents();
+
+					if ($q instanceof IdentifierExpression && $r instanceof IdentifierExpression
+							&& $r->toString() === $q->toString()) {
+						$n->left(array_pop($nodes));
+					}
+				}
+
+				$nodes[] = $prev = $n;
 			}
 		}
 

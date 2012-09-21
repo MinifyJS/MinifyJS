@@ -136,6 +136,16 @@ try {
 	$tree = $ast->toString();
 	$timers['tostring'] = microtime(true) - $t;
 
+	if (!AST::$options['no-copyright']) {
+		$tree = array_reduce($parser->getLicenses(), function ($a, $b) {
+			if ($a === null) {
+				return $b;
+			}
+
+			return substr($a, 0, -1) . substr($b, 1);
+		}) . $tree;
+	}
+
 	$timers['profit'] = array(
 		'old' => strlen($s),
 		'new' => strlen($tree)
@@ -157,16 +167,6 @@ try {
 	if (AST::$options['timer']) {
 		print_r($timers);
 	} else {
-		if (!AST::$options['no-copyright']) {
-			echo array_reduce($parser->getLicenses(), function ($a, $b) {
-				if ($a === null) {
-					return $b;
-				}
-
-				return substr($a, 0, -1) . substr($b, 1);
-			});
-		}
-
 		echo AST::$options['beautify'] ? Stream::unindent($tree) : $tree;
 	}
 } catch (Exception $e) {

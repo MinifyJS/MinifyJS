@@ -36,11 +36,11 @@ class AndExpression extends BinaryExpression {
 			return AST::bestOption(array(
 				new NotExpression(new NotExpression($that->negate()->negate())),
 				new NotExpression($that->negate()),
-				$that
+				$that->resolveLeftSequence()
 			));
 		}
 
-		return $that;
+		return $that->resolveLeftSequence();
 	}
 
 	public function toString() {

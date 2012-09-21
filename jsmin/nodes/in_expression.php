@@ -8,10 +8,8 @@ class InExpression extends Expression {
 	}
 
 	public function visit(AST $ast, Node $parent = null) {
-		$this->right = $this->right->visit($ast, $this);
-		$this->left = $this->left->visit($ast, $this);
-
-		return $this;
+		$result = new InExpression($this->left->visit($ast, $this), $this->right->visit($ast, $this));
+		return $result->resolveLeftSequence();
 	}
 
 	public function collectStatistics(AST $ast) {

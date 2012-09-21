@@ -5,8 +5,16 @@ class VoidExpression extends Expression {
 		parent::__construct();
 	}
 
+	public static function nil() {
+		return new VoidExpression(new Number(0));
+	}
+
 	public function visit(AST $ast, Node $parent = null) {
 		$this->left = $this->left->visit($ast, $this);
+
+		if ($this->isEmpty() && ($undef = $ast->visitScope()->find('undefined')) && $undef->isLocal()) {
+			return new IdentifierExpression($undef);
+		}
 
 		return $this;
 	}

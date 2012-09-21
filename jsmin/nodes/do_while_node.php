@@ -14,6 +14,18 @@ class DoWhileNode extends WhileNode {
 
 		$this->condition = $this->condition->looseBoolean();
 
+		if ($this->body instanceof Expression && !$this->body->isVoid()) {
+			$result = new DoWhileNode(
+				new CommaExpression(array_merge($this->body->nodes(), $this->condition->nodes())),
+				new VoidExpression(new Number(0))
+			);
+
+			return AST::bestOption(array(
+				$result->visit($ast, $parent),
+				$this
+			));
+		}
+
 		return $this;
 	}
 

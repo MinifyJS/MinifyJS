@@ -29,7 +29,7 @@ class AssignExpression extends Expression {
 			}
 		}
 
-		return $this;
+		return $this->resolveLeftSequence();
 	}
 
 	public function collectStatistics(AST $ast) {

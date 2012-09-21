@@ -21,7 +21,7 @@ class WhileNode extends Node {
 			return new ForNode(null, null, null, $this->body);
 		}
 
-		return $this;
+		return new ForNode(null, $this->condition, null, $this->body);
 	}
 
 	public function gone() {

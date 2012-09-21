@@ -9,11 +9,18 @@ class CaseNode extends Node {
 	}
 
 	public function visit(AST $ast, Node $parent = null) {
-		$old = $this->label;
-		$this->label = $this->label->visit($ast);
-		$this->stmt = $this->stmt->visit($ast, $this);
+		return new CaseNode(
+			$this->label->visit($ast, $this),
+			$this->stmt->visit($ast, $this)
+		);
+	}
 
-		return $this;
+	public function stmt() {
+		return $this->stmt;
+	}
+
+	public function label() {
+		return $this->label;
 	}
 
 	public function gone() {

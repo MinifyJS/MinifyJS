@@ -21,12 +21,19 @@ class EqualExpression extends ComparisonExpression {
 			}
 		}
 
-		if ($that->right->asString() === 'undefined' && $that->left instanceof TypeofExpression) {
-			if ($that->left->left()->isLocal()) {
-				$result = new EqualExpression($that->left->left(), new VoidExpression(new Number(0)), true);
-				return $result->visit($ast, $parent);
-			} elseif ((null !== $type = $that->left->left->type())) {
-				return new Boolean($type === 'undefined');
+		foreach(array(
+			array($that->left, $that->right),
+			array($that->right, $that->left)
+		) as $equate) {
+			list($left, $right) = $equate;
+
+			if ($right->asString() === 'undefined' && $left instanceof TypeofExpression) {
+				if ($left->left()->isLocal()) {
+					$result = new EqualExpression($left->left(), new VoidExpression(new Number(0)), true);
+					return $result->visit($ast, $parent);
+				} elseif ((null !== $type = $left->left->type())) {
+					return new Boolean($type === 'undefined');
+				}
 			}
 		}
 

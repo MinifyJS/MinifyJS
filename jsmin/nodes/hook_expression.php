@@ -8,6 +8,101 @@ class HookExpression extends Expression {
 		parent::__construct();
 	}
 
+
+	public function visit2(AST $ast, Node $parent = null) {
+		$that = new HookExpression(
+			$this->left->visit($ast, $this),
+			$this->middle->visit($ast, $this),
+			$this->right->visit($ast, $this)
+		);
+
+		$condition = $that->left->asBoolean();
+
+		if ($condition === true) {
+			$that->left->gone();
+			$that->right->gone();
+
+			return $that->middle;
+		} elseif ($condition === false) {
+			$that->left->gone();
+			$that->middle->gone();
+
+			return $that->right;
+		}
+
+		if ($that->middle instanceof AssignExpression && $that->right instanceof AssignExpression
+				&& $that->middle->assignType() === $that->right->assignType()
+				&& $that->middle->left()->toString() === $that->right->left()->toString()) {
+			$result = new AssignExpression(
+				$that->middle->assignType(),
+				$that->middle->left(),
+				new HookExpression(
+					$that->left,
+					$that->middle->right(),
+					$that->right()->right()
+				)
+			);
+
+			return $result->visit($ast, $parent);
+		}
+
+		if ($that->middle instanceof IndexExpression && $that->right instanceof IndexExpression
+				&& $that->middle->left()->toString() === $that->right->left()->toString()) {
+			$result = new IndexExpression(
+				$that->middle->left(),
+				new HookExpression($that->left, $that->middle->right(), $that->right->right())
+			);
+
+			return $result->visit($ast, $parent);
+		}
+
+		if ($that->type() === 'boolean' && (null !== $left = $that->middle->asBoolean()) && (null !== $right = $that->right->asBoolean())) {
+			$result = null;
+			if ($right === true && $left === false) {
+				$result = $that->left->negate()->boolean();
+			} elseif ($left === true && $right === false) {
+				$result = $that->left->boolean();
+			}
+
+			if ($result) {
+				$that->middle->gone();
+				$that->right->gone();
+				return $result;
+			}
+		}
+
+		return AST::bestOption(array(
+			$that,
+			new HookExpression(
+				$this->left->negate(),
+				$this->right,
+				$this->middle
+			)
+		))->resolveLeftSequence();
+
+	}
+
+	public function resolveLeftSequence(Expression $that = null) {
+		if ($this->left instanceof CommaExpression) {
+			$x = $this->left->nodes();
+
+			return AST::bestOption(array(
+				new CommaExpression(array(
+					new CommaExpression(array_slice($x, 0, -1)),
+					new HookExpression(
+						end($x),
+						$this->middle,
+						$this->right
+					)
+				)),
+				$this
+			));
+		}
+
+		return $this;
+	}
+
+
 	public function visit(AST $ast, Node $parent = null) {
 		$this->left = $this->left->visit($ast, $this);
 		$this->middle = $this->middle->visit($ast, $this);

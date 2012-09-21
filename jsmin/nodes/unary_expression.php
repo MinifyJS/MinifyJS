@@ -28,6 +28,22 @@ class UnaryExpression extends Expression {
 		return 14;
 	}
 
+	public function resolveLeftSequence() {
+		if ($this->left instanceof CommaExpression) {
+			$x = $this->left->nodes();
+
+			return AST::bestOption(array(
+				new CommaExpression(array(
+					new CommaExpression(array_slice($x, 0, -1)),
+					new static(end($x))
+				)),
+				$this
+			));
+		}
+
+		return $this;
+	}
+
 	public function countLetters(&$letters) {
 		$this->left->countLetters($letters);
 	}

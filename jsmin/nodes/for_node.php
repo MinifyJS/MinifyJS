@@ -36,6 +36,13 @@ class ForNode extends Node {
 
 		$this->body = $this->body->visit($ast, $this)->optimizeBreak();
 
+		if ($this->body instanceof Expression && !$this->update) {
+			return AST::bestOption(array(
+				new ForNode($this->initializer, $this->condition, $this->body, VoidExpression::nil()),
+				$this
+			));
+		}
+
 		return $this;
 	}
 
@@ -124,10 +131,11 @@ class ForNode extends Node {
 
 
 	public function toString() {
+		$space = AST::$options['beautify'] ? ' ' : '';
 		return 'for('
-			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : '') . ';'
-			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()       : '') . ';'
-			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()          : '') . ')'
+			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : $space) . ';'
+			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()       : $space) . ';'
+			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()          : $space) . ')'
 				. $this->body->asBlock()->toString(null, true);
 	}
 }

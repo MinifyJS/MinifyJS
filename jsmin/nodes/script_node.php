@@ -10,6 +10,8 @@ class ScriptNode extends BlockStatement {
 
 
 	public function visit(AST $ast, Node $parent = null) {
+		$ast->visitScope($this->scope);
+
 		$new = parent::visit($ast, $parent);
 
 		$nodes = array();
@@ -38,6 +40,8 @@ class ScriptNode extends BlockStatement {
 			$revisit
 		);
 
+		$ast->visitScope($this->scope->parent());
+
 		if ($revisit) {
 			return $result->visit($ast, $this);
 		}
@@ -63,8 +67,6 @@ class ScriptNode extends BlockStatement {
 				}
 
 				$old->add(new IfNode($node->condition()->negate()->looseBoolean(), $add));
-
-				$revisit = true;
 			} else {
 				$add->add($node);
 			}
