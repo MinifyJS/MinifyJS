@@ -4,6 +4,11 @@ class ComparisonExpression extends BinaryExpression {
 	const NOT_STRICT = false;
 
 	static protected $reverseMap = array(
+		OP_LE => OP_GE,
+		OP_LT => OP_GT,
+	);
+
+	static protected $negateMap = array(
 		OP_LE => OP_GT,
 		OP_LT => OP_GE,
 	);
@@ -40,8 +45,8 @@ class ComparisonExpression extends BinaryExpression {
 	public function negate() {
 		$options = array(parent::negate());
 
-		if (AST::$options['unsafe'] && isset(self::$reverseMap[$this->type])) {
-			$options[] = new ComparisonExpression(self::$reverseMap[$this->type], $this->left, $this->right);
+		if (AST::$options['unsafe'] && isset(self::$negateMap[$this->type])) {
+			$options[] = new ComparisonExpression(self::$negateMap[$this->type], $this->left, $this->right);
 		}
 
 		return AST::bestOption($options);
