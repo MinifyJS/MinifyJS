@@ -46,7 +46,11 @@ abstract class Expression extends Node {
 		return $this->middle;
 	}
 
-	public function right() {
+	public function right(Expression $new = null) {
+		if ($new) {
+			$this->right = $new;
+		}
+
 		return $this->right;
 	}
 

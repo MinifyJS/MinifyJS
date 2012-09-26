@@ -23,12 +23,18 @@ class CommaExpression extends Expression {
 				}
 
 				if ($prev && ($n instanceof BinaryExpression || $n instanceof InExpression || $n instanceof InstanceofExpression)) {
-					$q = $n->left();
-					$r = $prev->represents();
+					if (($r = $prev->represents()) instanceof IdentifierExpression) {
+						$q = $n->left();
+						$r = $r->value();
 
-					if ($q instanceof IdentifierExpression && $r instanceof IdentifierExpression
-							&& $r->toString() === $q->toString()) {
-						$n->left(array_pop($nodes));
+						if ($q instanceof IdentifierExpression && $r === $q->value()) {
+							$n->left(array_pop($nodes));
+						} elseif (!$q->hasSideEffects()) {
+							$q = $n->right();
+							if ($q instanceof IdentifierExpression && $r === $q->value()) {
+								$n->right(array_pop($nodes));
+							}
+						}
 					}
 				}
 
