@@ -8,30 +8,29 @@ class BlockStatement extends Node {
 	public function visit(AST $ast, Node $parent = null) {
 		$revisit = false;
 
-		$nodes = $this->redoIfElse($this->nodes);
-		$nodes = $this->mergeBlocks($nodes);
-		$nodes = $this->moveExpressions($nodes);
-		$nodes = $this->transformToComma($ast, $nodes, $parent, $revisit);
-		$nodes = $this->moveVars($nodes);
+		$this->nodes = $this->redoIfElse($this->nodes);
+		$this->nodes = $this->mergeBlocks($this->nodes);
+		$this->nodes = $this->moveExpressions($this->nodes);
+		$this->nodes = $this->transformToComma($ast, $this->nodes, $revisit, $parent);
+		$this->nodes = $this->moveVars($this->nodes);
 
-		$count = count($nodes);
+		$count = count($this->nodes);
 
 		if ($count === 0) {
 			return new VoidExpression(new Number(0));
 		}
 
+		if ($this instanceof BlockStatement && $count === 2 && $this->nodes[0] instanceof Expression
+				&& $this->nodes[1]->moveExpression($this->nodes[0])) {
+			$this->nodes = array($this->nodes[1]);
+			$count = 1;
+		}
+
 		if ($count === 1) {
-			return $nodes[0];
+			return $this->nodes[0];
 		}
 
-		if ($this instanceof BlockStatement && $count === 2 && $nodes[0] instanceof Expression && $nodes[1] instanceof ReturnNode) {
-			if ($nodes[1]->moveExpression($nodes[0])) {
-				$nodes = array($nodes[1]);
-				$count = 1;
-			}
-		}
-
-		$result = new BlockStatement($nodes);
+		$result = new BlockStatement($this->nodes);
 
 		if ($revisit) {
 			return $result->visit($ast, $parent);
@@ -71,9 +70,13 @@ class BlockStatement extends Node {
 		return $nodes;
 	}
 
-	protected function transformToComma(AST $ast, array $original, Node $parent = null, &$revisit) {
+	protected function transformToComma(AST $ast, array $original, &$revisit, Node $parent = null) {
 		$nodes = array();
 		$last = null;
+
+		if ($this instanceof ScriptNode) {
+			$parent = $this;
+		}
 
 		foreach ($original as $n) {
 			foreach($n->visit($ast, $parent)->nodes() as $x) {

@@ -85,7 +85,8 @@ class IfNode extends Node {
 						$this->else->value()
 					));
 				}
-			} elseif ($optimiseLoop && $this->then instanceof ContinueNode && !$this->then->hasLabel()) {
+			} elseif (($optimiseLoop && $this->then instanceof ContinueNode && !$this->then->hasLabel())
+					|| ($optimiseReturn && $this->then instanceof ReturnNode && $this->then->value()->isVoid())) {
 				$result = new IfNode($this->condition->negate(), $this->else);
 			} else {
 				$option = new IfNode($this->condition->negate(), $this->else, $this->then);
