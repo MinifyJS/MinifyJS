@@ -43,6 +43,10 @@ class IndexExpression extends Expression {
 		return $this->left->isRedundant() && $this->right->isRedundant();
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects() || $this->right->hasSideEffects();
+	}
+
 	public function countLetters(&$letters) {
 		$this->left->countLetters($letters);
 		$this->right->countLetters($letters);

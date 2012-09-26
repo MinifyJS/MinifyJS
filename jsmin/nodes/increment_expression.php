@@ -40,6 +40,10 @@ class IncrementExpression extends UnaryExpression {
 		$this->left->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return true;
+	}
+
 	public function removeUseless() {
 		return new IncrementExpression($this->left->removeUseless(), $this->postfix);
 	}

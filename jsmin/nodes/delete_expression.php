@@ -45,6 +45,9 @@ class DeleteExpression extends Expression {
 		$this->left->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return true;
+	}
 
 	public function precedence() {
 		return 14;

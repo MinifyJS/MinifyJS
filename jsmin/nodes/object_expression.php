@@ -58,6 +58,16 @@ class ObjectExpression extends Expression {
 		}
 	}
 
+	public function hasSideEffects() {
+		foreach($this->nodes as $n) {
+			if ($n->hasSideEffects()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function debug() {
 		$out = array();
 		foreach($this->nodes as $n) {

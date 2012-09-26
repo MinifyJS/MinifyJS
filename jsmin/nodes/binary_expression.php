@@ -39,6 +39,10 @@ abstract class BinaryExpression extends Expression {
 		$this->right->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects() || $this->right->hasSideEffects();
+	}
+
 	public function precedence() {
 		return 9;
 	}

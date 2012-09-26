@@ -16,15 +16,24 @@ class IfNode extends Node {
 	public function visit(AST $ast, Node $parent = null, $parentScript = false) {
 		$condition = $this->condition->visit($ast, $this);
 
+		$optimiseReturn = !!$parentScript;
+		if (!$optimiseReturn && $parent instanceof ScriptNode) {
+			$tmp = $parent->nodes();
+			if (end($tmp) === $this) {
+				$optimiseReturn = true;
+			}
+			unset($tmp);
+		}
+
 		$this->condition = AST::bestOption(array(
 			$condition->negate()->negate()->looseBoolean(),
 			$condition->looseBoolean()
 		));
 
-		$this->then = $this->then->visit($ast, $this, $parentScript || $parent instanceof ScriptNode);
+		$this->then = $this->then->visit($ast, $this, $optimiseReturn);
 
 		if ($this->else) {
-			$this->else = $this->else->visit($ast, $this, $parentScript || $parent instanceof ScriptNode);
+			$this->else = $this->else->visit($ast, $this, $optimiseReturn);
 		}
 
 		if (null !== $cond = $this->condition->asBoolean()) {
@@ -94,7 +103,7 @@ class IfNode extends Node {
 				new AndExpression($this->condition, $this->then->condition),
 				$this->then->then
 			);
-		} elseif (($parent instanceof ScriptNode || $parentScript) && $this->then instanceof ReturnNode) {
+		} elseif ($optimiseReturn && $this->then instanceof ReturnNode) {
 			$result = new ReturnNode(new HookExpression(
 				$this->condition,
 				$this->then->value(),
@@ -198,6 +207,11 @@ class IfNode extends Node {
 		return true;
 	}
 
+	public function hasSideEffects() {
+		return $this->condition->hasSideEffects() || $this->then->hasSideEffects()
+			|| ($this->else && $this->else->hasSideEffects());
+	}
+
 	public function breaking() {
 		// bail early if we don't have to break
 		if (!$this->else || $this->else->isVoid()) {
@@ -207,7 +221,7 @@ class IfNode extends Node {
 		// check if we have a breaking statement here. In that case, discard all unreachable
 		// nodes and return the resulting statements
 
-		if ($new = $this->then->asBlock()->breaking()) {
+		if (is_array($new = $this->then->asBlock()->breaking())) {
 			// the then clause breaks, no need for the else
 
 			$result = array(new IfNode($this->condition, new BlockStatement($new)));

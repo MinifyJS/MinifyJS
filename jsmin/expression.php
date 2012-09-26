@@ -147,14 +147,7 @@ abstract class Expression extends Node {
 			return AST::bestOption(array(
 				new CommaExpression(array(
 					new CommaExpression(array_slice($x, 0, -1)),
-					$this instanceof HookExpression ? new HookExpression(
-						end($x),
-						$this->middle,
-						$this->right
-					) : new static(
-						end($x),
-						$this->right
-					)
+					new static(end($x), $this->right)
 				)),
 				$this
 			));

@@ -215,6 +215,10 @@ class HookExpression extends Expression {
 		$this->right->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects() || $this->middle->hasSideEffects() || $this->right->hasSideEffects();
+	}
+
 	public function precedence() {
 		return 2;
 	}

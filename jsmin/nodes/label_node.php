@@ -30,6 +30,10 @@ class LabelNode extends Node {
 		return $this->label->toString() . ':' . $this->stmt->toString();
 	}
 
+	public function hasSideEffects() {
+		return $this->stmt->hasSideEffects();
+	}
+
 	public function collectStatistics(AST $ast) {
 		$this->stmt->collectStatistics($ast);
 	}

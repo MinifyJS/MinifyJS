@@ -79,6 +79,10 @@ class AssignExpression extends Expression {
 		$this->right->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return true;
+	}
+
 	public function assignType() {
 		return $this->type;
 	}

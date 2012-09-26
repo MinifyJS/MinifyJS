@@ -50,6 +50,10 @@ class Property extends Node {
 		$this->value->countLetters($letters);
 	}
 
+	public function hasSideEffects() {
+		return $this->value->hasSideEffects();
+	}
+
 	public function toString() {
 		$v = $this->value->toString();
 		if ($this->value instanceof CommaExpression) {

@@ -75,6 +75,10 @@ class DotExpression extends Expression {
 		return false;
 	}
 
+	public function hasSideEffects() {
+		return true;
+	}
+
 	public function precedence() {
 		return 17;
 	}

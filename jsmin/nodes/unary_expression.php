@@ -44,6 +44,10 @@ class UnaryExpression extends Expression {
 		return $this;
 	}
 
+	public function hasSideEffects() {
+		return $this->left->hasSideEffects();
+	}
+
 	public function countLetters(&$letters) {
 		$this->left->countLetters($letters);
 	}

@@ -119,6 +119,10 @@ class IdentifierExpression extends ConstantExpression {
 		}
 	}
 
+	public function hasSideEffects() {
+		return false;
+	}
+
 	public function get() {
 		return $this->left;
 	}

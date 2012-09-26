@@ -113,19 +113,15 @@ class CommaExpression extends Expression {
 	}
 
 	public function asString() {
-		if (!$this->isConstant()) {
-			return null;
+		if (!$this->hasSideEffects()) {
+			return $this->represents()->asString();
 		}
-
-		return $this->represents()->asString();
 	}
 
 	public function asNumber() {
-		if (!$this->isConstant()) {
-			return null;
+		if (!$this->hasSideEffects()) {
+			return $this->represents()->asNumber();
 		}
-
-		return $this->represents()->asNumber();
 	}
 
 	public function type() {

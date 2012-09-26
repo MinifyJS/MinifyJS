@@ -80,6 +80,10 @@ class NewExpression extends Expression {
 		}
 	}
 
+	public function hasSideEffects() {
+		return true;
+	}
+
 	public function precedence() {
 		if ($this->right) {
 			return 0;

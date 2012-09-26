@@ -76,9 +76,11 @@ class BlockStatement extends Node {
 		$last = null;
 
 		foreach ($original as $n) {
-			foreach($n->visit($ast, $this)->optimize()->removeUseless()->nodes() as $x) {
+			foreach($n->visit($ast, $this)->nodes() as $x) {
 				foreach($x->breaking() ?: array($x) as $x) {
-					if ($x->isConstant()) {
+					$x = $x->optimize()->removeUseless();
+
+					if (!$x->hasSideEffects()) {
 						$x->gone();
 						continue;
 					}
@@ -121,7 +123,7 @@ class BlockStatement extends Node {
 		for ($i = 0, $length = count($nodes); $i < $length; ++$i) {
 			$n = $nodes[$i];
 
-			if ($n instanceof IfNode && !$n->_else()) {
+			if ($n instanceof IfNode && (!$n->_else() || $n->_else()->isVoid())) {
 				if (($l = $n->then()->last()) && $l->isBreaking()) {
 					$r = array_slice($nodes, $i + 1);
 
