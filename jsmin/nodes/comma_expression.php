@@ -48,7 +48,7 @@ class CommaExpression extends Expression {
 
 		$size = count($nodes);
 		if ($size > 1 && $nodes[$size - 1] instanceof IdentifierExpression
-				&& $nodes[$size - 2]->represents()->toString() === $nodes[$size - 1]->toString()) {
+				&& $nodes[$size - 2]->represents()->value() === $nodes[$size - 1]->value()) {
 			array_splice($nodes, -1);
 			--$size;
 		}
