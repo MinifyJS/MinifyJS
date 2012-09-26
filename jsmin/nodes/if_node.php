@@ -13,7 +13,7 @@ class IfNode extends Node {
 		parent::__construct();
 	}
 
-	public function visit(AST $ast, Node $parent = null, $parentScript = false) {
+	public function visit(AST $ast, Node $parent = null, $parentScript = false, $parentLoop = false) {
 		$condition = $this->condition->visit($ast, $this);
 
 		$optimiseReturn = !!$parentScript;
@@ -25,15 +25,17 @@ class IfNode extends Node {
 			unset($tmp);
 		}
 
+		$optimiseLoop = !!$parentLoop || $parent instanceof ForInNode || $parent instanceof ForNode || $parent instanceof WhileNode || $parent instanceof DoWhileNode;
+
 		$this->condition = AST::bestOption(array(
 			$condition->negate()->negate()->looseBoolean(),
 			$condition->looseBoolean()
 		));
 
-		$this->then = $this->then->visit($ast, $this, $optimiseReturn);
+		$this->then = $this->then->visit($ast, $this, $optimiseReturn, $parentLoop);
 
 		if ($this->else) {
-			$this->else = $this->else->visit($ast, $this, $optimiseReturn);
+			$this->else = $this->else->visit($ast, $this, $optimiseReturn, $parentLoop);
 		}
 
 		if (null !== $cond = $this->condition->asBoolean()) {
@@ -83,6 +85,8 @@ class IfNode extends Node {
 						$this->else->value()
 					));
 				}
+			} elseif ($optimiseLoop && $this->then instanceof ContinueNode && !$this->then->hasLabel()) {
+				$result = new IfNode($this->condition->negate(), $this->else);
 			} else {
 				$option = new IfNode($this->condition->negate(), $this->else, $this->then);
 

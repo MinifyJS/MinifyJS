@@ -11,7 +11,7 @@ class BlockStatement extends Node {
 		$nodes = $this->redoIfElse($this->nodes);
 		$nodes = $this->mergeBlocks($nodes);
 		$nodes = $this->moveExpressions($nodes);
-		$nodes = $this->transformToComma($ast, $nodes, $revisit);
+		$nodes = $this->transformToComma($ast, $nodes, $parent, $revisit);
 		$nodes = $this->moveVars($nodes);
 
 		$count = count($nodes);
@@ -71,12 +71,12 @@ class BlockStatement extends Node {
 		return $nodes;
 	}
 
-	protected function transformToComma(AST $ast, array $original, &$revisit) {
+	protected function transformToComma(AST $ast, array $original, Node $parent = null, &$revisit) {
 		$nodes = array();
 		$last = null;
 
 		foreach ($original as $n) {
-			foreach($n->visit($ast, $this)->nodes() as $x) {
+			foreach($n->visit($ast, $parent)->nodes() as $x) {
 				foreach($x->breaking() ?: array($x) as $x) {
 					$x = $x->optimize()->removeUseless();
 
@@ -165,7 +165,7 @@ class BlockStatement extends Node {
 						} elseif ($n->initializer() instanceof VarDeclarationsNode) {
 							$var = new VarDeclarationsNode($vars);
 							$finished = $var->merge($n->initializer());
-							$var = null;
+							unset($var);
 						}
 					}
 				} elseif ($n instanceof ForInNode && count($vars) === 1) {
