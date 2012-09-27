@@ -36,6 +36,10 @@ class UnaryPlusExpression extends UnaryExpression {
 		return $this->left->hasSideEffects();
 	}
 
+	public function isImmutable() {
+		return $this->left->isImmutable();
+	}
+
 	public function precedence() {
 		return 14;
 	}

@@ -78,6 +78,9 @@ class NotExpression extends UnaryExpression {
 		$this->left->countLetters($letters);
 	}
 
+	public function isImmutable() {
+		return $this->left->isImmutable();
+	}
 
 	public function negate() {
 		return $this->left;
