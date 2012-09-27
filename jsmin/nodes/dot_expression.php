@@ -76,7 +76,7 @@ class DotExpression extends Expression {
 	}
 
 	public function hasSideEffects() {
-		return true;
+		return $this->left->hasSideEffects();
 	}
 
 	public function precedence() {

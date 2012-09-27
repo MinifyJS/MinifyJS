@@ -43,7 +43,7 @@ class ThrowNode extends Node {
 	}
 
 	public function moveExpression(Expression $x) {
-		$this->value = new CommaExpression(array_merge($x->nodes(), $this->exception->nodes()));
+		$this->exception = new CommaExpression(array_merge($x->nodes(), $this->exception->nodes()));
 		return true;
 	}
 

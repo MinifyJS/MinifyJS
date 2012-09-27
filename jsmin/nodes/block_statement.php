@@ -84,6 +84,7 @@ class BlockStatement extends Node {
 					$x = $x->optimize()->removeUseless();
 
 					if (!$x->hasSideEffects()) {
+						$revisit = true;
 						$x->gone();
 						continue;
 					}
@@ -292,27 +293,27 @@ class BlockStatement extends Node {
 
 		$size = count($o);
 
-		$o = implode(AST::$options['beautify'] ? "\n" : '', $o);
+		$out = implode(AST::$options['beautify'] ? "\n" : '', $o);
 
 		if (AST::$options['beautify']) {
-			$o = "\n" . preg_replace('~^(?!$)~m', '    ', $o) . "\n";
+			$out = "\n" . preg_replace('~^(?!$)~m', '    ', $out) . "\n";
 
 			if ($forceNoBraces !== true) {
-				$o = '{' . $o . '}';
+				$out = '{' . $out . '}';
 			}
 		} else {
 			if ($forceNoBraces === null && $size > 1 || $forceNoBraces === false) {
-				$o = '{' . Stream::trimSemicolon($o) . '}';
+				$out = '{' . Stream::trimSemicolon($out) . '}';
 			} elseif ($forceNoBraces === true) {
-				$o = Stream::trimSemicolon($o);
+				$out = Stream::trimSemicolon($out);
 			}
 		}
 
-		if ($o === '' && $forceOut) {
+		if ($out === '' && $forceOut) {
 			return ";\0";
 		}
 
-		return $o;
+		return $out;
 	}
 
 	public function last() {

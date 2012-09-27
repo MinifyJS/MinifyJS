@@ -21,7 +21,10 @@ class ModExpression extends BinaryExpression {
 				return null;
 			}
 
-			return bcmod($left, $right, 100);
+			// only work with integers for now…
+			if ((float)(int)$left === (float)$left && (float)(int)$right === (float)$right) {
+				return bcmod($left, $right);
+			}
 		}
 	}
 

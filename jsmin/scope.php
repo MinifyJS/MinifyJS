@@ -55,7 +55,7 @@ class Scope {
 	protected $sl = array();
 
 	protected $uses = array();
-
+	
 	public function __construct(AST $program, Scope $parent = null, $labelScope = false) {
 		$this->program = $program;
 		$this->parent = $parent;
@@ -80,7 +80,7 @@ class Scope {
 			array_filter($list, function ($a) { return is_int($a); })
 		);
 	}
-	
+
 	public function usesWith($does = 1, $parents = false) {
 		$this->usesWith += $does;
 

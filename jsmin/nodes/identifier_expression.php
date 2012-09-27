@@ -64,6 +64,12 @@ class IdentifierExpression extends ConstantExpression {
 		}
 	}
 
+	public function actualType() {
+		if (!$this->reassigned() && ($init = $this->left->initializer())) {
+			return $init->actualType();
+		}
+	}
+
 	public function declared() {
 		return $this->left->declared();
 	}
