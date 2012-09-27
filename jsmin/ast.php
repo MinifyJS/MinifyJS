@@ -35,7 +35,8 @@ class AST {
 		'squeeze' => false,
 		'profile' => false,
 		'ascii' => false,
-		'silent' => false
+		'silent' => false,
+		'transform' => true
 	);
 
 	public static function load($class) {
@@ -103,13 +104,20 @@ class AST {
 		self::$options['beautify'] = false;
 		self::$options['squeeze'] = true;
 
-			$this->rootScope->clean();
-			$this->rootLabelScope->clean();
+		$this->rootScope->clean();
+		$this->rootLabelScope->clean();
 
-			$this->tree->collectStatistics($this);
+		$this->tree->collectStatistics($this);
 
-		for ($i = 0; $i < 2; ++$i) {
-			$this->tree = $this->tree->visit($this);
+		if (AST::$options['transform']) {
+			for ($i = 0; $i < 2; ++$i) {
+				$this->tree = $this->tree->visit($this);
+
+				$this->rootScope->clean();
+				$this->rootLabelScope->clean();
+
+				$this->tree->collectStatistics($this);
+			}
 		}
 
 		if (AST::$options['mangle']) {

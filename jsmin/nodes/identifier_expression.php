@@ -41,7 +41,7 @@ class IdentifierExpression extends ConstantExpression {
 
 				if ((($usage - 1) * $valueLength) < (($usage * 1) + 4 + $valueLength)) {
 					$this->left->used(false);
-					AST::warn('Replacing reference to ' . $this->left->toString() . ' with its constant value `' . $init->toString() . '`');
+					AST::warn('Replacing reference to ' . $this->left->name() . ' with its constant value `' . $init->toString() . '`');
 					return $init;
 				}
 			}

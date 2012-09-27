@@ -52,7 +52,10 @@ $options = array(
 	'--profile' => array('profile' => true),
 
 	'-q' => array('silent' => true),
-	'--quiet' => array('silent' => true)
+	'--quiet' => array('silent' => true),
+
+	'-ns' => array('transform' => false, 'mangle' => false),
+	'--no-squeeze' => array('transform' => false, 'mangle' => false)
 );
 
 for ($i = 1, $length = count($_SERVER['argv']); $i < $length; ++$i) {
