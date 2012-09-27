@@ -72,21 +72,15 @@ class Scope {
 
 		$this->program->countLetters($list);
 
-		uksort($list, function ($a, $b) use($list) {
-			if (is_int($a) && !is_int($b)) {
-				return 1;
-			}
+		arsort($list, SORT_NUMERIC);
+		$list = array_keys($list);
 
-			if (!is_int($a) && is_int($b)) {
-				return -1;
-			}
-
-			return $list[$b] - $list[$a];
-		});
-
-		self::$all = array_keys($list);
+		self::$all = array_merge(
+			array_filter($list, function ($a) { return !is_int($a); }),
+			array_filter($list, function ($a) { return is_int($a); })
+		);
 	}
-
+	
 	public function usesWith($does = 1, $parents = false) {
 		$this->usesWith += $does;
 

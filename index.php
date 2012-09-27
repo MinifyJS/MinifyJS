@@ -7,6 +7,10 @@ $fail = false;
 ini_set('display_errors', 'on');
 error_reporting(E_ALL | E_STRICT);
 
+$_POST['code'] = 'if (true) {
+  alert(5);
+}';
+
 if (isset($_POST['code'])) {
 	$options = '';
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
@@ -29,6 +33,9 @@ if (isset($_POST['code'])) {
 				break;
 			case 'tl':
 				$options .= ' --toplevel';
+				break;
+			case 'ns':
+				$options .= ' --no-squeeze';
 				break;
 			}
 		}
@@ -75,6 +82,8 @@ foreach(array(array(
 	'b' => 'Beautify',
 	'sd' => 'Strip debug expressions',
 	'tl' => 'Mangle toplevel variables'
+), array(
+	'ns' => 'No squeezing'
 )) as $options) {
 	foreach($options as $option => $name) {
 		echo '
