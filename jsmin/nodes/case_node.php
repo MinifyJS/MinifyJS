@@ -29,12 +29,17 @@ class CaseNode extends Node {
 	}
 
 	public function toString() {
-		if (AST::$options['beautify']) {
-			return 'case ' . $this->label->toString() . ':'
-				. $this->stmt->asBlock()->toString(true);
+		$block = $this->stmt->asBlock()->toString(true);
+
+		if ($block === ';'|| $block === ";\0") {
+			$block = '';
 		}
 
-		return 'case' . Stream::legalStart($this->label->toString()) . ':' . $this->stmt->asBlock()->toString(true);
+		if (AST::$options['beautify']) {
+			return 'case ' . $this->label->toString() . ':' . $block;
+		}
+
+		return 'case' . Stream::legalStart($this->label->toString()) . ':' . $block;
 	}
 
 	public function countLetters(&$letters) {

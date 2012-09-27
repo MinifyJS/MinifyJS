@@ -75,7 +75,8 @@ class SwitchNode extends Node {
 
 		foreach($this->cases as $case) {
 			$result .= $semi . $case->toString();
-			$semi = substr(rtrim($result), -1) === ';' ? '' : ';';
+			$last = substr(rtrim($result), -1);
+			$semi = $last === ';' || $last === ':' ? '' : ';';
 		}
 
 		$result .= '}';
