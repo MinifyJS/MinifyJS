@@ -7,10 +7,6 @@ $fail = false;
 ini_set('display_errors', 'on');
 error_reporting(E_ALL | E_STRICT);
 
-$_POST['code'] = 'if (true) {
-  alert(5);
-}';
-
 if (isset($_POST['code'])) {
 	$options = '';
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
@@ -42,20 +38,24 @@ if (isset($_POST['code'])) {
 	}
 
 	$process = proc_open(__DIR__ . '/min.php' . $options, array(
-	   0 => array('pipe', 'r'),
-	   1 => array('pipe', 'w'),
+		0 => array('pipe', 'r'),
+		1 => array('pipe', 'w'),
+		2 => array('pipe', 'w')
 	), $pipes, __DIR__, array(
 
 	));
 
 	if (is_resource($process)) {
-	    fwrite($pipes[0], $_POST['code']);
-	    fclose($pipes[0]);
+		fwrite($pipes[0], $_POST['code']);
+		fclose($pipes[0]);
 
-	    $output = stream_get_contents($pipes[1]);
-	    fclose($pipes[1]);
+		$output = stream_get_contents($pipes[1]);
+		fclose($pipes[1]);
 
-	    $return = proc_close($process);
+		$errors = stream_get_contents($pipes[2]);
+		fclose($pipes[2]);
+
+		$return = proc_close($process);
 
 		if ($return !== 0) {
 			$fail = true;
@@ -101,6 +101,10 @@ if (isset($output)) {
 		echo '
 <pre>' . htmlspecialchars($output) . '</pre>';
 	} else {
+		if ($errors) {
+			echo '<pre>' . htmlspecialchars($errors) . '</pre>';
+		}
+
 		echo '
 <strong>Success! Original size: ' . strlen($_POST['code']) . ', compressed: ' . strlen($output) . '</strong>
 <textarea readonly>' . htmlspecialchars($output) . '</textarea>';

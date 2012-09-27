@@ -83,6 +83,10 @@ class AST {
 
 		if (defined('STDERR')) {
 			fwrite(STDERR, 'WARN: ' . $msg . "\n");
+		} elseif (!isset($_SERVER['REMOTE_ADDR'])) {
+			$fp = fopen('php://stderr', 'w');
+			fwrite($fp, 'WARN: ' . $msg . "\n"); 
+			fclose($fp);
 		} else {
 			trigger_error($msg, E_USER_NOTICE);
 		}
