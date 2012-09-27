@@ -22,10 +22,12 @@ class AssignExpression extends Expression {
 					|| ($this->right instanceof MulExpression && $type = '*=')
 					|| ($this->right instanceof DivExpression && $type = '/=')
 					|| ($this->right instanceof ModExpression && $type = '%=')) {
+				AST::$options['squeeze'] = false;
 				if ($this->right->left()->toString() === $this->left->toString()) {
 					$this->type = $type;
 					$this->right = $this->right->right();
 				}
+				AST::$options['squeeze'] = true;
 			}
 		}
 

@@ -30,6 +30,7 @@ class HookExpression extends Expression {
 			return $that->right;
 		}
 
+		AST::$options['squeeze'] = false;
 		if ($that->middle instanceof AssignExpression && $that->right instanceof AssignExpression
 				&& $that->middle->assignType() === $that->right->assignType()
 				&& $that->middle->left()->toString() === $that->right->left()->toString()) {
@@ -43,6 +44,8 @@ class HookExpression extends Expression {
 				)
 			);
 
+			AST::$options['squeeze'] = true;
+
 			return $result->visit($ast, $parent);
 		}
 
@@ -53,8 +56,12 @@ class HookExpression extends Expression {
 				new HookExpression($that->left, $that->middle->right(), $that->right->right())
 			);
 
+			AST::$options['squeeze'] = true;
+
 			return $result->visit($ast, $parent);
 		}
+
+		AST::$options['squeeze'] = true;
 
 		if ($that->type() === 'boolean' && (null !== $left = $that->middle->asBoolean()) && (null !== $right = $that->right->asBoolean())) {
 			$result = null;
