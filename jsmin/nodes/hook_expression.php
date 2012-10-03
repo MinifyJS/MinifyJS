@@ -194,11 +194,23 @@ class HookExpression extends Expression {
 	}
 
 	public function toString() {
-		$space = AST::$options['beautify'] ? ' ' : '';
+		$left = $this->group($this, $this->left, false);
+		$middle = $this->group($this, $this->middle);
+		$right = $this->group($this, $this->right);
 
-		return $this->group($this, $this->left, false)
-			. $space . '?' . $space . $this->group($this, $this->middle)
-			. $space . ':' . $space . $this->group($this, $this->right);
+		if (AST::$options['beautify']) {
+			if (strlen($middle) + strlen($right) < 30) {
+				return $left . ' ? ' . $middle . ' : ' . $right;
+			}
+
+			return $left
+				. "\n" . Stream::indent('? ' . $middle)
+				. "\n" . Stream::indent(': ' . $right);
+		}
+
+		return $left
+			. '?' . $middle
+			. ':' . $right;
 	}
 
 	public function negate() {

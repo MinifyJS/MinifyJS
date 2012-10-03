@@ -78,6 +78,10 @@ class Number extends ConstantExpression {
 		$this->counter($this->toString(), $letters);
 	}
 
+	public function looselySafe() {
+		return $this->left > 1 || $this->left < -1;
+	}
+
 	public function isImmutable() {
 		return true;
 	}

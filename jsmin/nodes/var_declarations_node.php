@@ -74,7 +74,7 @@ class VarDeclarationsNode extends Node {
 			}
 		}
 
-		return $o ? 'var ' . join(',', $o) : '';
+		return $o ? 'var ' . join(',' . (AST::$options['beautify'] ? ' ' : ''), $o) : '';
 	}
 
 	public function countLetters(&$letters) {

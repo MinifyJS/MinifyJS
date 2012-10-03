@@ -133,9 +133,9 @@ class ForNode extends Node {
 	public function toString() {
 		$space = AST::$options['beautify'] ? ' ' : '';
 		return 'for('
-			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : $space) . ';'
-			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()       : $space) . ';'
-			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()          : $space) . ')'
+			. ($this->initializer && !$this->initializer->isVoid() ? $this->initializer->toString(true) : '') . ';' . $space
+			. ($this->condition   && !$this->condition->isVoid()   ? $this->condition->toString()       : '') . ';' . $space
+			. ($this->update      && !$this->update->isVoid()      ? $this->update->toString()          : '') . ')'
 				. $this->body->asBlock()->toString(null, true);
 	}
 }

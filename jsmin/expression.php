@@ -180,6 +180,10 @@ abstract class Expression extends Node {
 		return false;
 	}
 
+	public function looselySafe() {
+		return false;
+	}
+
 	public function binary($op) {
 		$space = AST::$options['beautify'] ? ' ' : '';
 		return $this->group($this, $this->left) . $space . $op . $space . $this->group($this, $this->right, false);

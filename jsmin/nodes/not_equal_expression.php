@@ -14,7 +14,8 @@ class NotEqualExpression extends ComparisonExpression {
 			$this->strict
 		);
 
-		if ($that->strict && ($left = $that->left->actualType()) === $that->right->actualType()) {
+		if ($that->strict && (($left = $that->left->actualType()) === $that->right->actualType()
+				|| $that->left->looselySafe() || $that->right->looselySafe())) {
 			if ($left !== null) {
 				$that->strict = ComparisonExpression::NOT_STRICT;
 				$that->type = OP_NE;

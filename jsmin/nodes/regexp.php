@@ -43,6 +43,10 @@ class RegExp extends ConstantExpression {
 		return true;
 	}
 
+	public function looselySafe() {
+		return true;
+	}
+
 	public function mayInline() {
 		return false;
 	}

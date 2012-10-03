@@ -174,6 +174,12 @@ class String extends ConstantExpression {
 		return true;
 	}
 
+	public function looselySafe() {
+		return strlen($this->left) > 0
+			&& !ctype_space($this->left)
+			&& !is_numeric($this->left);
+	}
+
 	public function debug() {
 		return $this->toString();
 	}
