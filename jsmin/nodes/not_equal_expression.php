@@ -14,12 +14,10 @@ class NotEqualExpression extends ComparisonExpression {
 			$this->strict
 		);
 
-		if ($that->strict && (($left = $that->left->actualType()) === $that->right->actualType()
+		if ($that->strict && ((($left = $that->left->actualType()) === $that->right->actualType() && $left !== null)
 				|| $that->left->looselySafe() || $that->right->looselySafe())) {
-			if ($left !== null) {
-				$that->strict = ComparisonExpression::NOT_STRICT;
-				$that->type = OP_NE;
-			}
+			$that->strict = ComparisonExpression::NOT_STRICT;
+			$that->type = OP_NE;
 		}
 
 		foreach(array(
@@ -30,7 +28,7 @@ class NotEqualExpression extends ComparisonExpression {
 
 			if ($right->asString() === 'undefined' && $left instanceof TypeofExpression) {
 				if ($left->left()->isLocal()) {
-					$result = new EqualExpression($left->left(), new VoidExpression(new Number(0)), true);
+					$result = new NotEqualExpression($left->left(), new VoidExpression(new Number(0)), true);
 					return $result->visit($ast, $parent);
 				} elseif ((null !== $type = $left->left->type())) {
 					return new Boolean($type === 'undefined');

@@ -14,12 +14,10 @@ class EqualExpression extends ComparisonExpression {
 			$this->strict
 		);
 
-		if ($that->strict && (($left = $that->left->actualType()) === $that->right->actualType()
+		if ($that->strict && ((($left = $that->left->actualType()) === $that->right->actualType() && $left !== null)
 				|| $that->left->looselySafe() || $that->right->looselySafe())) {
-			if ($left !== null) {
-				$that->strict = false;
-				$that->type = OP_EQ;
-			}
+			$that->strict = false;
+			$that->type = OP_EQ;
 		}
 
 		foreach(array(
